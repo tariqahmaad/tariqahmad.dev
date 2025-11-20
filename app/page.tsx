@@ -1,245 +1,418 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+
 export default function Home() {
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    setIsVisible(true);
+  }, []);
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+    <div className="min-h-screen bg-black text-white overflow-hidden">
+      {/* Animated Background Grid */}
+      <div className="fixed inset-0 bg-[linear-gradient(to_right,#0f172a_1px,transparent_1px),linear-gradient(to_bottom,#0f172a_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_110%)] pointer-events-none" />
+
+      {/* Animated gradient orb */}
+      <div className="fixed top-0 -left-40 w-80 h-80 bg-cyan-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse" />
+      <div className="fixed top-0 -right-40 w-80 h-80 bg-emerald-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse animation-delay-2000" />
+      <div className="fixed -bottom-40 left-1/2 w-80 h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse animation-delay-4000" />
+
       {/* Navigation */}
-      <nav className="fixed top-0 w-full bg-white/80 dark:bg-gray-900/80 backdrop-blur-md z-50 border-b border-gray-200 dark:border-gray-800">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            Tariq Ahmad
-          </h1>
-          <div className="flex gap-6">
-            <a href="#about" className="hover:text-blue-600 transition-colors">About</a>
-            <a href="#projects" className="hover:text-blue-600 transition-colors">Projects</a>
-            <a href="#contact" className="hover:text-blue-600 transition-colors">Contact</a>
+      <nav className="fixed top-0 w-full bg-black/50 backdrop-blur-xl z-50 border-b border-cyan-500/20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-gradient-to-br from-cyan-400 to-emerald-400 rounded-md flex items-center justify-center">
+              <span className="text-black font-bold text-sm">TA</span>
+            </div>
+            <h1 className="text-xl font-bold bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent">
+              Tariq Ahmad
+            </h1>
+          </div>
+          <div className="hidden md:flex gap-8">
+            <a href="#about" className="hover:text-cyan-400 transition-colors duration-300">About</a>
+            <a href="#expertise" className="hover:text-cyan-400 transition-colors duration-300">Expertise</a>
+            <a href="#certifications" className="hover:text-cyan-400 transition-colors duration-300">Certifications</a>
+            <a href="#projects" className="hover:text-cyan-400 transition-colors duration-300">Projects</a>
+            <a href="#contact" className="hover:text-cyan-400 transition-colors duration-300">Contact</a>
           </div>
         </div>
       </nav>
 
       {/* Hero Section */}
-      <section className="pt-32 pb-20 px-4">
-        <div className="max-w-6xl mx-auto text-center">
-          <h2 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-            Full Stack Developer
+      <section className="relative min-h-screen flex items-center justify-center px-4 pt-20">
+        <div className={`max-w-6xl mx-auto text-center transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+          <div className="mb-6 inline-block">
+            <span className="px-4 py-2 bg-cyan-500/10 border border-cyan-500/20 rounded-full text-cyan-400 text-sm font-medium backdrop-blur-sm">
+              🔒 Security Professional
+            </span>
+          </div>
+
+          <h2 className="text-5xl md:text-7xl lg:text-8xl font-bold mb-6 leading-tight">
+            <span className="bg-gradient-to-r from-cyan-400 via-emerald-400 to-cyan-400 bg-clip-text text-transparent animate-gradient bg-[length:200%_auto]">
+              Cybersecurity
+            </span>
+            <br />
+            <span className="text-white">Analyst</span>
           </h2>
-          <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto">
-            Crafting high-performance web applications with cutting-edge technologies. Specialized in TypeScript, React, and cloud architecture.
+
+          <p className="text-xl md:text-2xl text-gray-400 mb-12 max-w-3xl mx-auto leading-relaxed">
+            Protecting digital assets through advanced threat detection, penetration testing,
+            and security architecture. Specialized in network security and incident response.
           </p>
+
           <div className="flex gap-4 justify-center flex-wrap">
             <a
               href="#contact"
-              className="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+              className="group relative px-8 py-4 bg-gradient-to-r from-cyan-500 to-emerald-500 rounded-lg font-medium overflow-hidden transition-all duration-300 hover:shadow-[0_0_30px_rgba(34,211,238,0.4)] hover:scale-105"
             >
-              Get in Touch
+              <span className="relative z-10">Get In Touch</span>
+              <div className="absolute inset-0 bg-gradient-to-r from-cyan-400 to-emerald-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </a>
             <a
               href="#projects"
-              className="px-8 py-3 border-2 border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 dark:hover:bg-gray-800 transition-colors font-medium"
+              className="px-8 py-4 border-2 border-cyan-500 text-cyan-400 rounded-lg font-medium hover:bg-cyan-500/10 transition-all duration-300 hover:shadow-[0_0_20px_rgba(34,211,238,0.3)]"
             >
               View Projects
             </a>
+          </div>
+
+          {/* Scroll Indicator */}
+          <div className="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce">
+            <div className="w-6 h-10 border-2 border-cyan-500/30 rounded-full flex justify-center">
+              <div className="w-1 h-3 bg-cyan-500 rounded-full mt-2 animate-pulse" />
+            </div>
           </div>
         </div>
       </section>
 
       {/* Stats Section */}
-      <section className="py-16 px-4 bg-white dark:bg-gray-900 border-y border-gray-200 dark:border-gray-800">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-            <div>
-              <div className="text-4xl font-bold text-blue-600 mb-2">3+</div>
-              <div className="text-gray-600 dark:text-gray-400">Years Experience</div>
-            </div>
-            <div>
-              <div className="text-4xl font-bold text-purple-600 mb-2">20+</div>
-              <div className="text-gray-600 dark:text-gray-400">Projects Completed</div>
-            </div>
-            <div>
-              <div className="text-4xl font-bold text-green-600 mb-2">15+</div>
-              <div className="text-gray-600 dark:text-gray-400">Happy Clients</div>
-            </div>
-            <div>
-              <div className="text-4xl font-bold text-orange-600 mb-2">99%</div>
-              <div className="text-gray-600 dark:text-gray-400">Success Rate</div>
-            </div>
+      <section className="py-20 px-4 relative">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            {[
+              { number: '5+', label: 'Years Experience', icon: '🛡️' },
+              { number: '200+', label: 'Threats Mitigated', icon: '🔐' },
+              { number: '15+', label: 'Certifications', icon: '📜' },
+              { number: '99.9%', label: 'Uptime Maintained', icon: '⚡' },
+            ].map((stat, index) => (
+              <div
+                key={index}
+                className="group p-6 bg-gradient-to-br from-cyan-500/5 to-emerald-500/5 rounded-2xl border border-cyan-500/10 hover:border-cyan-500/30 transition-all duration-300 hover:shadow-[0_0_30px_rgba(34,211,238,0.1)] hover:scale-105"
+              >
+                <div className="text-4xl mb-2">{stat.icon}</div>
+                <div className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent mb-2">
+                  {stat.number}
+                </div>
+                <div className="text-gray-400">{stat.label}</div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
       {/* About Section */}
-      <section id="about" className="py-20 px-4 bg-white dark:bg-gray-900">
-        <div className="max-w-4xl mx-auto">
-          <h3 className="text-4xl font-bold mb-8 text-center">About Me</h3>
-          <div className="prose prose-lg dark:prose-invert mx-auto">
-            <p className="text-gray-600 dark:text-gray-300 text-lg leading-relaxed mb-6">
-              I&apos;m a passionate full-stack developer with 3+ years of experience building scalable web applications.
-              I transform ideas into production-ready solutions, focusing on clean code, performance optimization, and exceptional user experiences.
-            </p>
-            <p className="text-gray-600 dark:text-gray-300 text-lg leading-relaxed">
-              My expertise spans modern frontend frameworks, backend development, and cloud infrastructure.
-              I&apos;m committed to writing maintainable code and staying current with emerging technologies.
-            </p>
-            <div className="mt-8">
-              <h4 className="text-xl font-bold mb-4 text-center">Tech Stack</h4>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="text-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg hover:shadow-md transition-shadow">
-                  <div className="font-bold text-blue-600">React</div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">Frontend</div>
-                </div>
-                <div className="text-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg hover:shadow-md transition-shadow">
-                  <div className="font-bold text-blue-600">TypeScript</div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">Language</div>
-                </div>
-                <div className="text-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg hover:shadow-md transition-shadow">
-                  <div className="font-bold text-blue-600">Next.js</div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">Framework</div>
-                </div>
-                <div className="text-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg hover:shadow-md transition-shadow">
-                  <div className="font-bold text-blue-600">Node.js</div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">Backend</div>
-                </div>
-                <div className="text-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg hover:shadow-md transition-shadow">
-                  <div className="font-bold text-purple-600">PostgreSQL</div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">Database</div>
-                </div>
-                <div className="text-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg hover:shadow-md transition-shadow">
-                  <div className="font-bold text-purple-600">MongoDB</div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">NoSQL</div>
-                </div>
-                <div className="text-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg hover:shadow-md transition-shadow">
-                  <div className="font-bold text-purple-600">Docker</div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">DevOps</div>
-                </div>
-                <div className="text-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg hover:shadow-md transition-shadow">
-                  <div className="font-bold text-purple-600">AWS</div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">Cloud</div>
+      <section id="about" className="py-20 px-4 relative">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <h3 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent">
+              About Me
+            </h3>
+            <div className="h-1 w-24 bg-gradient-to-r from-cyan-400 to-emerald-400 mx-auto rounded-full" />
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div className="space-y-6">
+              <p className="text-lg text-gray-300 leading-relaxed">
+                I&apos;m a dedicated cybersecurity analyst with over 5 years of experience protecting organizations
+                from evolving cyber threats. My expertise spans penetration testing, threat intelligence,
+                and security operations.
+              </p>
+              <p className="text-lg text-gray-300 leading-relaxed">
+                Specializing in proactive threat hunting and incident response, I&apos;ve successfully defended
+                critical infrastructure against advanced persistent threats and zero-day exploits. My approach
+                combines technical excellence with strategic security planning.
+              </p>
+              <div className="flex flex-wrap gap-3">
+                {['CISSP', 'CEH', 'Security+', 'OSCP', 'CySA+'].map((cert) => (
+                  <span key={cert} className="px-4 py-2 bg-cyan-500/10 border border-cyan-500/20 rounded-lg text-cyan-400 text-sm font-medium">
+                    {cert}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <div className="relative">
+              <div className="p-8 bg-gradient-to-br from-cyan-500/10 to-emerald-500/10 rounded-2xl border border-cyan-500/20 backdrop-blur-sm">
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse" />
+                    <span className="text-gray-400 font-mono text-sm">Network Security Architecture</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse animation-delay-1000" />
+                    <span className="text-gray-400 font-mono text-sm">Penetration Testing & Red Teaming</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse animation-delay-2000" />
+                    <span className="text-gray-400 font-mono text-sm">Threat Intelligence & Analysis</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse animation-delay-3000" />
+                    <span className="text-gray-400 font-mono text-sm">Incident Response & Forensics</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse animation-delay-4000" />
+                    <span className="text-gray-400 font-mono text-sm">Security Compliance & Auditing</span>
+                  </div>
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Expertise Section */}
+      <section id="expertise" className="py-20 px-4 relative">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h3 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent">
+              Technical Expertise
+            </h3>
+            <div className="h-1 w-24 bg-gradient-to-r from-cyan-400 to-emerald-400 mx-auto rounded-full" />
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[
+              {
+                icon: '🔍',
+                title: 'Penetration Testing',
+                skills: ['Web App Testing', 'Network Pentesting', 'Mobile Security', 'API Security'],
+              },
+              {
+                icon: '🛡️',
+                title: 'Security Operations',
+                skills: ['SIEM Management', 'Log Analysis', 'Threat Hunting', 'SOC Operations'],
+              },
+              {
+                icon: '🔐',
+                title: 'Cryptography',
+                skills: ['PKI', 'SSL/TLS', 'Encryption', 'Key Management'],
+              },
+              {
+                icon: '⚙️',
+                title: 'Security Tools',
+                skills: ['Metasploit', 'Burp Suite', 'Wireshark', 'Nmap', 'Kali Linux'],
+              },
+              {
+                icon: '☁️',
+                title: 'Cloud Security',
+                skills: ['AWS Security', 'Azure Security', 'Container Security', 'IAM'],
+              },
+              {
+                icon: '📊',
+                title: 'Compliance',
+                skills: ['ISO 27001', 'NIST', 'GDPR', 'PCI-DSS'],
+              },
+            ].map((category, index) => (
+              <div
+                key={index}
+                className="group p-6 bg-gradient-to-br from-cyan-500/5 to-emerald-500/5 rounded-2xl border border-cyan-500/10 hover:border-cyan-500/30 transition-all duration-300 hover:shadow-[0_0_30px_rgba(34,211,238,0.1)] hover:-translate-y-2"
+              >
+                <div className="text-4xl mb-4">{category.icon}</div>
+                <h4 className="text-xl font-bold text-cyan-400 mb-4">{category.title}</h4>
+                <div className="space-y-2">
+                  {category.skills.map((skill, idx) => (
+                    <div key={idx} className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full" />
+                      <span className="text-gray-400 text-sm">{skill}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Certifications Section */}
+      <section id="certifications" className="py-20 px-4 relative">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <h3 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent">
+              Certifications
+            </h3>
+            <div className="h-1 w-24 bg-gradient-to-r from-cyan-400 to-emerald-400 mx-auto rounded-full" />
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {[
+              { name: 'CISSP', org: 'ISC²', year: '2023' },
+              { name: 'CEH', org: 'EC-Council', year: '2022' },
+              { name: 'OSCP', org: 'Offensive Security', year: '2023' },
+              { name: 'Security+', org: 'CompTIA', year: '2021' },
+              { name: 'CySA+', org: 'CompTIA', year: '2022' },
+              { name: 'CCNA Security', org: 'Cisco', year: '2021' },
+            ].map((cert, index) => (
+              <div
+                key={index}
+                className="p-6 bg-gradient-to-br from-cyan-500/5 to-emerald-500/5 rounded-2xl border border-cyan-500/20 hover:border-cyan-500/40 transition-all duration-300 hover:shadow-[0_0_30px_rgba(34,211,238,0.15)] group"
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 to-emerald-500 rounded-lg flex items-center justify-center text-xl">
+                    📜
+                  </div>
+                  <span className="text-xs text-cyan-400 font-mono">{cert.year}</span>
+                </div>
+                <h4 className="text-xl font-bold text-white mb-2 group-hover:text-cyan-400 transition-colors">
+                  {cert.name}
+                </h4>
+                <p className="text-gray-400 text-sm">{cert.org}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
       {/* Projects Section */}
-      <section id="projects" className="py-20 px-4">
-        <div className="max-w-6xl mx-auto">
-          <h3 className="text-4xl font-bold mb-12 text-center">Featured Projects</h3>
+      <section id="projects" className="py-20 px-4 relative">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h3 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent">
+              Security Projects
+            </h3>
+            <div className="h-1 w-24 bg-gradient-to-r from-cyan-400 to-emerald-400 mx-auto rounded-full" />
+          </div>
+
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {/* Project Card 1 */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer">
-              <div className="h-48 bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                <div className="text-white text-center p-6">
-                  <div className="text-6xl mb-2">🛒</div>
-                  <div className="text-xl font-bold">E-Commerce Platform</div>
+            {[
+              {
+                title: 'Enterprise SOC Implementation',
+                description: 'Designed and deployed a 24/7 Security Operations Center for a Fortune 500 company, integrating SIEM, IDS/IPS, and threat intelligence platforms. Reduced incident response time by 60%.',
+                tags: ['SIEM', 'Splunk', 'ELK Stack', 'Threat Intel'],
+                impact: '60% faster response',
+                icon: '🏢',
+              },
+              {
+                title: 'Zero Trust Architecture',
+                description: 'Implemented zero-trust security model for cloud infrastructure, including micro-segmentation, identity verification, and continuous monitoring. Protected 10,000+ endpoints.',
+                tags: ['Zero Trust', 'IAM', 'Cloud Security', 'Azure'],
+                impact: '10K+ endpoints secured',
+                icon: '🔒',
+              },
+              {
+                title: 'Advanced Threat Detection',
+                description: 'Developed custom detection rules and machine learning models to identify APTs and zero-day exploits. Successfully detected and mitigated 200+ advanced threats.',
+                tags: ['Machine Learning', 'YARA', 'Python', 'Threat Hunting'],
+                impact: '200+ threats stopped',
+                icon: '🎯',
+              },
+              {
+                title: 'Penetration Testing Program',
+                description: 'Established comprehensive pentesting program including web apps, networks, and APIs. Identified and remediated critical vulnerabilities before exploitation.',
+                tags: ['Pentesting', 'OWASP', 'Burp Suite', 'Metasploit'],
+                impact: '95% vuln reduction',
+                icon: '⚔️',
+              },
+              {
+                title: 'Incident Response Framework',
+                description: 'Created IR playbooks and automated response workflows for ransomware, DDoS, and data breach scenarios. Reduced average containment time from 4 hours to 30 minutes.',
+                tags: ['DFIR', 'Automation', 'SOAR', 'Playbooks'],
+                impact: '88% faster containment',
+                icon: '🚨',
+              },
+              {
+                title: 'Security Awareness Platform',
+                description: 'Built gamified security training platform that reduced phishing susceptibility by 80%. Includes simulated attacks and real-time feedback.',
+                tags: ['Training', 'Phishing', 'Awareness', 'React'],
+                impact: '80% risk reduction',
+                icon: '🎓',
+              },
+            ].map((project, index) => (
+              <div
+                key={index}
+                className="group p-6 bg-gradient-to-br from-cyan-500/5 to-emerald-500/5 rounded-2xl border border-cyan-500/10 hover:border-cyan-500/30 transition-all duration-500 hover:shadow-[0_0_40px_rgba(34,211,238,0.2)] hover:-translate-y-2"
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <div className="text-4xl">{project.icon}</div>
+                  <span className="px-3 py-1 bg-emerald-500/20 text-emerald-400 text-xs rounded-full font-mono">
+                    {project.impact}
+                  </span>
                 </div>
-              </div>
-              <div className="p-6">
-                <h4 className="text-2xl font-bold mb-2">ShopNow Marketplace</h4>
-                <p className="text-gray-600 dark:text-gray-300 mb-4">
-                  Full-stack e-commerce platform with real-time inventory management, secure payment integration (Stripe), and admin dashboard. Handles 10K+ daily transactions.
-                </p>
-                <div className="flex gap-2 flex-wrap mb-3">
-                  <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-sm">Next.js</span>
-                  <span className="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 rounded-full text-sm">TypeScript</span>
-                  <span className="px-3 py-1 bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200 rounded-full text-sm">PostgreSQL</span>
-                  <span className="px-3 py-1 bg-pink-100 dark:bg-pink-900 text-pink-800 dark:text-pink-200 rounded-full text-sm">Stripe API</span>
-                </div>
-                <div className="text-sm text-gray-500 dark:text-gray-400">
-                  ⭐ 95% customer satisfaction • 2023
-                </div>
-              </div>
-            </div>
 
-            {/* Project Card 2 */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer">
-              <div className="h-48 bg-gradient-to-br from-green-500 to-teal-600 flex items-center justify-center">
-                <div className="text-white text-center p-6">
-                  <div className="text-6xl mb-2">📊</div>
-                  <div className="text-xl font-bold">Analytics Dashboard</div>
-                </div>
-              </div>
-              <div className="p-6">
-                <h4 className="text-2xl font-bold mb-2">DataViz Pro</h4>
-                <p className="text-gray-600 dark:text-gray-300 mb-4">
-                  Real-time analytics dashboard processing 1M+ data points. Features interactive charts, custom reports, and AI-powered insights. Built for enterprise clients.
-                </p>
-                <div className="flex gap-2 flex-wrap mb-3">
-                  <span className="px-3 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-full text-sm">React</span>
-                  <span className="px-3 py-1 bg-teal-100 dark:bg-teal-900 text-teal-800 dark:text-teal-200 rounded-full text-sm">D3.js</span>
-                  <span className="px-3 py-1 bg-emerald-100 dark:bg-emerald-900 text-emerald-800 dark:text-emerald-200 rounded-full text-sm">Node.js</span>
-                  <span className="px-3 py-1 bg-cyan-100 dark:bg-cyan-900 text-cyan-800 dark:text-cyan-200 rounded-full text-sm">Redis</span>
-                </div>
-                <div className="text-sm text-gray-500 dark:text-gray-400">
-                  ⚡ 50ms avg response time • 2024
-                </div>
-              </div>
-            </div>
+                <h4 className="text-xl font-bold text-white mb-3 group-hover:text-cyan-400 transition-colors">
+                  {project.title}
+                </h4>
 
-            {/* Project Card 3 */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer">
-              <div className="h-48 bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center">
-                <div className="text-white text-center p-6">
-                  <div className="text-6xl mb-2">💬</div>
-                  <div className="text-xl font-bold">Social Platform</div>
-                </div>
-              </div>
-              <div className="p-6">
-                <h4 className="text-2xl font-bold mb-2">ConnectHub</h4>
-                <p className="text-gray-600 dark:text-gray-300 mb-4">
-                  Social networking platform with real-time messaging, content feeds, and video calls. Scaled to 50K+ active users with microservices architecture.
+                <p className="text-gray-400 text-sm mb-4 leading-relaxed">
+                  {project.description}
                 </p>
-                <div className="flex gap-2 flex-wrap mb-3">
-                  <span className="px-3 py-1 bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200 rounded-full text-sm">Next.js</span>
-                  <span className="px-3 py-1 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 rounded-full text-sm">WebSocket</span>
-                  <span className="px-3 py-1 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 rounded-full text-sm">MongoDB</span>
-                  <span className="px-3 py-1 bg-rose-100 dark:bg-rose-900 text-rose-800 dark:text-rose-200 rounded-full text-sm">AWS</span>
-                </div>
-                <div className="text-sm text-gray-500 dark:text-gray-400">
-                  🚀 50K+ active users • 2024
+
+                <div className="flex flex-wrap gap-2">
+                  {project.tags.map((tag, idx) => (
+                    <span
+                      key={idx}
+                      className="px-3 py-1 bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs rounded-lg font-mono"
+                    >
+                      {tag}
+                    </span>
+                  ))}
                 </div>
               </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
       {/* Contact Section */}
-      <section id="contact" className="py-20 px-4 bg-white dark:bg-gray-900">
+      <section id="contact" className="py-20 px-4 relative">
         <div className="max-w-4xl mx-auto text-center">
-          <h3 className="text-4xl font-bold mb-8">Get In Touch</h3>
-          <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
-            Interested in working together? Let&apos;s connect!
+          <div className="mb-16">
+            <h3 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent">
+              Let&apos;s Connect
+            </h3>
+            <div className="h-1 w-24 bg-gradient-to-r from-cyan-400 to-emerald-400 mx-auto rounded-full" />
+          </div>
+
+          <p className="text-xl text-gray-400 mb-12">
+            Looking for a cybersecurity professional to strengthen your security posture?
+            Let&apos;s discuss how I can help protect your organization.
           </p>
+
           <div className="flex gap-6 justify-center flex-wrap">
             <a
-              href="mailto:hello@tariqahmad.dev"
-              className="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+              href="mailto:security@tariqahmad.dev"
+              className="group px-8 py-4 bg-gradient-to-r from-cyan-500 to-emerald-500 rounded-lg font-medium overflow-hidden transition-all duration-300 hover:shadow-[0_0_30px_rgba(34,211,238,0.4)] hover:scale-105"
             >
-              Email Me
+              📧 Email Me
+            </a>
+            <a
+              href="https://linkedin.com/in/tariqahmad"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-8 py-4 border-2 border-cyan-500 text-cyan-400 rounded-lg font-medium hover:bg-cyan-500/10 transition-all duration-300"
+            >
+              💼 LinkedIn
             </a>
             <a
               href="https://github.com/tariqahmaad"
               target="_blank"
               rel="noopener noreferrer"
-              className="px-8 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors font-medium"
+              className="px-8 py-4 border-2 border-cyan-500 text-cyan-400 rounded-lg font-medium hover:bg-cyan-500/10 transition-all duration-300"
             >
-              GitHub
-            </a>
-            <a
-              href="https://linkedin.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-8 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors font-medium"
-            >
-              LinkedIn
+              🔗 GitHub
             </a>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="py-8 px-4 border-t border-gray-200 dark:border-gray-800">
-        <div className="max-w-6xl mx-auto text-center text-gray-600 dark:text-gray-400">
-          <p>&copy; 2025 Tariq Ahmad. All rights reserved.</p>
+      <footer className="py-8 px-4 border-t border-cyan-500/20">
+        <div className="max-w-7xl mx-auto text-center">
+          <p className="text-gray-500">
+            &copy; 2025 Tariq Ahmad. Securing the digital world, one system at a time.
+          </p>
         </div>
       </footer>
     </div>

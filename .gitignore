@@ -9,6 +9,9 @@
 # testing
 /coverage
 
+.claude/
+.CLAUDE.md
+
 # next.js
 /.next/
 /out/
