@@ -40,3 +40,4 @@ This project is optimized for Vercel deployment. Simply connect your GitHub repo
 ## License
 
 MIT
+# tariqahmad.dev
