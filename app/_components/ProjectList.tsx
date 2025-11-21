@@ -77,15 +77,15 @@ const ProjectList = () => {
                 scrollTrigger: {
                     trigger: containerRef.current,
                     start: 'top 80%',
-                    end: 'bottom 80%',
-                    toggleActions: 'restart none none reverse',
-                    scrub: 1,
+                    toggleActions: 'play none none reverse',
                 },
             });
 
             tl.from(containerRef.current, {
                 y: 100,
                 opacity: 0,
+                duration: 0.8,
+                ease: 'power2.out',
             });
         },
         { scope: containerRef },
@@ -103,7 +103,7 @@ const ProjectList = () => {
     };
 
     return (
-        <section className="pb-section" id="selected-projects">
+        <section className="py-section" id="selected-projects">
             <div className="container">
                 <SectionTitle title="SELECTED PROJECTS" />
 
@@ -137,7 +137,7 @@ const ProjectList = () => {
                     )}
 
                     <div
-                        className="flex flex-col max-md:gap-10"
+                        className="flex flex-col gap-8 xs:gap-10 md:gap-14"
                         ref={projectListRef}
                     >
                         {PROJECTS.map((project, index) => (

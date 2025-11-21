@@ -14,16 +14,16 @@ const Experiences = () => {
                 scrollTrigger: {
                     trigger: containerRef.current,
                     start: 'top 80%',
-                    end: 'bottom 80%',
-                    toggleActions: 'restart none none reverse',
-                    scrub: 1,
+                    toggleActions: 'play none none reverse',
                 },
             });
 
             tl.from('.experience-item', {
                 y: 100,
                 opacity: 0,
-                stagger: 0.15,
+                duration: 0.8,
+                stagger: 0.2,
+                ease: 'power2.out',
             });
         },
         { scope: containerRef },
@@ -38,16 +38,16 @@ const Experiences = () => {
             <div className="container" ref={containerRef}>
                 <SectionTitle title="My Experience" />
 
-                <div className="grid gap-14">
+                <div className="grid gap-8 xs:gap-10 md:gap-14">
                     {MY_EXPERIENCE.map((item) => (
                         <div key={item.title} className="experience-item">
-                            <p className="text-xl text-muted-foreground">
+                            <p className="text-body-lg sm:text-body-xl text-muted-foreground">
                                 {item.company}
                             </p>
-                            <p className="text-5xl font-anton leading-none mt-3.5 mb-2.5">
+                            <p className="text-heading-sm sm:text-heading-md md:text-heading-lg font-anton leading-none mt-3.5 mb-2.5">
                                 {item.title}
                             </p>
-                            <p className="text-lg text-muted-foreground">
+                            <p className="text-body-base sm:text-body-lg text-muted-foreground">
                                 {item.duration}
                             </p>
                         </div>

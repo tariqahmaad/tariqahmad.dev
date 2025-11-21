@@ -6,13 +6,13 @@ export const GENERAL_INFO = {
     emailSubject: "Let's collaborate on a project",
     emailBody: 'Hi Tariq, I am reaching out to you because...',
 
-    linkedIn: 'https://linkedin.com/in/tariqahmad',
+    linkedIn: 'https://www.linkedin.com/in/tariq-ahmad-a43320264/',
     phone: '+90 53 454 03345',
 };
 
 export const SOCIAL_LINKS = [
-    { name: 'github', url: 'https://github.com/tariqahmaad' },
-    { name: 'linkedin', url: 'https://www.linkedin.com/in/tariqahmad' },
+    { name: 'GitHub', url: 'https://github.com/tariqahmaad' },
+    { name: 'LinkedIn', url: 'https://www.linkedin.com/in/tariq-ahmad-a43320264/' },
 ];
 
 export const MY_STACK = {
@@ -130,7 +130,7 @@ export const MY_STACK = {
 
 export const PROJECTS: IProject[] = [
     {
-        title: 'Quizlet - Quiz Application',
+        title: 'Quizlet',
         slug: 'quizlet',
         techStack: ['HTML', 'CSS', 'JavaScript', 'Responsive'],
         year: 2024,
@@ -149,7 +149,7 @@ export const PROJECTS: IProject[] = [
         liveUrl: 'https://tariqahmaad.github.io/quizlet/index.html',
     },
     {
-        title: 'BudgetWise - Personal Budget Application',
+        title: 'BudgetWise',
         slug: 'budgetwise',
         year: 2025,
         description: `
@@ -348,11 +348,6 @@ export const MY_EXPERIENCE = [
         company: 'Tawhid Almas Logistics Company',
         duration: 'July 2022 - Sept 2022',
     },
-    {
-        title: 'Assistant Manager',
-        company: 'Qurtuba Institute',
-        duration: 'April 2018 - April 2019',
-    },
 ];
 
 export const MY_CERTIFICATIONS = [
@@ -401,11 +396,11 @@ export const MY_CERTIFICATIONS = [
         certifications: [
             {
                 title: 'Technical Support Fundamentals',
-                date: 'Oct - Dec 2023',
+                date: 'Dec 2023',
             },
             {
                 title: 'Crash Course of Python',
-                date: 'Oct - Nov 2023',
+                date: 'Nov 2023',
             },
             {
                 title: 'Introduction to Large Language Model',
@@ -422,7 +417,7 @@ export const MY_CERTIFICATIONS = [
         certifications: [
             {
                 title: 'Introduction to C++',
-                date: 'June - Nov 2020',
+                date: 'Nov 2020',
             },
         ],
     },
@@ -431,7 +426,7 @@ export const MY_CERTIFICATIONS = [
         certifications: [
             {
                 title: 'Cisco Certified Network Associate (CCNA)',
-                date: 'June - Aug 2019',
+                date: 'Aug 2019',
             },
             {
                 title: 'Wireless Networking',
@@ -439,7 +434,7 @@ export const MY_CERTIFICATIONS = [
             },
             {
                 title: 'Microsoft Certified Solution Expert (MCSE)',
-                date: 'May - July 2019',
+                date: 'July 2019',
             },
         ],
     },

@@ -31,11 +31,13 @@ const ArrowAnimation = () => {
             fill: '#ffffff08',
         });
         tl.to('#banner-arrow-svg', {
-            duration: 1,
+            duration: 0.8,
             y: 300,
+            opacity: 0,
         });
-        tl.to('#banner-arrow-svg', {
-            duration: 0,
+        tl.set('#banner-arrow-svg', {
+            fill: 'transparent',
+            y: 0,
             autoAlpha: 0,
         });
     });
@@ -48,7 +50,8 @@ const ArrowAnimation = () => {
             viewBox="0 0 376 111"
             fill="transparent"
             xmlns="http://www.w3.org/2000/svg"
-            className="absolute bottom-20 left-1/2 -translate-x-1/2 z-0"
+            className="hidden xs:block absolute bottom-32 md:bottom-20 left-1/2 -translate-x-1/2 z-0 pointer-events-none"
+            style={{ overflow: 'hidden' }}
             ref={svgRef}
         >
             <path

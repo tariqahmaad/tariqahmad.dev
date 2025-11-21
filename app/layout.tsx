@@ -30,6 +30,9 @@ export const metadata: Metadata = {
     title: 'Tariq Ahmad - Software Developer | Computer Engineering Graduate',
     description:
         'Computer Engineering graduate from Istanbul Aydin University with expertise in full-stack development, networking, and AI. CGPA 3.36/4.0. CCNA, MCSE, React Native certified.',
+    icons: {
+        icon: '/favicon.png',
+    },
 };
 
 export default function RootLayout({
