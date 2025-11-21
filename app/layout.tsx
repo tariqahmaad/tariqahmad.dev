@@ -1,28 +1,65 @@
-import type { Metadata } from "next";
-import "./globals.css";
+import type { Metadata } from 'next';
+import { Anton, Roboto_Flex } from 'next/font/google';
+import { ReactLenis } from 'lenis/react';
+
+import 'lenis/dist/lenis.css';
+import './globals.css';
+import Footer from '@/components/layout/Footer';
+import ScrollProgressIndicator from '@/components/layout/ScrollProgressIndicator';
+import ParticleBackground from '@/components/layout/ParticleBackground';
+import Navbar from '@/components/layout/Navbar';
+import CustomCursor from '@/components/layout/CustomCursor';
+import Preloader from '@/components/layout/Preloader';
+import StickyEmail from './_components/StickyEmail';
+
+const antonFont = Anton({
+    weight: '400',
+    style: 'normal',
+    subsets: ['latin'],
+    variable: '--font-anton',
+});
+
+const robotoFlex = Roboto_Flex({
+    weight: ['100', '400', '500', '600', '700', '800'],
+    style: 'normal',
+    subsets: ['latin'],
+    variable: '--font-roboto-flex',
+});
 
 export const metadata: Metadata = {
-  title: "Tariq Ahmad - Software Developer | Computer Engineering Student",
-  description: "Computer Engineering student at Istanbul Aydin University with expertise in full-stack development, networking, and AI. CGPA 3.36/4.0. Graduating July 2025. CCNA, MCSE, React Native certified.",
-  keywords: ["Tariq Ahmad", "Software Developer", "Computer Engineering", "Full Stack Developer", "React Native", "Python", "Java", "Istanbul Aydin University", "CCNA", "MCSE", "Machine Learning"],
-  authors: [{ name: "Tariq Ahmad" }],
-  openGraph: {
-    title: "Tariq Ahmad - Software Developer & Engineer",
-    description: "Computer Engineering student with expertise in full-stack development, networking, and system architecture",
-    type: "website",
-  },
+    title: 'Tariq Ahmad - Software Developer | Computer Engineering Graduate',
+    description:
+        'Computer Engineering graduate from Istanbul Aydin University with expertise in full-stack development, networking, and AI. CGPA 3.36/4.0. CCNA, MCSE, React Native certified.',
 };
 
 export default function RootLayout({
-  children,
+    children,
 }: Readonly<{
-  children: React.ReactNode;
+    children: React.ReactNode;
 }>) {
-  return (
-    <html lang="en">
-      <body className="antialiased">
-        {children}
-      </body>
-    </html>
-  );
+    return (
+        <html lang="en">
+            <body
+                className={`${antonFont.variable} ${robotoFlex.variable} antialiased`}
+            >
+                <ReactLenis
+                    root
+                    options={{
+                        lerp: 0.1,
+                        duration: 1.4,
+                    }}
+                >
+                    <Navbar />
+                    <main>{children}</main>
+                    <Footer />
+
+                    <CustomCursor />
+                    <Preloader />
+                    <ScrollProgressIndicator />
+                    <ParticleBackground />
+                    <StickyEmail />
+                </ReactLenis>
+            </body>
+        </html>
+    );
 }
