@@ -85,7 +85,7 @@ const Project = ({ index, project, selectedProject, onMouseEnter }: Props) => {
     return (
         <TransitionLink
             href={`/projects/${project.slug}`}
-            className="project-item group leading-none py-5 md:border-b first:!pt-0 last:pb-0 last:border-none md:group-hover/projects:opacity-30 md:hover:!opacity-100 transition-all"
+            className="project-item group leading-none md:py-5 md:border-b first:!pt-0 last:pb-0 last:border-none md:group-hover/projects:opacity-30 md:hover:!opacity-100 transition-all"
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
         >
@@ -103,17 +103,17 @@ const Project = ({ index, project, selectedProject, onMouseEnter }: Props) => {
                 />
             )}
             <div className="flex gap-2 md:gap-5">
-                <div className="font-anton text-muted-foreground">
+                <div className="font-anton text-muted-foreground text-body-base sm:text-body-lg">
                     _{(index + 1).toString().padStart(2, '0')}.
                 </div>
                 <div className="">
-                    <h4 className="text-4xl xs:text-6xl flex gap-4 font-anton transition-all duration-700 bg-gradient-to-r from-primary to-foreground from-[50%] to-[50%] bg-[length:200%] bg-right bg-clip-text text-transparent group-hover:bg-left">
-                        {project.title}
-                        <span className="text-foreground opacity-0 group-hover:opacity-100 transition-all">
+                    <h4 className="text-heading-sm sm:text-heading-md md:text-heading-lg font-anton transition-all duration-700 bg-gradient-to-r from-primary to-foreground from-[50%] to-[50%] bg-[length:200%] bg-right bg-clip-text text-transparent group-hover:bg-left leading-tight flex items-center gap-2">
+                        <span>{project.title}</span>
+                        <span className="text-foreground opacity-0 group-hover:opacity-100 transition-all inline-flex items-center">
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
-                                width="36"
-                                height="36"
+                                width="24"
+                                height="24"
                                 viewBox="0 0 24 24"
                                 fill="none"
                                 stroke="currentColor"
@@ -121,6 +121,7 @@ const Project = ({ index, project, selectedProject, onMouseEnter }: Props) => {
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
                                 ref={externalLinkSVGRef}
+                                className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 flex-shrink-0"
                             >
                                 <path
                                     id="box"
@@ -131,7 +132,7 @@ const Project = ({ index, project, selectedProject, onMouseEnter }: Props) => {
                             </svg>
                         </span>
                     </h4>
-                    <div className="mt-2 flex flex-wrap gap-3 text-muted-foreground text-xs">
+                    <div className="mt-2 flex flex-wrap gap-3 text-muted-foreground text-ui-base sm:text-body-sm">
                         {project.techStack
                             .slice(0, 3)
                             .map((tech, idx, stackArr) => (

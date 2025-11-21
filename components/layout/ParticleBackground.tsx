@@ -1,9 +1,21 @@
 'use client';
 import { gsap, useGSAP } from '@/lib/gsap-setup';
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 
 const ParticleBackground = () => {
     const particlesRef = useRef<HTMLDivElement[]>([]);
+    const [particleCount, setParticleCount] = useState(100);
+
+    // Adjust particle count based on screen size
+    useEffect(() => {
+        const updateParticleCount = () => {
+            setParticleCount(window.innerWidth < 768 ? 40 : 100);
+        };
+
+        updateParticleCount();
+        window.addEventListener('resize', updateParticleCount);
+        return () => window.removeEventListener('resize', updateParticleCount);
+    }, []);
 
     useGSAP(() => {
         particlesRef.current.forEach((particle) => {
@@ -24,11 +36,11 @@ const ParticleBackground = () => {
                 // yoyo: true,
             });
         });
-    }, []);
+    }, [particleCount]);
 
     return (
         <div className="fixed inset-0 z-0 pointer-events-none">
-            {[...Array(100)].map((_, i) => (
+            {[...Array(particleCount)].map((_, i) => (
                 <div
                     key={i}
                     ref={(el) => {
