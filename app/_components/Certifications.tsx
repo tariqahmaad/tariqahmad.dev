@@ -10,10 +10,20 @@ const Certifications = () => {
 
     useGSAP(
         () => {
+            // Check if user prefers reduced motion or screen is very small
+            const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            const isVerySmallScreen = window.innerWidth < 400;
+
+            if (isVerySmallScreen || prefersReducedMotion) {
+                // Set elements to visible immediately on small screens or reduced motion
+                gsap.set('.certification-item', { opacity: 1, y: 0 });
+                return;
+            }
+
             const tl = gsap.timeline({
                 scrollTrigger: {
                     trigger: containerRef.current,
-                    start: 'top 80%',
+                    start: 'top 85%',
                     toggleActions: 'play none none reverse',
                 },
             });

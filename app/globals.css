@@ -65,6 +65,43 @@
         @apply pl-5 mt-2 list-disc;
     }
 
+    /* Performance optimizations for animations */
+    @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+        }
+
+        /* CRITICAL: Ensure all content is visible when animations are disabled */
+        .stack-category,
+        .category-title,
+        .category-item,
+        .slide-up-and-fade,
+        .experience-item,
+        .certification-item,
+        .project-item,
+        .group\/projects {
+            opacity: 1 !important;
+            transform: none !important;
+        }
+    }
+
+    /* GPU acceleration for frequently animated elements */
+    .will-change-transform {
+        will-change: transform;
+    }
+
+    @supports (backdrop-filter: blur(1px)) {
+        .backdrop-blur-sm,
+        .backdrop-blur-md {
+            transform: translateZ(0);
+            -webkit-font-smoothing: antialiased;
+        }
+    }
+
     /* Glitch text effect */
     .glitch-text {
         position: relative;

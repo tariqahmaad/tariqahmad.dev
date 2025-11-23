@@ -1,6 +1,6 @@
 'use client';
 import { cn } from '@/lib/utils';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { MoveUpRight, Terminal, Shield, Code, Briefcase, Award, FolderGit2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { GENERAL_INFO, SOCIAL_LINKS } from '@/lib/data';
@@ -11,127 +11,248 @@ const MENU_LINKS = [
         url: '/',
         icon: Terminal,
         prefix: '~/',
+        sectionId: null,
     },
     {
         name: 'About Me',
         url: '/#about-me',
         icon: Shield,
         prefix: './whoami',
+        sectionId: 'about-me',
     },
     {
         name: 'Skills',
         url: '/#my-stack',
         icon: Code,
         prefix: './tech',
+        sectionId: 'my-stack',
     },
     {
         name: 'Experience',
         url: '/#my-experience',
         icon: Briefcase,
         prefix: './work',
+        sectionId: 'my-experience',
     },
     {
         name: 'Certifications',
         url: '/#certifications',
         icon: Award,
         prefix: './certs',
+        sectionId: 'certifications',
     },
     {
         name: 'Projects',
         url: '/#selected-projects',
         icon: FolderGit2,
         prefix: './projects',
+        sectionId: 'selected-projects',
     },
-];
+] as const;
 
 const Navbar = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [activeSection, setActiveSection] = useState<string | null>(null);
+    const [focusedIndex, setFocusedIndex] = useState<number>(-1);
     const router = useRouter();
+    const menuRef = useRef<HTMLDivElement>(null);
+    const buttonRefs = useRef<(HTMLButtonElement | null)[]>([]);
+    const socialRefs = useRef<(HTMLAnchorElement | null)[]>([]);
 
+    // Close menu handler
+    const closeMenu = useCallback(() => {
+        setIsMenuOpen(false);
+        setFocusedIndex(-1);
+    }, []);
+
+    // Scroll detection for active section
+    useEffect(() => {
+        const handleScroll = () => {
+            const scrollPosition = window.scrollY + 100; // Offset for better detection
+
+            for (let i = MENU_LINKS.length - 1; i >= 0; i--) {
+                const link = MENU_LINKS[i];
+                if (link.sectionId) {
+                    const element = document.getElementById(link.sectionId);
+                    if (element && element.offsetTop <= scrollPosition) {
+                        setActiveSection(link.sectionId);
+                        return;
+                    }
+                }
+            }
+            setActiveSection(null);
+        };
+
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        handleScroll(); // Initial check
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
+    // Keyboard navigation
+    useEffect(() => {
+        if (!isMenuOpen) return;
+
+        const handleKeyDown = (e: KeyboardEvent) => {
+            const totalItems = MENU_LINKS.length + SOCIAL_LINKS.length;
+
+            if (e.key === 'Escape') {
+                closeMenu();
+            } else if (e.key === 'Tab') {
+                e.preventDefault();
+                setFocusedIndex((prev) => {
+                    const next = e.shiftKey
+                        ? (prev <= 0 ? totalItems - 1 : prev - 1)
+                        : (prev >= totalItems - 1 ? 0 : prev + 1);
+
+                    // Focus the appropriate element
+                    setTimeout(() => {
+                        if (next < MENU_LINKS.length) {
+                            buttonRefs.current[next]?.focus();
+                        } else {
+                            socialRefs.current[next - MENU_LINKS.length]?.focus();
+                        }
+                    }, 0);
+
+                    return next;
+                });
+            }
+        };
+
+        document.addEventListener('keydown', handleKeyDown);
+        return () => document.removeEventListener('keydown', handleKeyDown);
+    }, [isMenuOpen, closeMenu]);
+
+    // Body scroll lock
     useEffect(() => {
         if (isMenuOpen) {
-            // Prevent scrolling on both body and html
+            const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
             document.body.style.overflow = 'hidden';
             document.documentElement.style.overflow = 'hidden';
-            // Prevent touch scrolling on mobile
+            document.body.style.paddingRight = `${scrollbarWidth}px`;
+            // Better mobile scroll lock
             document.body.style.position = 'fixed';
             document.body.style.width = '100%';
+            document.body.style.top = `-${window.scrollY}px`;
         } else {
+            const scrollY = document.body.style.top;
             document.body.style.overflow = '';
             document.documentElement.style.overflow = '';
+            document.body.style.paddingRight = '';
             document.body.style.position = '';
             document.body.style.width = '';
+            document.body.style.top = '';
+            if (scrollY) {
+                window.scrollTo(0, parseInt(scrollY || '0') * -1);
+            }
         }
 
         return () => {
             document.body.style.overflow = '';
             document.documentElement.style.overflow = '';
+            document.body.style.paddingRight = '';
             document.body.style.position = '';
             document.body.style.width = '';
+            document.body.style.top = '';
         };
     }, [isMenuOpen]);
 
     return (
         <>
+            {/* Hamburger Button - Optimized Touch Targets */}
             <div className="sticky top-0 z-[4]">
                 <button
                     className={cn(
                         'group',
-                        'w-10 h-10 xs:w-11 xs:h-11 sm:w-12 sm:h-12 md:w-14 md:h-14',
-                        'absolute top-3 xs:top-4 sm:top-5 right-3 xs:right-4 sm:right-5 md:right-8 lg:right-10',
+                        // Minimum 44x44px touch target for accessibility
+                        'w-11 h-11 sm:w-12 sm:h-12 md:w-14 md:h-14',
+                        'absolute top-4 sm:top-5 right-4 sm:right-6 md:right-8',
                         'z-[2]',
                         'flex items-center justify-center',
                         'bg-background/50 backdrop-blur-sm',
-                        'hover:bg-background/80 transition-all duration-300',
+                        'hover:bg-background/80 active:scale-95',
+                        'transition-all duration-300',
                         'border border-white/5 hover:border-primary/20',
+                        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+                        // GPU acceleration
+                        'will-change-transform',
                     )}
                     onClick={() => setIsMenuOpen(!isMenuOpen)}
-                    aria-label="Toggle menu"
+                    aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
+                    aria-expanded={isMenuOpen}
                 >
-                    <div className="relative w-5 h-4 xs:w-6 xs:h-[18px] sm:w-7 sm:h-5">
+                    <div className="relative w-6 h-5 sm:w-7 sm:h-5">
+                        {/* Top line */}
                         <span
                             className={cn(
-                                'absolute left-1/2 -translate-x-1/2 top-0',
-                                'w-5 xs:w-6 sm:w-7 h-[2px] xs:h-[2.5px]',
+                                'absolute left-1/2 -translate-x-1/2',
+                                'w-6 sm:w-7 h-[2.5px]',
                                 'bg-foreground transition-all duration-500 ease-menu',
-                                {
-                                    'rotate-45 top-1/2 -translate-y-1/2 bg-primary w-4 xs:w-5 sm:w-6': isMenuOpen,
-                                },
+                                'will-change-transform',
+                                isMenuOpen
+                                    ? 'top-1/2 -translate-y-1/2 rotate-45 bg-primary w-5 sm:w-6'
+                                    : 'top-0',
                             )}
-                        ></span>
+                        />
+                        {/* Middle line - appears only when closed */}
                         <span
                             className={cn(
-                                'absolute left-1/2 -translate-x-1/2 bottom-0',
-                                'w-5 xs:w-6 sm:w-7 h-[2px] xs:h-[2.5px]',
+                                'absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2',
+                                'w-6 sm:w-7 h-[2.5px]',
                                 'bg-foreground transition-all duration-500 ease-menu',
-                                {
-                                    '-rotate-45 bottom-1/2 translate-y-1/2 bg-primary w-4 xs:w-5 sm:w-6': isMenuOpen,
-                                },
+                                'will-change-transform',
+                                isMenuOpen ? 'opacity-0 scale-0' : 'opacity-100 scale-100',
                             )}
-                        ></span>
+                        />
+                        {/* Bottom line */}
+                        <span
+                            className={cn(
+                                'absolute left-1/2 -translate-x-1/2',
+                                'w-6 sm:w-7 h-[2.5px]',
+                                'bg-foreground transition-all duration-500 ease-menu',
+                                'will-change-transform',
+                                isMenuOpen
+                                    ? 'bottom-1/2 translate-y-1/2 -rotate-45 bg-primary w-5 sm:w-6'
+                                    : 'bottom-0',
+                            )}
+                        />
                     </div>
                 </button>
             </div>
 
+            {/* Backdrop */}
             <div
                 className={cn(
-                    'fixed inset-0 z-[2] bg-black/90 backdrop-blur-md transition-all duration-500',
-                    {
-                        'opacity-0 invisible pointer-events-none': !isMenuOpen,
-                    },
+                    'fixed inset-0 z-[2] bg-black/90 backdrop-blur-md',
+                    'transition-all duration-500 ease-menu',
+                    'will-change-transform',
+                    isMenuOpen
+                        ? 'opacity-100 visible'
+                        : 'opacity-0 invisible pointer-events-none',
                 )}
-                onClick={() => setIsMenuOpen(false)}
-            ></div>
+                onClick={closeMenu}
+                aria-hidden="true"
+            />
 
+            {/* Menu Panel */}
             <div
+                ref={menuRef}
                 className={cn(
                     'fixed top-0 right-0 h-[100dvh] overflow-y-auto',
-                    'w-full xs:w-[90vw] sm:w-[80vw] md:w-[min(520px,65vw)] lg:w-[min(480px,45vw)] xl:w-[420px]',
-                    'transform translate-x-full transition-all duration-700 ease-slide z-[3]',
-                    'py-20 xs:py-24 sm:py-20 md:py-24 lg:py-28',
-                    'px-4 xs:px-5 sm:px-6 md:px-7 lg:px-8',
-                    { 'translate-x-0': isMenuOpen },
+                    // Progressive width enhancement for better desktop experience
+                    'w-full sm:w-[85vw] md:w-[550px] lg:w-[580px] xl:w-[620px]',
+                    'transform transition-all duration-500 ease-slide z-[3]',
+                    // Mobile-optimized spacing - reduced on mobile only
+                    'py-14 sm:py-16 md:py-20 lg:py-20',
+                    'px-4 sm:px-6 md:px-10 lg:px-12 xl:px-14',
+                    'will-change-transform',
+                    // Safe area support for notched devices - mobile optimized
+                    'pt-[max(3.5rem,env(safe-area-inset-top)+0.75rem)] sm:pt-[max(4rem,env(safe-area-inset-top)+1rem)]',
+                    'pb-[max(3.5rem,env(safe-area-inset-bottom)+0.75rem)] sm:pb-[max(4rem,env(safe-area-inset-bottom)+1rem)]',
+                    isMenuOpen ? 'translate-x-0' : 'translate-x-full',
                 )}
+                aria-label="Main navigation"
+                role="dialog"
+                aria-modal="true"
             >
                 <div
                     className={cn(
@@ -143,40 +264,48 @@ const Navbar = () => {
                 ></div>
 
                 <div className="relative z-10 w-full mx-auto">
-                    <div className="mb-6 xs:mb-7 sm:mb-8 md:mb-10 lg:mb-12">
-                        <div className="flex items-center gap-1.5 xs:gap-2 mb-3 xs:mb-4 sm:mb-5 md:mb-6">
-                            <span className="text-primary text-[10px] xs:text-ui-xs sm:text-ui-sm font-mono">$</span>
-                            <p className="text-[10px] xs:text-ui-xs sm:text-ui-sm font-mono tracking-[0.15em] xs:tracking-widest text-primary/80 uppercase">
+                    {/* Navigation Section */}
+                    <div className="mb-5 sm:mb-7 md:mb-8 lg:mb-8">
+                        <div className="flex items-center gap-2 mb-3 sm:mb-4 md:mb-4 lg:mb-5">
+                            <span className="text-primary text-ui-sm md:text-ui-base lg:text-ui-lg font-mono">$</span>
+                            <p className="text-ui-sm md:text-ui-base lg:text-ui-lg font-mono tracking-widest text-primary/80 uppercase">
                                 Navigation
                             </p>
                         </div>
-                        <ul className="space-y-1.5 xs:space-y-2 sm:space-y-2.5">
+                        <ul className="space-y-1.5 sm:space-y-2 md:space-y-2.5 lg:space-y-2.5">
                             {MENU_LINKS.map((link, idx) => {
                                 const Icon = link.icon;
+                                const isActive = link.sectionId === activeSection;
                                 return (
                                     <li
                                         key={link.name}
                                         className={cn(
                                             'overflow-hidden',
-                                            isMenuOpen
-                                                ? 'animate-in slide-in-from-right-6 fade-in'
-                                                : '',
+                                            isMenuOpen && 'animate-in slide-in-from-right-6 fade-in duration-500',
                                         )}
                                         style={{
-                                            animationDelay: `${idx * 50}ms`,
+                                            animationDelay: `${idx * 60}ms`,
                                         }}
                                     >
                                         <button
+                                            ref={(el) => {
+                                                buttonRefs.current[idx] = el;
+                                            }}
                                             onClick={() => {
-                                                setIsMenuOpen(false);
+                                                closeMenu();
 
-                                                // Handle hash navigation
+                                                // Handle hash navigation with scroll offset
                                                 if (link.url.startsWith('/#')) {
                                                     const id = link.url.substring(2);
                                                     setTimeout(() => {
                                                         const element = document.getElementById(id);
                                                         if (element) {
-                                                            element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                                            const offset = 80; // Account for any fixed headers
+                                                            const elementPosition = element.getBoundingClientRect().top + window.scrollY;
+                                                            window.scrollTo({
+                                                                top: elementPosition - offset,
+                                                                behavior: 'smooth'
+                                                            });
                                                         }
                                                     }, 300);
                                                 } else {
@@ -184,29 +313,63 @@ const Navbar = () => {
                                                 }
                                             }}
                                             className={cn(
-                                                'group w-full flex items-center gap-2 xs:gap-2.5 sm:gap-3 md:gap-3.5',
-                                                'px-2.5 xs:px-3 sm:px-3.5 md:px-4',
-                                                'py-2 xs:py-2.5 sm:py-3 md:py-3.5',
-                                                'border border-white/5 hover:border-primary/30',
-                                                'bg-white/[0.02] hover:bg-primary/5',
-                                                'transition-all duration-300',
-                                                'hover:shadow-[0_0_15px_rgba(0,255,0,0.08)]',
-                                                'relative overflow-hidden',
+                                                'group w-full flex items-center',
+                                                'gap-2.5 sm:gap-3 md:gap-3.5 lg:gap-4',
+                                                'px-3 sm:px-3.5 md:px-4 lg:px-5',
+                                                'py-2.5 sm:py-3 md:py-3.5 lg:py-4',
+                                                'border transition-all duration-300',
+                                                'relative overflow-hidden rounded-sm',
+                                                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50',
+                                                'active:scale-[0.98]',
+                                                'will-change-transform',
+                                                // Shimmer effect
                                                 'before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-primary/5 before:to-transparent',
                                                 'before:translate-x-[-200%] before:transition-transform before:duration-700',
                                                 'hover:before:translate-x-[200%]',
+                                                // Active state styling
+                                                isActive
+                                                    ? 'border-primary/40 bg-primary/[0.08] shadow-[0_0_20px_rgba(0,255,0,0.12)]'
+                                                    : 'border-white/5 bg-white/[0.02] hover:border-primary/30 hover:bg-primary/5 hover:shadow-[0_0_15px_rgba(0,255,0,0.08)]',
                                             )}
                                         >
-                                            <Icon className="w-3.5 h-3.5 xs:w-4 xs:h-4 sm:w-[18px] sm:h-[18px] md:w-5 md:h-5 text-primary/60 group-hover:text-primary transition-colors flex-shrink-0" />
+                                            <Icon
+                                                className={cn(
+                                                    'w-[18px] h-[18px] sm:w-5 sm:h-5 md:w-5 md:h-5 lg:w-6 lg:h-6 transition-colors flex-shrink-0',
+                                                    isActive
+                                                        ? 'text-primary'
+                                                        : 'text-primary/60 group-hover:text-primary'
+                                                )}
+                                            />
                                             <div className="flex-1 text-left min-w-0">
-                                                <div className="text-[9px] xs:text-[10px] sm:text-ui-xs md:text-ui-sm font-mono text-muted-foreground/60 group-hover:text-primary/60 transition-colors mb-0.5 truncate">
+                                                <div
+                                                    className={cn(
+                                                        'text-[10px] sm:text-[11px] md:text-ui-sm lg:text-ui-base font-mono transition-colors mb-0.5 truncate',
+                                                        isActive
+                                                            ? 'text-primary/70'
+                                                            : 'text-muted-foreground/60 group-hover:text-primary/60'
+                                                    )}
+                                                >
                                                     {link.prefix}
                                                 </div>
-                                                <div className="text-[13px] xs:text-body-sm sm:text-body-base md:text-body-lg font-light tracking-wide text-foreground/90 group-hover:text-foreground transition-colors truncate">
+                                                <div
+                                                    className={cn(
+                                                        'text-body-sm sm:text-body-base md:text-body-lg lg:text-body-lg font-light tracking-wide transition-colors truncate',
+                                                        isActive
+                                                            ? 'text-foreground font-normal'
+                                                            : 'text-foreground/90 group-hover:text-foreground'
+                                                    )}
+                                                >
                                                     {link.name}
                                                 </div>
                                             </div>
-                                            <div className="w-1.5 h-1.5 xs:w-[7px] xs:h-[7px] sm:w-2 sm:h-2 rounded-full bg-primary/40 group-hover:bg-primary group-hover:shadow-[0_0_8px_rgba(0,255,0,0.6)] transition-all flex-shrink-0"></div>
+                                            <div
+                                                className={cn(
+                                                    'w-1.5 h-1.5 sm:w-2 sm:h-2 md:w-2 md:h-2 lg:w-2.5 lg:h-2.5 rounded-full transition-all flex-shrink-0',
+                                                    isActive
+                                                        ? 'bg-primary shadow-[0_0_10px_rgba(0,255,0,0.8)] scale-110'
+                                                        : 'bg-primary/40 group-hover:bg-primary group-hover:shadow-[0_0_8px_rgba(0,255,0,0.6)]'
+                                                )}
+                                            />
                                         </button>
                                     </li>
                                 );
@@ -214,74 +377,89 @@ const Navbar = () => {
                         </ul>
                     </div>
 
-                    <div className="mb-6 xs:mb-7 sm:mb-8 md:mb-10 lg:mb-12">
-                        <div className="flex items-center gap-1.5 xs:gap-2 mb-3 xs:mb-4 sm:mb-5 md:mb-6">
-                            <span className="text-primary text-[10px] xs:text-ui-xs sm:text-ui-sm font-mono">$</span>
-                            <p className="text-[10px] xs:text-ui-xs sm:text-ui-sm font-mono tracking-[0.15em] xs:tracking-widest text-primary/80 uppercase">
+                    {/* Separator */}
+                    <div className="mb-5 sm:mb-6 md:mb-7 lg:mb-7 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
+
+                    {/* Social Links Section */}
+                    <div className="mb-5 sm:mb-6 md:mb-8 lg:mb-8">
+                        <div className="flex items-center gap-2 mb-3 sm:mb-4 md:mb-4 lg:mb-5">
+                            <span className="text-primary text-ui-sm md:text-ui-base lg:text-ui-lg font-mono">$</span>
+                            <p className="text-ui-sm md:text-ui-base lg:text-ui-lg font-mono tracking-widest text-primary/80 uppercase">
                                 Connect
                             </p>
                         </div>
-                        <div className="grid grid-cols-2 gap-1.5 xs:gap-2 sm:gap-2.5">
+                        <div className="grid grid-cols-2 gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-2.5">
                             {SOCIAL_LINKS.map((link, idx) => (
                                 <a
                                     key={link.name}
+                                    ref={(el) => {
+                                        socialRefs.current[idx] = el;
+                                    }}
                                     href={link.url}
                                     target="_blank"
                                     rel="noreferrer"
                                     className={cn(
                                         'group',
-                                        'px-2.5 xs:px-3 sm:px-3.5 md:px-4',
-                                        'py-2 xs:py-2.5 sm:py-3 md:py-3.5',
+                                        'px-2.5 sm:px-3.5 md:px-4 lg:px-5',
+                                        'py-2.5 sm:py-3 md:py-3.5 lg:py-3.5',
                                         'border border-white/5 hover:border-primary/30',
                                         'bg-white/[0.02] hover:bg-primary/5',
-                                        'transition-all duration-300',
+                                        'transition-all duration-300 rounded-sm',
                                         'hover:shadow-[0_0_15px_rgba(0,255,0,0.1)]',
-                                        'animate-in fade-in',
+                                        'animate-in fade-in duration-500',
                                         'relative overflow-hidden',
+                                        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50',
+                                        'active:scale-95',
+                                        'will-change-transform',
+                                        // Top border glow effect
                                         'before:absolute before:top-0 before:left-0 before:w-full before:h-[1px]',
                                         'before:bg-gradient-to-r before:from-transparent before:via-primary/30 before:to-transparent',
                                         'before:opacity-0 before:group-hover:opacity-100 before:transition-opacity',
                                     )}
                                     style={{
-                                        animationDelay: `${(idx + 6) * 50}ms`,
+                                        animationDelay: `${(idx + MENU_LINKS.length) * 60}ms`,
                                     }}
                                 >
-                                    <div className="flex items-center justify-between gap-1.5 xs:gap-2 min-w-0">
-                                        <span className="text-[11px] xs:text-[12px] sm:text-body-sm md:text-body-base font-light tracking-wide truncate text-foreground/80 group-hover:text-foreground transition-colors">
+                                    <div className="flex items-center justify-between gap-1.5 sm:gap-2 min-w-0">
+                                        <span className="text-body-sm sm:text-body-base md:text-body-lg lg:text-body-lg font-light tracking-wide truncate text-foreground/85 group-hover:text-foreground transition-colors">
                                             {link.name}
                                         </span>
-                                        <MoveUpRight
-                                            className="w-2.5 h-2.5 xs:w-3 xs:h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 text-primary/50 group-hover:text-primary group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-300 flex-shrink-0"
-                                        />
+                                        <MoveUpRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 lg:w-4 lg:h-4 text-primary/50 group-hover:text-primary group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-300 flex-shrink-0" />
                                     </div>
                                 </a>
                             ))}
                         </div>
                     </div>
 
-                    <div className="relative px-2.5 xs:px-3 sm:px-4 md:px-5 lg:px-6 py-2.5 xs:py-3 sm:py-4 md:py-5 lg:py-6 border border-primary/20 bg-primary/[0.03] overflow-hidden group">
-                        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent"></div>
-                        <div className="absolute top-0 right-0 w-16 h-16 xs:w-20 xs:h-20 bg-primary/10 blur-3xl rounded-full"></div>
+                    {/* Get In Touch Section */}
+                    <div className="relative px-3 sm:px-4 md:px-5 lg:px-5 py-3 sm:py-4 md:py-5 lg:py-5 border overflow-hidden group animate-in fade-in duration-500 rounded-sm" style={{ animationDelay: `${(MENU_LINKS.length + SOCIAL_LINKS.length) * 60}ms` }}>
+                        {/* Animated border */}
+                        <div className="absolute inset-0 border border-primary/20 animate-pulse" style={{ animationDuration: '3s' }} />
+
+                        {/* Background effects */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent" />
+                        <div className="absolute top-0 right-0 w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 bg-primary/10 blur-3xl rounded-full animate-pulse" style={{ animationDuration: '4s' }} />
+
                         <div className="relative">
-                            <div className="flex items-center gap-1.5 xs:gap-2 mb-2 xs:mb-2.5 sm:mb-3">
-                                <span className="text-primary text-[10px] xs:text-ui-xs sm:text-ui-sm font-mono">$</span>
-                                <p className="text-[10px] xs:text-ui-xs sm:text-ui-sm font-mono tracking-[0.15em] xs:tracking-widest text-primary/80 uppercase">
+                            <div className="flex items-center gap-2 mb-2.5 sm:mb-3 md:mb-4 lg:mb-4">
+                                <span className="text-primary text-ui-sm md:text-ui-base lg:text-ui-lg font-mono">$</span>
+                                <p className="text-ui-sm md:text-ui-base lg:text-ui-lg font-mono tracking-widest text-primary/80 uppercase">
                                     Get In Touch
                                 </p>
                             </div>
                             <a
                                 href={`mailto:${GENERAL_INFO.email}`}
-                                className="text-[11px] xs:text-[12px] sm:text-body-sm md:text-body-base font-mono tracking-wide text-foreground/90 hover:text-primary transition-colors duration-300 block break-all mb-2 xs:mb-2.5 sm:mb-3"
+                                className="text-body-sm sm:text-body-base md:text-body-lg lg:text-body-lg font-mono tracking-wide text-foreground/90 hover:text-primary transition-colors duration-300 block break-all mb-2.5 sm:mb-3 md:mb-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 rounded"
                             >
                                 {GENERAL_INFO.email}
                             </a>
-                            <div className="flex items-center gap-1.5 xs:gap-2 text-[9px] xs:text-[10px] sm:text-ui-xs md:text-ui-sm text-muted-foreground/80">
-                                <span className="relative flex h-1.5 w-1.5 xs:h-2 xs:w-2 flex-shrink-0">
-                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                                    <span className="relative inline-flex rounded-full h-full w-full bg-primary"></span>
+                            <div className="flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-ui-sm md:text-ui-base lg:text-ui-base text-muted-foreground/80">
+                                <span className="relative flex h-1.5 w-1.5 sm:h-2 sm:w-2 md:h-2.5 md:w-2.5 flex-shrink-0">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
+                                    <span className="relative inline-flex rounded-full h-full w-full bg-primary" />
                                 </span>
-                                <span className="font-mono text-primary/60">STATUS:</span>
-                                <span className="truncate font-mono">AVAILABLE</span>
+                                <span className="font-mono text-primary/70">STATUS:</span>
+                                <span className="truncate font-mono text-foreground/70">AVAILABLE FOR WORK</span>
                             </div>
                         </div>
                     </div>
