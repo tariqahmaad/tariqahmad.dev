@@ -15,14 +15,24 @@ const Skills = () => {
 
             if (!categories?.length) return;
 
+            // Check if user prefers reduced motion or screen is very small
+            const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            const isVerySmallScreen = window.innerWidth < 400;
+
             categories.forEach((category) => {
                 const categoryTitle = category.querySelector('.category-title');
                 const categoryItems = category.querySelectorAll('.category-item');
 
+                // Skip animations on very small screens or if user prefers reduced motion
+                if (isVerySmallScreen || prefersReducedMotion) {
+                    gsap.set([categoryTitle, categoryItems], { opacity: 1, x: 0, y: 0 });
+                    return;
+                }
+
                 const tl = gsap.timeline({
                     scrollTrigger: {
                         trigger: category,
-                        start: 'top 90%',
+                        start: 'top 95%', // More lenient trigger point
                         toggleActions: 'play none none reverse',
                     },
                 });
