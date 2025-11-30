@@ -253,8 +253,14 @@ const Banner = () => {
                                 className="text-primary inline-block transition-all duration-300 will-change-transform"
                                 style={{
                                     opacity: firstWord.opacity,
-                                    textShadow: phase !== 'stable' ? '0 0 1px rgba(0, 255, 0, 0.2)' : 'none',
-                                    transform: phase !== 'stable' ? 'translate3d(-1px, 0, 0)' : 'translate3d(0, 0, 0)',
+                                    textShadow:
+                                        phase !== 'stable'
+                                            ? '0 0 1px rgba(0, 255, 0, 0.2)'
+                                            : 'none',
+                                    transform:
+                                        phase !== 'stable'
+                                            ? 'translate3d(-1px, 0, 0)'
+                                            : 'translate3d(0, 0, 0)',
                                 }}
                             >
                                 {firstWord.displayText}
@@ -264,8 +270,14 @@ const Banner = () => {
                                 className="ml-2 xs:ml-4 text-foreground inline-block transition-all duration-300 will-change-transform"
                                 style={{
                                     opacity: secondWord.opacity,
-                                    textShadow: phase !== 'stable' ? '0 0 1px rgba(255, 255, 255, 0.15)' : 'none',
-                                    transform: phase !== 'stable' ? 'translate3d(1px, 0, 0)' : 'translate3d(0, 0, 0)',
+                                    textShadow:
+                                        phase !== 'stable'
+                                            ? '0 0 1px rgba(255, 255, 255, 0.15)'
+                                            : 'none',
+                                    transform:
+                                        phase !== 'stable'
+                                            ? 'translate3d(1px, 0, 0)'
+                                            : 'translate3d(0, 0, 0)',
                                 }}
                             >
                                 {secondWord.displayText}
@@ -283,10 +295,10 @@ const Banner = () => {
                         <span className="font-medium text-foreground">
                             Tariq Ahmad
                         </span>
-                        . Computer Engineering graduate from Istanbul Aydin University
-                        with expertise in full-stack development, networking, and
-                        system architecture. Building innovative solutions with
-                        modern technologies.
+                        . Computer Engineering graduate from Istanbul Aydin
+                        University with expertise in full-stack development,
+                        networking, and system architecture. Building innovative
+                        solutions with modern technologies.
                     </p>
                     <Button
                         as="link"
@@ -296,7 +308,7 @@ const Banner = () => {
                         variant="primary"
                         className="mt-9 banner-button slide-up-and-fade"
                     >
-                        Connect with Me
+                        Let&apos;s Connect on LinkedIn
                     </Button>
                 </div>
 
@@ -321,7 +333,9 @@ const Banner = () => {
                         <h5 className="text-heading-sm sm:text-heading-md md:text-heading-lg font-anton text-primary mb-1.5">
                             15+
                         </h5>
-                        <p className="text-body-sm md:text-body-base text-muted-foreground">Certifications</p>
+                        <p className="text-body-sm md:text-body-base text-muted-foreground">
+                            Certifications
+                        </p>
                     </div>
                 </div>
             </div>
