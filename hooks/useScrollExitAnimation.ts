@@ -2,7 +2,7 @@ import { gsap, useGSAP } from '@/lib/gsap-setup';
 import { RefObject } from 'react';
 
 interface UseScrollExitAnimationOptions {
-    containerRef: RefObject<HTMLElement>;
+    containerRef: RefObject<HTMLElement | null>;
     startTrigger?: string;
     endTrigger?: string;
     yOffset?: number;
