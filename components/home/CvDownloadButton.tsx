@@ -25,22 +25,22 @@ const CvDownloadButton = () => {
 
     const handleClick = () => {
         if (downloadStatus === 'success') return;
-        setDownloadStatus('success');
 
-        // Reset after 3 seconds
+        // Delay the status change to allow download to start first
         setTimeout(() => {
-            setDownloadStatus('idle');
-        }, 3000);
+            setDownloadStatus('success');
+
+            // Reset after 3 seconds
+            setTimeout(() => {
+                setDownloadStatus('idle');
+            }, 3000);
+        }, 100);
     };
 
     return (
         <a
-            href={
-                downloadStatus === 'idle'
-                    ? '/Tariq_Ahmad_Resume.pdf'
-                    : undefined
-            }
-            download={downloadStatus === 'idle'}
+            href="/Tariq_Ahmad_Resume.pdf"
+            download="Tariq_Ahmad_Resume.pdf"
             onClick={handleClick}
             className="group relative flex flex-row md:flex-col items-center justify-center gap-3 md:gap-2 px-6 md:px-3 py-3 border border-transparent bg-primary/[0.05] shadow-[0_0_15px_rgba(0,255,0,0.1)] backdrop-blur-[2px] hover:bg-primary/[0.1] hover:border-primary/50 hover:shadow-[0_0_30px_rgba(0,255,0,0.3)] active:scale-95 transition-all duration-300 ease-out rounded-lg overflow-hidden w-full max-w-[300px] md:max-w-none md:w-[110px] h-14 md:h-auto md:aspect-square"
             onMouseEnter={handleMouseEnter}
