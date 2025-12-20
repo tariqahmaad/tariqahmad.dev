@@ -169,12 +169,13 @@ const Navbar = () => {
                         'z-[2]',
                         'flex items-center justify-center',
                         'bg-background/50 backdrop-blur-sm',
-                        'hover:bg-background/80 active:scale-95',
+                        'hover:bg-background/80',
                         'transition-all duration-300',
                         'border border-white/5 hover:border-primary/20',
                         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background',
                         // GPU acceleration
                         'will-change-transform',
+                        isMenuOpen && 'scale-90',
                     )}
                     onClick={() => setIsMenuOpen(!isMenuOpen)}
                     aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
@@ -185,34 +186,24 @@ const Navbar = () => {
                         <span
                             className={cn(
                                 'absolute left-1/2 -translate-x-1/2',
-                                'w-6 sm:w-7 h-[2.5px]',
-                                'bg-foreground transition-all duration-500 ease-menu',
+                                'w-6 sm:w-7 h-[2.5px] rounded-full',
+                                'bg-foreground transition-all duration-400 ease-&lsqb;cubic-bezier(0.4,0,0.2,1)&rsqb;',
                                 'will-change-transform',
                                 isMenuOpen
-                                    ? 'top-1/2 -translate-y-1/2 rotate-45 bg-primary w-5 sm:w-6'
-                                    : 'top-0',
-                            )}
-                        />
-                        {/* Middle line - appears only when closed */}
-                        <span
-                            className={cn(
-                                'absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2',
-                                'w-6 sm:w-7 h-[2.5px]',
-                                'bg-foreground transition-all duration-500 ease-menu',
-                                'will-change-transform',
-                                isMenuOpen ? 'opacity-0 scale-0' : 'opacity-100 scale-100',
+                                    ? 'top-1/2 -translate-y-1/2 rotate-45 bg-primary'
+                                    : 'top-[2px]',
                             )}
                         />
                         {/* Bottom line */}
                         <span
                             className={cn(
                                 'absolute left-1/2 -translate-x-1/2',
-                                'w-6 sm:w-7 h-[2.5px]',
-                                'bg-foreground transition-all duration-500 ease-menu',
+                                'w-6 sm:w-7 h-[2.5px] rounded-full',
+                                'bg-foreground transition-all duration-400 ease-&lsqb;cubic-bezier(0.4,0,0.2,1)&rsqb; delay-75',
                                 'will-change-transform',
                                 isMenuOpen
-                                    ? 'bottom-1/2 translate-y-1/2 -rotate-45 bg-primary w-5 sm:w-6'
-                                    : 'bottom-0',
+                                    ? 'bottom-1/2 translate-y-1/2 -rotate-45 bg-primary'
+                                    : 'bottom-[2px]',
                             )}
                         />
                     </div>
@@ -223,7 +214,7 @@ const Navbar = () => {
             <div
                 className={cn(
                     'fixed inset-0 z-[2] bg-black/90 backdrop-blur-md',
-                    'transition-all duration-500 ease-menu',
+                    'transition-all duration-300 ease-&lsqb;cubic-bezier(0.4,0,0.2,1)&rsqb;',
                     'will-change-transform',
                     isMenuOpen
                         ? 'opacity-100 visible'
@@ -240,7 +231,7 @@ const Navbar = () => {
                     'fixed top-0 right-0 h-[100dvh] overflow-y-auto',
                     // Progressive width enhancement for better desktop experience
                     'w-full sm:w-[85vw] md:w-[550px] lg:w-[580px] xl:w-[620px]',
-                    'transform transition-all duration-500 ease-slide z-[3]',
+                    'transform transition-all duration-400 ease-&lsqb;cubic-bezier(0.4,0,0.2,1)&rsqb; z-[3]',
                     // Mobile-optimized spacing - reduced on mobile only
                     'py-14 sm:py-16 md:py-20 lg:py-20',
                     'px-4 sm:px-6 md:px-10 lg:px-12 xl:px-14',
@@ -281,10 +272,10 @@ const Navbar = () => {
                                         key={link.name}
                                         className={cn(
                                             'overflow-hidden',
-                                            isMenuOpen && 'animate-in slide-in-from-right-6 fade-in duration-500',
+                                            isMenuOpen && 'animate-in slide-in-from-right-4 fade-in duration-400',
                                         )}
                                         style={{
-                                            animationDelay: `${idx * 60}ms`,
+                                            animationDelay: `${idx * 50}ms`,
                                         }}
                                     >
                                         <button
@@ -406,7 +397,7 @@ const Navbar = () => {
                                         'bg-white/[0.02] hover:bg-primary/5',
                                         'transition-all duration-300 rounded-sm',
                                         'hover:shadow-[0_0_15px_rgba(0,255,0,0.1)]',
-                                        'animate-in fade-in duration-500',
+                                        'animate-in fade-in duration-400',
                                         'relative overflow-hidden',
                                         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50',
                                         'active:scale-95',
@@ -417,7 +408,7 @@ const Navbar = () => {
                                         'before:opacity-0 before:group-hover:opacity-100 before:transition-opacity',
                                     )}
                                     style={{
-                                        animationDelay: `${(idx + MENU_LINKS.length) * 60}ms`,
+                                        animationDelay: `${(idx + MENU_LINKS.length) * 50}ms`,
                                     }}
                                 >
                                     <div className="flex items-center justify-between gap-1.5 sm:gap-2 min-w-0">
@@ -432,7 +423,7 @@ const Navbar = () => {
                     </div>
 
                     {/* Get In Touch Section */}
-                    <div className="relative px-3 sm:px-4 md:px-5 lg:px-5 py-3 sm:py-4 md:py-5 lg:py-5 border overflow-hidden group animate-in fade-in duration-500 rounded-sm" style={{ animationDelay: `${(MENU_LINKS.length + SOCIAL_LINKS.length) * 60}ms` }}>
+                    <div className="relative px-3 sm:px-4 md:px-5 lg:px-5 py-3 sm:py-4 md:py-5 lg:py-5 border overflow-hidden group animate-in fade-in duration-400 rounded-sm" style={{ animationDelay: `${(MENU_LINKS.length + SOCIAL_LINKS.length) * 50}ms` }}>
                         {/* Animated border */}
                         <div className="absolute inset-0 border border-primary/20 animate-pulse" style={{ animationDuration: '3s' }} />
 

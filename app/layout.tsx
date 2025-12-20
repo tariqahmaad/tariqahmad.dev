@@ -10,7 +10,7 @@ import ParticleBackground from '@/components/layout/ParticleBackground';
 import Navbar from '@/components/layout/Navbar';
 import CustomCursor from '@/components/layout/CustomCursor';
 import Preloader from '@/components/layout/Preloader';
-import StickyEmail from './_components/StickyEmail';
+import StickyEmail from '@/components/layout/StickyEmail';
 import StructuredData from '@/components/layout/StructuredData';
 
 const antonFont = Anton({
@@ -89,9 +89,9 @@ export const metadata: Metadata = {
     icons: {
         icon: '/favicon.png',
     },
-    verification: {
-        google: 'your-google-verification-code-here',
-    },
+    // verification: {
+    //     google: 'your-google-verification-code',
+    // },
 };
 
 export default function RootLayout({

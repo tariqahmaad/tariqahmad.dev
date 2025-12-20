@@ -1,5 +1,6 @@
 'use client';
 import { gsap, useGSAP } from '@/lib/gsap-setup';
+import SectionTitle from '@/components/shared/SectionTitle';
 import Image from 'next/image';
 import React from 'react';
 
@@ -20,16 +21,12 @@ const AboutMe = () => {
                 return;
             }
 
-            const tl = gsap.timeline({
+            gsap.from('.slide-up-and-fade', {
                 scrollTrigger: {
-                    id: 'about-me-in',
                     trigger: container.current,
                     start: 'top 85%',
-                    toggleActions: 'play none play reverse',
+                    toggleActions: 'play none none none',
                 },
-            });
-
-            tl.from('.slide-up-and-fade', {
                 y: 100,
                 opacity: 0,
                 duration: 0.8,
@@ -40,46 +37,15 @@ const AboutMe = () => {
         { scope: container },
     );
 
-    useGSAP(
-        () => {
-            // Skip exit animations on very small screens or reduced motion
-            const prefersReducedMotion = window.matchMedia(
-                '(prefers-reduced-motion: reduce)',
-            ).matches;
-            const isVerySmallScreen = window.innerWidth < 400;
-            if (isVerySmallScreen || prefersReducedMotion) return;
-
-            const tl = gsap.timeline({
-                scrollTrigger: {
-                    id: 'about-me-out',
-                    trigger: container.current,
-                    start: 'bottom 50%',
-                    end: 'bottom 10%',
-                    scrub: 1,
-                },
-            });
-
-            tl.to('.slide-up-and-fade', {
-                y: -150,
-                opacity: 0,
-                stagger: 0.05,
-            });
-        },
-        { scope: container },
-    );
-
     return (
         <section className="pb-section" id="about-me">
             <div className="container" ref={container}>
                 <h2 className="text-heading-sm sm:text-heading-md md:text-heading-lg font-thin mb-8 xs:mb-12 md:mb-20 slide-up-and-fade leading-tight">
-                    I believe in building robust and efficient software
-                    solutions that solve real-world problems through innovative
-                    technology and modern development practices.
+                    Building scalable, efficient software solutions that bridge
+                    the gap between complex systems and user-centric design.
                 </h2>
 
-                <p className="pb-3 border-b text-muted-foreground slide-up-and-fade text-body-base">
-                    About me.
-                </p>
+                <SectionTitle title="ABOUT ME" className="slide-up-and-fade" />
 
                 <div className="grid md:grid-cols-12 mt-6 xs:mt-9 gap-y-8 md:gap-12 items-start">
                     <div className="md:col-span-5 mb-6 md:mb-0 flex flex-col items-center text-center md:items-end md:text-right">
@@ -101,29 +67,30 @@ const AboutMe = () => {
                     <div className="md:col-span-7 flex flex-col justify-center">
                         <div className="text-body-lg sm:text-body-xl text-muted-foreground max-w-[450px] md:max-w-none">
                             <p className="slide-up-and-fade">
-                                I&apos;m a Computer Engineering graduate from
-                                Istanbul Aydin University with a solid grounding
-                                in software development, networking, and web
-                                technologies. Proven success in managing complex
-                                projects and enhancing system performance
-                                through innovative solutions. Graduated in July
-                                2025 with a CGPA of 3.36/4.0.
+                                I am a dedicated Computer Engineering graduate
+                                from Istanbul Aydin University (CGPA 3.36/4.0),
+                                combining a strong theoretical foundation with
+                                practical expertise in full-stack development
+                                and network infrastructure. My passion lies in
+                                engineering systems that are not just
+                                functional, but also robust and scalable.
                             </p>
                             <p className="mt-3 slide-up-and-fade">
-                                My experience spans full-stack development,
-                                research assistance in Industry 4.0
-                                technologies, and hands-on work in network
-                                infrastructure. I excel in strategic
-                                problem-solving, team collaboration, and
-                                leadership—consistently delivering projects on
-                                time while maintaining high quality standards.
+                                With hands-on experience ranging from Industry
+                                4.0 research to network management, I bring a
+                                holistic view to software engineering. I excel
+                                at strategic problem-solving and technical
+                                leadership, having successfully delivered
+                                complex projects by fostering collaboration and
+                                maintaining rigorous quality standards.
                             </p>
                             <p className="mt-3 slide-up-and-fade">
-                                Fluent in English, native in Dari, and
-                                conversational in Hindi, I bring strong
-                                cross-cultural communication skills alongside
-                                technical expertise in C, C++, Java, Python, and
-                                modern web frameworks.
+                                Fluent in English, Dari, and conversational in
+                                Hindi, I thrive in diverse, cross-functional
+                                teams. My technical toolkit includes C, C++,
+                                Java, Python, and modern web frameworks,
+                                enabling me to tackle challenges across the
+                                entire development lifecycle.
                             </p>
                         </div>
                     </div>
