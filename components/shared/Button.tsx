@@ -60,6 +60,7 @@ const Button = ({
         dark: `bg-foreground text-background hover:bg-foreground/80`,
         link: `text-foreground hover:text-primary`,
         'no-color': '',
+        outline: `border border-primary text-primary hover:bg-primary/10`,
     }[variant || 'primary'];
 
     const iconClasses = cn(

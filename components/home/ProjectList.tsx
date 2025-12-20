@@ -5,8 +5,8 @@ import { cn } from '@/lib/utils';
 import { gsap, useGSAP } from '@/lib/gsap-setup';
 import { useScrollExitAnimation } from '@/hooks/useScrollExitAnimation';
 import Image from 'next/image';
-import React, { useRef, useState, MouseEvent } from 'react';
-import Project from './Project';
+import React, { useRef, useState } from 'react';
+import ProjectCard from '@/components/projects/ProjectCard';
 
 const ProjectList = () => {
     const containerRef = useRef<HTMLDivElement>(null);
@@ -20,14 +20,14 @@ const ProjectList = () => {
     // update imageRef.current href based on the cursor hover position
     // also update image position
     useGSAP(
-        (context, contextSafe) => {
+        () => {
             // show image on hover
             if (window.innerWidth < 768) {
                 setSelectedProject(null);
                 return;
             }
 
-            const handleMouseMove = contextSafe?.((e: MouseEvent) => {
+            const handleMouseMove = (e: MouseEvent) => {
                 if (!containerRef.current) return;
                 if (!imageContainer.current) return;
 
@@ -60,7 +60,7 @@ const ProjectList = () => {
                     duration: 1,
                     opacity: 1,
                 });
-            }) as any;
+            };
 
             window.addEventListener('mousemove', handleMouseMove);
 
@@ -68,13 +68,15 @@ const ProjectList = () => {
                 window.removeEventListener('mousemove', handleMouseMove);
             };
         },
-        { scope: containerRef, dependencies: [containerRef.current] },
+        { scope: containerRef },
     );
 
     useGSAP(
         () => {
             // Check if user prefers reduced motion or screen is very small
-            const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            const prefersReducedMotion = window.matchMedia(
+                '(prefers-reduced-motion: reduce)',
+            ).matches;
             const isVerySmallScreen = window.innerWidth < 400;
 
             if (isVerySmallScreen || prefersReducedMotion) {
@@ -125,26 +127,27 @@ const ProjectList = () => {
                             className="max-md:hidden absolute right-0 top-0 z-[1] pointer-events-none w-[200px] xl:w-[350px] aspect-[3/4] overflow-hidden opacity-0"
                             ref={imageContainer}
                         >
-                            {PROJECTS.map((project) => (
-                                project.thumbnail && (
-                                    <Image
-                                        src={project.thumbnail}
-                                        alt="Project"
-                                        width="400"
-                                        height="500"
-                                        className={cn(
-                                            'absolute inset-0 transition-all duration-500 w-full h-full object-cover',
-                                            {
-                                                'opacity-0':
-                                                    project.slug !==
-                                                    selectedProject,
-                                            },
-                                        )}
-                                        ref={imageRef}
-                                        key={project.slug}
-                                    />
-                                )
-                            ))}
+                            {PROJECTS.map(
+                                (project) =>
+                                    project.thumbnail && (
+                                        <Image
+                                            src={project.thumbnail}
+                                            alt="Project"
+                                            width="400"
+                                            height="500"
+                                            className={cn(
+                                                'absolute inset-0 transition-all duration-500 w-full h-full object-cover',
+                                                {
+                                                    'opacity-0':
+                                                        project.slug !==
+                                                        selectedProject,
+                                                },
+                                            )}
+                                            ref={imageRef}
+                                            key={project.slug}
+                                        />
+                                    ),
+                            )}
                         </div>
                     )}
 
@@ -153,7 +156,7 @@ const ProjectList = () => {
                         ref={projectListRef}
                     >
                         {PROJECTS.map((project, index) => (
-                            <Project
+                            <ProjectCard
                                 index={index}
                                 project={project}
                                 selectedProject={selectedProject}

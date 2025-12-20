@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import ProjectDetails from './_components/ProjectDetails';
+import ProjectDetails from '@/components/projects/ProjectDetails';
 import { PROJECTS } from '@/lib/data';
 import { Metadata } from 'next';
 
@@ -22,12 +22,24 @@ export const generateMetadata = async ({
         };
     }
 
-    const title = `${project.title} - ${project.techStack.slice(0, 3).join(', ')}`;
-    const description = project.description
+    const title = `${project.title} - ${project.techStack
+        .slice(0, 3)
+        .join(', ')}`;
+    const cleanedDescription = project.description
         .replace(/<br\s*\/?>/gi, ' ')
-        .replace(/<\/?[^>]+(>|$)/g, '')
-        .substring(0, 160);
+        .replace(/<\/?[^>]+(>|$)/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+    const maxLength = 160;
+    const description =
+        cleanedDescription.length > maxLength
+            ? `${cleanedDescription
+                  .slice(0, maxLength)
+                  .replace(/\s+\S*$/, '')
+                  .trim()}...`
+            : cleanedDescription;
     const url = `https://tariqahmad.dev/projects/${slug}`;
+    const ogImage = project.thumbnail ?? '/og-image.png';
 
     return {
         title,
@@ -43,7 +55,7 @@ export const generateMetadata = async ({
             siteName: 'Tariq Ahmad Portfolio',
             images: [
                 {
-                    url: '/og-image.png',
+                    url: ogImage,
                     width: 1200,
                     height: 630,
                     alt: `${project.title} - Project by Tariq Ahmad`,
@@ -54,7 +66,7 @@ export const generateMetadata = async ({
             card: 'summary_large_image',
             title,
             description,
-            images: ['/og-image.png'],
+            images: [ogImage],
         },
         keywords: [...project.techStack, 'Tariq Ahmad', 'Project', 'Portfolio'],
     };

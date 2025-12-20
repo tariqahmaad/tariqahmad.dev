@@ -92,7 +92,7 @@ const Project = ({ index, project, selectedProject, onMouseEnter }: Props) => {
             {selectedProject === null && project.thumbnail && (
                 <Image
                     src={project.thumbnail}
-                    alt="Project"
+                    alt={`${project.title} thumbnail`}
                     width="300"
                     height="200"
                     className={cn(
@@ -132,21 +132,21 @@ const Project = ({ index, project, selectedProject, onMouseEnter }: Props) => {
                             </svg>
                         </span>
                     </h4>
-                    <div className="mt-2 flex flex-wrap gap-3 text-muted-foreground text-ui-base sm:text-body-sm">
+                    <ul className="mt-2 flex flex-wrap gap-3 text-muted-foreground text-ui-base sm:text-body-sm">
                         {project.techStack
                             .slice(0, 3)
                             .map((tech, idx, stackArr) => (
-                                <div
+                                <li
                                     className="gap-3 flex items-center"
                                     key={tech}
                                 >
-                                    <span className="">{tech}</span>
+                                    <span>{tech}</span>
                                     {idx !== stackArr.length - 1 && (
                                         <span className="inline-block size-2 rounded-full bg-background-light"></span>
                                     )}
-                                </div>
+                                </li>
                             ))}
-                    </div>
+                    </ul>
                 </div>
             </div>
         </TransitionLink>

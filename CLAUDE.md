@@ -32,14 +32,15 @@ Development server runs at `http://localhost:3000`
 ### Component-Based Architecture
 This portfolio uses a modern component-based structure:
 
-**Main Page Components** (`app/_components/`):
+**Main Page Components** (`components/home/`):
 - `Banner.tsx` - Hero section with animated title and stats
 - `AboutMe.tsx` - About section with personal introduction
 - `Skills.tsx` - Tech stack showcase with icons
 - `Experiences.tsx` - Work experience timeline
 - `ProjectList.tsx` - Featured projects grid
+- `Certifications.tsx` - Certifications with hover effects
 
-**Shared Components** (`components/`):
+**Shared Components** (`components/layout/`):
 - `Navbar.tsx` - Hamburger menu navigation
 - `Footer.tsx` - Footer with credits and GitHub stats
 - `CustomCursor.tsx` - Custom cursor animation
@@ -106,9 +107,9 @@ To update portfolio content, edit `lib/data.ts`:
 ## Component Customization
 
 To customize component appearance:
-- **Banner** stats: Edit `app/_components/Banner.tsx` lines 70-92
-- **AboutMe** text: Edit `app/_components/AboutMe.tsx` lines 57-91
-- **Footer** credits: Edit `components/Footer.tsx` lines 33-51
+- **Banner** stats: Edit `components/home/Banner.tsx`
+- **AboutMe** text: Edit `components/home/AboutMe.tsx`
+- **Footer** credits: Edit `components/layout/Footer.tsx`
 
 ## Assets
 
