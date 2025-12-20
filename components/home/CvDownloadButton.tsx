@@ -81,46 +81,35 @@ const CvDownloadButton = () => {
 
             {/* Content Container */}
             <div className="relative w-8 h-8 md:w-9 md:h-9 flex-shrink-0 flex items-center justify-center">
-                {/* IDLE STATE: Flowing Arrow Animation */}
+                {/* IDLE STATE: Premium Animated Icon */}
                 {downloadStatus === 'idle' && (
-                    <svg
-                        viewBox="0 0 24 24"
-                        className="w-full h-full text-primary"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                    >
-                        {/* Tray - Reacts to impact */}
-                        <path
-                            d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"
-                            className="animate-tray-pulse origin-[50%_100%]"
-                            style={{ transformBox: 'fill-box' }}
-                        />
-
-                        {/* Drawing Arrow */}
-                        <g className="animate-draw-drop">
-                            {/* Main Body */}
+                    <div className="relative w-full h-full">
+                        {/* Main Icon */}
+                        <svg
+                            viewBox="0 0 24 24"
+                            className="w-full h-full text-primary relative z-10 drop-shadow-[0_0_8px_rgba(0,255,0,0.5)]"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                        >
+                            {/* Tray with glow */}
                             <path
-                                d="M12 3v12"
-                                style={{
-                                    strokeDasharray: '12',
-                                    strokeDashoffset: '12',
-                                    animation: 'inherit',
-                                }}
+                                d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"
+                                className="animate-tray-pulse"
                             />
-                            {/* Arrow Head */}
-                            <polyline
-                                points="7 10 12 15 17 10"
-                                style={{
-                                    strokeDasharray: '16',
-                                    strokeDashoffset: '16',
-                                    animation: 'inherit',
-                                }}
-                            />
-                        </g>
-                    </svg>
+
+                            {/* Bouncing Arrow */}
+                            <g
+                                className="animate-bounce"
+                                style={{ animationDuration: '1.5s' }}
+                            >
+                                <path d="M12 3v12" />
+                                <polyline points="7 10 12 15 17 10" />
+                            </g>
+                        </svg>
+                    </div>
                 )}
 
                 {/* SUCCESS STATE: Checkmark Pop */}

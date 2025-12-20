@@ -151,29 +151,34 @@ export default {
                 },
                 'draw-drop': {
                     '0%': {
-                        strokeDashoffset: '24',
-                        transform: 'translateY(-30%)',
-                        opacity: '0',
+                        strokeDashoffset: '12',
+                        transform: 'translateY(-10%)',
+                        opacity: '0.5',
                     },
-                    '25%': {
+                    '8%': {
                         strokeDashoffset: '0',
                         transform: 'translateY(0%)',
                         opacity: '1',
                     },
-                    '50%': {
+                    '70%': {
                         strokeDashoffset: '0',
                         transform: 'translateY(0%)',
                         opacity: '1',
                     },
-                    '80%': {
+                    '85%': {
                         strokeDashoffset: '0',
-                        transform: 'translateY(150%)',
-                        opacity: '0',
+                        transform: 'translateY(80%)',
+                        opacity: '0.4',
+                    },
+                    '95%': {
+                        strokeDashoffset: '12',
+                        transform: 'translateY(-15%)',
+                        opacity: '0.3',
                     },
                     '100%': {
-                        strokeDashoffset: '0',
-                        transform: 'translateY(150%)',
-                        opacity: '0',
+                        strokeDashoffset: '12',
+                        transform: 'translateY(-10%)',
+                        opacity: '0.5',
                     },
                 },
                 'check-pop': {

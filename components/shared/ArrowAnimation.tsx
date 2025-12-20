@@ -50,7 +50,7 @@ const ArrowAnimation = () => {
             viewBox="0 0 376 111"
             fill="transparent"
             xmlns="http://www.w3.org/2000/svg"
-            className="hidden min-[400px]:block absolute bottom-32 md:bottom-20 left-1/2 -translate-x-1/2 z-0 pointer-events-none"
+            className="block absolute bottom-52 md:bottom-20 left-1/2 -translate-x-1/2 z-0 pointer-events-none"
             style={{ overflow: 'hidden' }}
             ref={svgRef}
         >
