@@ -3,7 +3,11 @@ import React, { ButtonHTMLAttributes, ComponentProps, ReactNode } from 'react';
 import { Variant } from '@/types';
 import { cn } from '@/lib/utils';
 
-const Child = ({ icon }: any) => (
+interface ChildProps {
+    icon?: boolean;
+}
+
+const Child = ({ icon }: ChildProps) => (
     <span className="flex items-center justify-center gap-3">
         <svg
             className="animate-spin h-5 w-5 text-white"

@@ -1,3 +1,4 @@
+'use client';
 import { gsap, useGSAP } from '@/lib/gsap-setup';
 import { useRef } from 'react';
 

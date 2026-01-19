@@ -12,6 +12,7 @@ import CustomCursor from '@/components/layout/CustomCursor';
 import Preloader from '@/components/layout/Preloader';
 import StickyEmail from '@/components/layout/StickyEmail';
 import StructuredData from '@/components/layout/StructuredData';
+import { ErrorBoundary } from '@/components/error/ErrorBoundary';
 
 const antonFont = Anton({
     weight: '400',
@@ -107,23 +108,25 @@ export default function RootLayout({
             <body
                 className={`${antonFont.variable} ${robotoFlex.variable} antialiased`}
             >
-                <ReactLenis
-                    root
-                    options={{
-                        lerp: 0.1,
-                        duration: 1.4,
-                    }}
-                >
-                    <Navbar />
-                    <main>{children}</main>
-                    <Footer />
+                <ErrorBoundary>
+                    <ReactLenis
+                        root
+                        options={{
+                            lerp: 0.1,
+                            duration: 1.4,
+                        }}
+                    >
+                        <Navbar />
+                        <main>{children}</main>
+                        <Footer />
 
-                    <CustomCursor />
-                    <Preloader />
-                    <ScrollProgressIndicator />
-                    <ParticleBackground />
-                    <StickyEmail />
-                </ReactLenis>
+                        <CustomCursor />
+                        <Preloader />
+                        <ScrollProgressIndicator />
+                        <ParticleBackground />
+                        <StickyEmail />
+                    </ReactLenis>
+                </ErrorBoundary>
             </body>
         </html>
     );

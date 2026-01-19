@@ -1,6 +1,6 @@
 'use client';
 import { cn } from '@/lib/utils';
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import {
     MoveUpRight,
     Terminal,
@@ -12,6 +12,9 @@ import {
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { GENERAL_INFO, SOCIAL_LINKS } from '@/lib/data';
+import { useScrollDetection } from '@/hooks/useScrollDetection';
+import { useScrollLock } from '@/hooks/useScrollLock';
+import { useMenuKeyboardNavigation } from '@/hooks/useMenuKeyboardNavigation';
 
 const MENU_LINKS = [
     {
@@ -60,8 +63,6 @@ const MENU_LINKS = [
 
 const Navbar = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const [activeSection, setActiveSection] = useState<string | null>(null);
-    const [focusedIndex, setFocusedIndex] = useState<number>(-1);
     const router = useRouter();
     const menuRef = useRef<HTMLDivElement>(null);
     const buttonRefs = useRef<(HTMLButtonElement | null)[]>([]);
@@ -70,125 +71,33 @@ const Navbar = () => {
     // Close menu handler
     const closeMenu = useCallback(() => {
         setIsMenuOpen(false);
-        setFocusedIndex(-1);
     }, []);
 
     // Scroll detection for active section
-    useEffect(() => {
-        const handleScroll = () => {
-            const scrollPosition = window.scrollY + 100; // Offset for better detection
-
-            for (let i = MENU_LINKS.length - 1; i >= 0; i--) {
-                const link = MENU_LINKS[i];
-                if (link.sectionId) {
-                    const element = document.getElementById(link.sectionId);
-                    if (element && element.offsetTop <= scrollPosition) {
-                        setActiveSection(link.sectionId);
-                        return;
-                    }
-                }
-            }
-            setActiveSection(null);
-        };
-
-        window.addEventListener('scroll', handleScroll, { passive: true });
-        handleScroll(); // Initial check
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
+    const activeSection = useScrollDetection({ links: MENU_LINKS, offset: 100 });
 
     // Keyboard navigation
+    const { focusedIndex, setFocusedIndex } = useMenuKeyboardNavigation({
+        isOpen: isMenuOpen,
+        itemCount: MENU_LINKS.length + SOCIAL_LINKS.length,
+        onClose: closeMenu,
+    });
+
+    // Body scroll lock
+    useScrollLock(isMenuOpen);
+
+    // Focus the appropriate element when focusedIndex changes
     useEffect(() => {
-        if (!isMenuOpen) return;
-
-        const handleKeyDown = (e: KeyboardEvent) => {
-            const totalItems = MENU_LINKS.length + SOCIAL_LINKS.length;
-
-            if (e.key === 'Escape') {
-                closeMenu();
-            } else if (e.key === 'Tab') {
-                e.preventDefault();
-                setFocusedIndex((prev) => {
-                    const next = e.shiftKey
-                        ? prev <= 0
-                            ? totalItems - 1
-                            : prev - 1
-                        : prev >= totalItems - 1
-                          ? 0
-                          : prev + 1;
-
-                    // Focus the appropriate element
-                    setTimeout(() => {
-                        if (next < MENU_LINKS.length) {
-                            buttonRefs.current[next]?.focus();
-                        } else {
-                            socialRefs.current[
-                                next - MENU_LINKS.length
-                            ]?.focus();
-                        }
-                    }, 0);
-
-                    return next;
-                });
-            }
-        };
-
-        document.addEventListener('keydown', handleKeyDown);
-        return () => document.removeEventListener('keydown', handleKeyDown);
-    }, [isMenuOpen, closeMenu]);
-
-    // Body scroll lock - using ref to persist scroll position across re-renders
-    const scrollYRef = useRef(0);
-
-    useEffect(() => {
-        if (isMenuOpen) {
-            // Store scroll position before locking
-            scrollYRef.current = window.scrollY;
-
-            const scrollbarWidth =
-                window.innerWidth - document.documentElement.clientWidth;
-
-            // Apply scroll lock styles
-            document.body.style.overflow = 'hidden';
-            document.documentElement.style.overflow = 'hidden';
-            document.body.style.paddingRight = `${scrollbarWidth}px`;
-
-            // Mobile scroll lock - use touch-action for better mobile support
-            document.body.style.position = 'fixed';
-            document.body.style.width = '100%';
-            document.body.style.left = '0';
-            document.body.style.top = `-${scrollYRef.current}px`;
-            document.body.style.touchAction = 'none';
-        } else {
-            // Restore scroll position
-            const savedScrollY = scrollYRef.current;
-
-            // Reset all styles
-            document.body.style.overflow = '';
-            document.documentElement.style.overflow = '';
-            document.body.style.paddingRight = '';
-            document.body.style.position = '';
-            document.body.style.width = '';
-            document.body.style.left = '';
-            document.body.style.top = '';
-            document.body.style.touchAction = '';
-
-            // Restore scroll position
-            if (savedScrollY > 0) {
-                window.scrollTo(0, savedScrollY);
-            }
+        if (focusedIndex >= 0) {
+            setTimeout(() => {
+                if (focusedIndex < MENU_LINKS.length) {
+                    buttonRefs.current[focusedIndex]?.focus();
+                } else {
+                    socialRefs.current[focusedIndex - MENU_LINKS.length]?.focus();
+                }
+            }, 0);
         }
-
-        return () => {
-            document.body.style.overflow = '';
-            document.documentElement.style.overflow = '';
-            document.body.style.paddingRight = '';
-            document.body.style.position = '';
-            document.body.style.width = '';
-            document.body.style.left = '';
-            document.body.style.top = '';
-            document.body.style.touchAction = '';
-        };
-    }, [isMenuOpen]);
+    }, [focusedIndex]);
 
     return (
         <>

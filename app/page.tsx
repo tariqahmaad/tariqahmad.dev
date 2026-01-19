@@ -7,7 +7,7 @@ import Certifications from '@/components/home/Certifications';
 
 export default function Home() {
     return (
-        <div className="page-">
+        <div>
             <Banner />
             <AboutMe />
             <Skills />
