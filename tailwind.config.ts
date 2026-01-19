@@ -206,6 +206,18 @@ export default {
                     '45%': { transform: 'scaleY(1)', opacity: '0.6' },
                     '100%': { transform: 'scaleY(1)', opacity: '0.6' },
                 },
+                'menu-enter': {
+                    '0%': { transform: 'translateX(100%)', opacity: '0' },
+                    '100%': { transform: 'translateX(0)', opacity: '1' },
+                },
+                'menu-exit': {
+                    '0%': { transform: 'translateX(0)', opacity: '1' },
+                    '100%': { transform: 'translateX(100%)', opacity: '0' },
+                },
+                'item-enter': {
+                    '0%': { transform: 'translateY(20px)', opacity: '0' },
+                    '100%': { transform: 'translateY(0)', opacity: '1' },
+                },
             },
             animation: {
                 scan: 'scan 2s linear infinite',
@@ -217,6 +229,11 @@ export default {
                     'draw-drop 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite',
                 'check-pop': 'check-pop 0.4s ease-out forwards',
                 'tray-pulse': 'tray-pulse 2.5s linear infinite',
+                'menu-enter':
+                    'menu-enter 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards',
+                'menu-exit':
+                    'menu-exit 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards',
+                'item-enter': 'item-enter 0.4s ease-out forwards',
             },
             screens: {
                 xs: '420px',

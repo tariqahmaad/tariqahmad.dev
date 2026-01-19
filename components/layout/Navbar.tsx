@@ -1,7 +1,15 @@
 'use client';
 import { cn } from '@/lib/utils';
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { MoveUpRight, Terminal, Shield, Code, Briefcase, Award, FolderGit2 } from 'lucide-react';
+import {
+    MoveUpRight,
+    Terminal,
+    Shield,
+    Code,
+    Briefcase,
+    Award,
+    FolderGit2,
+} from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { GENERAL_INFO, SOCIAL_LINKS } from '@/lib/data';
 
@@ -101,15 +109,21 @@ const Navbar = () => {
                 e.preventDefault();
                 setFocusedIndex((prev) => {
                     const next = e.shiftKey
-                        ? (prev <= 0 ? totalItems - 1 : prev - 1)
-                        : (prev >= totalItems - 1 ? 0 : prev + 1);
+                        ? prev <= 0
+                            ? totalItems - 1
+                            : prev - 1
+                        : prev >= totalItems - 1
+                          ? 0
+                          : prev + 1;
 
                     // Focus the appropriate element
                     setTimeout(() => {
                         if (next < MENU_LINKS.length) {
                             buttonRefs.current[next]?.focus();
                         } else {
-                            socialRefs.current[next - MENU_LINKS.length]?.focus();
+                            socialRefs.current[
+                                next - MENU_LINKS.length
+                            ]?.focus();
                         }
                     }, 0);
 
@@ -122,27 +136,45 @@ const Navbar = () => {
         return () => document.removeEventListener('keydown', handleKeyDown);
     }, [isMenuOpen, closeMenu]);
 
-    // Body scroll lock
+    // Body scroll lock - using ref to persist scroll position across re-renders
+    const scrollYRef = useRef(0);
+
     useEffect(() => {
         if (isMenuOpen) {
-            const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+            // Store scroll position before locking
+            scrollYRef.current = window.scrollY;
+
+            const scrollbarWidth =
+                window.innerWidth - document.documentElement.clientWidth;
+
+            // Apply scroll lock styles
             document.body.style.overflow = 'hidden';
             document.documentElement.style.overflow = 'hidden';
             document.body.style.paddingRight = `${scrollbarWidth}px`;
-            // Better mobile scroll lock
+
+            // Mobile scroll lock - use touch-action for better mobile support
             document.body.style.position = 'fixed';
             document.body.style.width = '100%';
-            document.body.style.top = `-${window.scrollY}px`;
+            document.body.style.left = '0';
+            document.body.style.top = `-${scrollYRef.current}px`;
+            document.body.style.touchAction = 'none';
         } else {
-            const scrollY = document.body.style.top;
+            // Restore scroll position
+            const savedScrollY = scrollYRef.current;
+
+            // Reset all styles
             document.body.style.overflow = '';
             document.documentElement.style.overflow = '';
             document.body.style.paddingRight = '';
             document.body.style.position = '';
             document.body.style.width = '';
+            document.body.style.left = '';
             document.body.style.top = '';
-            if (scrollY) {
-                window.scrollTo(0, parseInt(scrollY || '0') * -1);
+            document.body.style.touchAction = '';
+
+            // Restore scroll position
+            if (savedScrollY > 0) {
+                window.scrollTo(0, savedScrollY);
             }
         }
 
@@ -152,7 +184,9 @@ const Navbar = () => {
             document.body.style.paddingRight = '';
             document.body.style.position = '';
             document.body.style.width = '';
+            document.body.style.left = '';
             document.body.style.top = '';
+            document.body.style.touchAction = '';
         };
     }, [isMenuOpen]);
 
@@ -169,9 +203,9 @@ const Navbar = () => {
                         'z-[2]',
                         'flex items-center justify-center',
                         'bg-background/50 backdrop-blur-sm',
-                        'hover:bg-background/80',
-                        'transition-all duration-300',
-                        'border border-white/5 hover:border-primary/20',
+                        'hover:bg-background/80 hover:border-primary/40 hover:shadow-[0_0_20px_rgba(0,255,0,0.15)]',
+                        'transition-all duration-300 cursor-pointer',
+                        'border border-white/5',
                         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background',
                         // GPU acceleration
                         'will-change-transform',
@@ -239,7 +273,8 @@ const Navbar = () => {
                     // Safe area support for notched devices - mobile optimized
                     'pt-[max(3.5rem,env(safe-area-inset-top)+0.75rem)] sm:pt-[max(4rem,env(safe-area-inset-top)+1rem)]',
                     'pb-[max(3.5rem,env(safe-area-inset-bottom)+0.75rem)] sm:pb-[max(4rem,env(safe-area-inset-bottom)+1rem)]',
-                    isMenuOpen ? 'translate-x-0' : 'translate-x-full',
+                    'overflow-y-auto overflow-x-hidden',
+                    isMenuOpen ? 'animate-menu-enter' : 'translate-x-[120%]',
                 )}
                 aria-label="Main navigation"
                 role="dialog"
@@ -258,7 +293,9 @@ const Navbar = () => {
                     {/* Navigation Section */}
                     <div className="mb-5 sm:mb-7 md:mb-8 lg:mb-8">
                         <div className="flex items-center gap-2 mb-3 sm:mb-4 md:mb-4 lg:mb-5">
-                            <span className="text-primary text-ui-sm md:text-ui-base lg:text-ui-lg font-mono">$</span>
+                            <span className="text-primary text-ui-sm md:text-ui-base lg:text-ui-lg font-mono">
+                                $
+                            </span>
                             <p className="text-ui-sm md:text-ui-base lg:text-ui-lg font-mono tracking-widest text-primary/80 uppercase">
                                 Navigation
                             </p>
@@ -266,13 +303,14 @@ const Navbar = () => {
                         <ul className="space-y-1.5 sm:space-y-2 md:space-y-2.5 lg:space-y-2.5">
                             {MENU_LINKS.map((link, idx) => {
                                 const Icon = link.icon;
-                                const isActive = link.sectionId === activeSection;
+                                const isActive =
+                                    link.sectionId === activeSection;
                                 return (
                                     <li
                                         key={link.name}
                                         className={cn(
-                                            'overflow-hidden',
-                                            isMenuOpen && 'animate-in slide-in-from-right-4 fade-in duration-400',
+                                            'opacity-0', // Initial opacity 0 for animation
+                                            isMenuOpen && 'animate-item-enter',
                                         )}
                                         style={{
                                             animationDelay: `${idx * 50}ms`,
@@ -287,15 +325,25 @@ const Navbar = () => {
 
                                                 // Handle hash navigation with scroll offset
                                                 if (link.url.startsWith('/#')) {
-                                                    const id = link.url.substring(2);
+                                                    const id =
+                                                        link.url.substring(2);
                                                     setTimeout(() => {
-                                                        const element = document.getElementById(id);
+                                                        const element =
+                                                            document.getElementById(
+                                                                id,
+                                                            );
                                                         if (element) {
                                                             const offset = 80; // Account for any fixed headers
-                                                            const elementPosition = element.getBoundingClientRect().top + window.scrollY;
+                                                            const elementPosition =
+                                                                element.getBoundingClientRect()
+                                                                    .top +
+                                                                window.scrollY;
                                                             window.scrollTo({
-                                                                top: elementPosition - offset,
-                                                                behavior: 'smooth'
+                                                                top:
+                                                                    elementPosition -
+                                                                    offset,
+                                                                behavior:
+                                                                    'smooth',
                                                             });
                                                         }
                                                     }, 300);
@@ -308,19 +356,19 @@ const Navbar = () => {
                                                 'gap-2.5 sm:gap-3 md:gap-3.5 lg:gap-4',
                                                 'px-3 sm:px-3.5 md:px-4 lg:px-5',
                                                 'py-2.5 sm:py-3 md:py-3.5 lg:py-4',
-                                                'border transition-all duration-300',
+                                                'border border-white/5 transition-all duration-200 cursor-pointer',
                                                 'relative overflow-hidden rounded-sm',
                                                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50',
                                                 'active:scale-[0.98]',
                                                 'will-change-transform',
-                                                // Shimmer effect
-                                                'before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-primary/5 before:to-transparent',
-                                                'before:translate-x-[-200%] before:transition-transform before:duration-700',
+                                                // Shimmer effect - faster 400ms
+                                                'before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-primary/10 before:to-transparent',
+                                                'before:translate-x-[-200%] before:transition-transform before:duration-400',
                                                 'hover:before:translate-x-[200%]',
-                                                // Active state styling
+                                                // Hover and Active state styling - consistent border
                                                 isActive
-                                                    ? 'border-primary/40 bg-primary/[0.08] shadow-[0_0_20px_rgba(0,255,0,0.12)]'
-                                                    : 'border-white/5 bg-white/[0.02] hover:border-primary/30 hover:bg-primary/5 hover:shadow-[0_0_15px_rgba(0,255,0,0.08)]',
+                                                    ? 'border-primary/50 bg-primary/[0.08]'
+                                                    : 'hover:border-primary/30 hover:bg-primary/[0.05]',
                                             )}
                                         >
                                             <Icon
@@ -328,7 +376,7 @@ const Navbar = () => {
                                                     'w-[18px] h-[18px] sm:w-5 sm:h-5 md:w-5 md:h-5 lg:w-6 lg:h-6 transition-colors flex-shrink-0',
                                                     isActive
                                                         ? 'text-primary'
-                                                        : 'text-primary/60 group-hover:text-primary'
+                                                        : 'text-primary/60 group-hover:text-primary',
                                                 )}
                                             />
                                             <div className="flex-1 text-left min-w-0">
@@ -337,7 +385,7 @@ const Navbar = () => {
                                                         'text-[10px] sm:text-[11px] md:text-ui-sm lg:text-ui-base font-mono transition-colors mb-0.5 truncate',
                                                         isActive
                                                             ? 'text-primary/70'
-                                                            : 'text-muted-foreground/60 group-hover:text-primary/60'
+                                                            : 'text-muted-foreground/60 group-hover:text-primary/60',
                                                     )}
                                                 >
                                                     {link.prefix}
@@ -347,7 +395,7 @@ const Navbar = () => {
                                                         'text-body-sm sm:text-body-base md:text-body-lg lg:text-body-lg font-light tracking-wide transition-colors truncate',
                                                         isActive
                                                             ? 'text-foreground font-normal'
-                                                            : 'text-foreground/90 group-hover:text-foreground'
+                                                            : 'text-foreground/90 group-hover:text-foreground',
                                                     )}
                                                 >
                                                     {link.name}
@@ -357,8 +405,8 @@ const Navbar = () => {
                                                 className={cn(
                                                     'w-1.5 h-1.5 sm:w-2 sm:h-2 md:w-2 md:h-2 lg:w-2.5 lg:h-2.5 rounded-full transition-all flex-shrink-0',
                                                     isActive
-                                                        ? 'bg-primary shadow-[0_0_10px_rgba(0,255,0,0.8)] scale-110'
-                                                        : 'bg-primary/40 group-hover:bg-primary group-hover:shadow-[0_0_8px_rgba(0,255,0,0.6)]'
+                                                        ? 'bg-primary shadow-[0_0_6px_rgba(0,255,0,0.5)]'
+                                                        : 'bg-primary/40 group-hover:bg-primary group-hover:shadow-[0_0_4px_rgba(0,255,0,0.3)]',
                                                 )}
                                             />
                                         </button>
@@ -374,7 +422,9 @@ const Navbar = () => {
                     {/* Social Links Section */}
                     <div className="mb-5 sm:mb-6 md:mb-8 lg:mb-8">
                         <div className="flex items-center gap-2 mb-3 sm:mb-4 md:mb-4 lg:mb-5">
-                            <span className="text-primary text-ui-sm md:text-ui-base lg:text-ui-lg font-mono">$</span>
+                            <span className="text-primary text-ui-sm md:text-ui-base lg:text-ui-lg font-mono">
+                                $
+                            </span>
                             <p className="text-ui-sm md:text-ui-base lg:text-ui-lg font-mono tracking-widest text-primary/80 uppercase">
                                 Connect
                             </p>
@@ -390,14 +440,15 @@ const Navbar = () => {
                                     target="_blank"
                                     rel="noreferrer"
                                     className={cn(
-                                        'group',
+                                        'group cursor-pointer',
                                         'px-2.5 sm:px-3.5 md:px-4 lg:px-5',
                                         'py-2.5 sm:py-3 md:py-3.5 lg:py-3.5',
-                                        'border border-white/5 hover:border-primary/30',
-                                        'bg-white/[0.02] hover:bg-primary/5',
-                                        'transition-all duration-300 rounded-sm',
-                                        'hover:shadow-[0_0_15px_rgba(0,255,0,0.1)]',
-                                        'animate-in fade-in duration-400',
+                                        'border border-white/5 hover:border-primary/40',
+                                        'bg-white/[0.02] hover:bg-primary/8',
+                                        'transition-all duration-200 rounded-sm',
+                                        'hover:shadow-[0_0_20px_rgba(0,255,0,0.15)]',
+                                        'opacity-0', // Initial opacity
+                                        isMenuOpen && 'animate-item-enter',
                                         'relative overflow-hidden',
                                         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50',
                                         'active:scale-95',
@@ -423,17 +474,33 @@ const Navbar = () => {
                     </div>
 
                     {/* Get In Touch Section */}
-                    <div className="relative px-3 sm:px-4 md:px-5 lg:px-5 py-3 sm:py-4 md:py-5 lg:py-5 border overflow-hidden group animate-in fade-in duration-400 rounded-sm" style={{ animationDelay: `${(MENU_LINKS.length + SOCIAL_LINKS.length) * 50}ms` }}>
+                    <div
+                        className={cn(
+                            'relative px-3 sm:px-4 md:px-5 lg:px-5 py-3 sm:py-4 md:py-5 lg:py-5 border overflow-hidden group rounded-sm opacity-0',
+                            isMenuOpen && 'animate-item-enter',
+                        )}
+                        style={{
+                            animationDelay: `${(MENU_LINKS.length + SOCIAL_LINKS.length) * 50}ms`,
+                        }}
+                    >
                         {/* Animated border */}
-                        <div className="absolute inset-0 border border-primary/20 animate-pulse" style={{ animationDuration: '3s' }} />
+                        <div
+                            className="absolute inset-0 border border-primary/20 animate-pulse"
+                            style={{ animationDuration: '3s' }}
+                        />
 
                         {/* Background effects */}
                         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent" />
-                        <div className="absolute top-0 right-0 w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 bg-primary/10 blur-3xl rounded-full animate-pulse" style={{ animationDuration: '4s' }} />
+                        <div
+                            className="absolute top-0 right-0 w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 bg-primary/10 blur-3xl rounded-full animate-pulse"
+                            style={{ animationDuration: '4s' }}
+                        />
 
                         <div className="relative">
                             <div className="flex items-center gap-2 mb-2.5 sm:mb-3 md:mb-4 lg:mb-4">
-                                <span className="text-primary text-ui-sm md:text-ui-base lg:text-ui-lg font-mono">$</span>
+                                <span className="text-primary text-ui-sm md:text-ui-base lg:text-ui-lg font-mono">
+                                    $
+                                </span>
                                 <p className="text-ui-sm md:text-ui-base lg:text-ui-lg font-mono tracking-widest text-primary/80 uppercase">
                                     Get In Touch
                                 </p>
@@ -449,8 +516,12 @@ const Navbar = () => {
                                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
                                     <span className="relative inline-flex rounded-full h-full w-full bg-primary" />
                                 </span>
-                                <span className="font-mono text-primary/70">STATUS:</span>
-                                <span className="truncate font-mono text-foreground/70">AVAILABLE FOR WORK</span>
+                                <span className="font-mono text-primary/70">
+                                    STATUS:
+                                </span>
+                                <span className="truncate font-mono text-foreground/70">
+                                    AVAILABLE FOR WORK
+                                </span>
                             </div>
                         </div>
                     </div>

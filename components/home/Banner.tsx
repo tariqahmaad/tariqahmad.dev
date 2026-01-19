@@ -42,62 +42,56 @@ const Banner = () => {
         return () => clearInterval(interval);
     }, [phase]);
 
-    // Main animation cycle
+    // Main animation cycle - using interval-based approach for better memory management
     React.useEffect(() => {
-        let isActive = true;
-        const timeoutIds: NodeJS.Timeout[] = [];
+        // Total cycle duration: 5000ms stable + 800ms exit + 150ms pause + 1200ms enter = 7150ms
+        const STABLE_DURATION = 5000;
+        const EXIT_DURATION = 800;
+        const PAUSE_DURATION = 150;
+        const ENTER_DURATION = 1200;
+        const TOTAL_CYCLE =
+            STABLE_DURATION + EXIT_DURATION + PAUSE_DURATION + ENTER_DURATION;
 
-        const runCycle = async () => {
-            if (!isActive) return;
+        let cycleStartTime = Date.now();
+        let animationFrameId: number;
+        let initialTimeoutId: NodeJS.Timeout;
 
-            // Stable display for 5 seconds
-            await new Promise((resolve) => {
-                const id = setTimeout(resolve, 5000);
-                timeoutIds.push(id);
-            });
-            if (!isActive) return;
+        const tick = () => {
+            const elapsed = Date.now() - cycleStartTime;
+            const cyclePosition = elapsed % TOTAL_CYCLE;
 
-            // Exit animation (800ms)
-            setPhase('exiting');
-            await new Promise((resolve) => {
-                const id = setTimeout(resolve, 800);
-                timeoutIds.push(id);
-            });
-            if (!isActive) return;
+            if (cyclePosition < STABLE_DURATION) {
+                // Stable phase
+                setPhase('stable');
+            } else if (cyclePosition < STABLE_DURATION + EXIT_DURATION) {
+                // Exit phase
+                setPhase('exiting');
+            } else if (
+                cyclePosition <
+                STABLE_DURATION + EXIT_DURATION + PAUSE_DURATION
+            ) {
+                // Pause - change role at start of pause
+                if (cyclePosition - (STABLE_DURATION + EXIT_DURATION) < 50) {
+                    setCurrentRoleIndex((prev) => (prev + 1) % ROLES.length);
+                }
+            } else {
+                // Enter phase
+                setPhase('entering');
+            }
 
-            // Pause (150ms)
-            await new Promise((resolve) => {
-                const id = setTimeout(resolve, 150);
-                timeoutIds.push(id);
-            });
-            if (!isActive) return;
-
-            // Change role
-            setCurrentRoleIndex((prev) => (prev + 1) % ROLES.length);
-
-            // Enter animation (1200ms)
-            setPhase('entering');
-            await new Promise((resolve) => {
-                const id = setTimeout(resolve, 1200);
-                timeoutIds.push(id);
-            });
-            if (!isActive) return;
-
-            // Back to stable and schedule next cycle
-            setPhase('stable');
-            runCycle();
+            animationFrameId = requestAnimationFrame(tick);
         };
 
-        // Initial animation then start cycle
-        const initialTimeout = setTimeout(() => {
+        // Initial entering animation, then start cycle
+        initialTimeoutId = setTimeout(() => {
             setPhase('stable');
-            runCycle();
-        }, 1200);
-        timeoutIds.push(initialTimeout);
+            cycleStartTime = Date.now();
+            animationFrameId = requestAnimationFrame(tick);
+        }, ENTER_DURATION);
 
         return () => {
-            isActive = false;
-            timeoutIds.forEach(clearTimeout);
+            clearTimeout(initialTimeoutId);
+            cancelAnimationFrame(animationFrameId);
         };
     }, []);
 
