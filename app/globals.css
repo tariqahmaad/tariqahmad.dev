@@ -32,6 +32,13 @@
         --chart-3: 30 85% 60%;
         --chart-4: 280 70% 65%;
         --chart-5: 340 80% 60%;
+
+        /* Banner glitch animation variables */
+        --banner-text-shadow-glitch-primary: 0 0 1px rgba(0, 255, 0, 0.2);
+        --banner-text-shadow-glitch-secondary: 0 0 1px rgba(255, 255, 255, 0.15);
+        --banner-transform-glitch-x-pos: translate3d(-1px, 0, 0);
+        --banner-transform-glitch-x-neg: translate3d(1px, 0, 0);
+        --banner-transform-normal: translate3d(0, 0, 0);
     }
 }
 
@@ -49,10 +56,23 @@
         @apply bg-background text-foreground font-roboto-flex overflow-x-hidden;
     }
 
-    /* Hide cursor only on desktop where custom cursor is shown */
+    /* Focus visible styles for keyboard navigation */
+    a:focus-visible,
+    button:focus-visible,
+    [role='button']:focus-visible,
+    input:focus-visible,
+    textarea:focus-visible,
+    select:focus-visible {
+        outline: 2px solid hsl(var(--primary));
+        outline-offset: 2px;
+    }
+
+    /* Hide cursor only on desktop where custom cursor is shown, and respect prefers-reduced-motion */
     @media (min-width: 768px) {
-        * {
-            cursor: none !important;
+        @media (prefers-reduced-motion: no-preference) {
+            * {
+                cursor: none !important;
+            }
         }
     }
 }

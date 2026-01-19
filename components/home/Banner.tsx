@@ -155,12 +155,12 @@ const Banner = () => {
                                     opacity: firstWord.opacity,
                                     textShadow:
                                         phase !== 'stable'
-                                            ? '0 0 1px rgba(0, 255, 0, 0.2)'
+                                            ? 'var(--banner-text-shadow-glitch-primary)'
                                             : 'none',
                                     transform:
                                         phase !== 'stable'
-                                            ? 'translate3d(-1px, 0, 0)'
-                                            : 'translate3d(0, 0, 0)',
+                                            ? 'var(--banner-transform-glitch-x-pos)'
+                                            : 'var(--banner-transform-normal)',
                                 }}
                             >
                                 {firstWord.displayText}
@@ -172,12 +172,12 @@ const Banner = () => {
                                     opacity: secondWord.opacity,
                                     textShadow:
                                         phase !== 'stable'
-                                            ? '0 0 1px rgba(255, 255, 255, 0.15)'
+                                            ? 'var(--banner-text-shadow-glitch-secondary)'
                                             : 'none',
                                     transform:
                                         phase !== 'stable'
-                                            ? 'translate3d(1px, 0, 0)'
-                                            : 'translate3d(0, 0, 0)',
+                                            ? 'var(--banner-transform-glitch-x-neg)'
+                                            : 'var(--banner-transform-normal)',
                                 }}
                             >
                                 {secondWord.displayText}

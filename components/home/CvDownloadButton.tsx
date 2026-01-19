@@ -42,40 +42,44 @@ const CvDownloadButton = () => {
             href="/Tariq_Ahmad_Resume.pdf"
             download="Tariq_Ahmad_Resume.pdf"
             onClick={handleClick}
-            className="group relative flex flex-row md:flex-col items-center justify-center gap-3 md:gap-2 px-6 md:px-3 py-3 border border-transparent bg-primary/[0.05] shadow-[0_0_15px_rgba(0,255,0,0.1)] backdrop-blur-[2px] hover:bg-primary/[0.1] hover:border-primary/50 hover:shadow-[0_0_30px_rgba(0,255,0,0.3)] active:scale-95 transition-all duration-300 ease-out rounded-lg overflow-hidden w-full max-w-[300px] md:max-w-none md:w-[110px] h-14 md:h-auto md:aspect-square"
+            className="group relative flex flex-row md:flex-col items-center justify-center gap-3 md:gap-2 px-6 md:px-3 py-3 border border-transparent bg-primary/[0.05] shadow-[0_0_15px_rgba(0,255,0,0.1)] backdrop-blur-[2px] hover:bg-primary/[0.1] hover:border-primary/50 hover:shadow-[0_0_30px_rgba(0,255,0,0.3)] active:scale-95 transition-all duration-300 ease-out rounded-tl-lg rounded-br-lg rounded-tr-none rounded-bl-none overflow-hidden w-full max-w-[300px] md:max-w-none md:w-[110px] h-14 md:h-auto md:aspect-square"
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
         >
             {/* Ambient Glow */}
-            <div className="absolute inset-0 bg-primary/5 rounded-lg animate-pulse group-hover:opacity-0 transition-opacity duration-300" />
+            <div className="absolute inset-0 bg-primary/5 rounded-tl-lg rounded-br-lg rounded-tr-none rounded-bl-none animate-pulse group-hover:opacity-0 transition-opacity duration-300" />
             <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
             {/* Scan Line */}
             <div className="absolute top-0 -left-full w-1/2 h-full bg-gradient-to-r from-transparent via-primary/40 to-transparent skew-x-[-20deg] group-hover:left-[150%] transition-all duration-700 ease-in-out" />
 
-            {/* Corner Accents */}
+            {/* Corner Arrows - Top right and bottom left for clean professional look */}
             <svg
-                className="absolute top-1 right-1 md:top-0 md:right-0 w-3 h-3 opacity-50 group-hover:opacity-100 transition-opacity duration-300"
-                viewBox="0 0 10 10"
+                className="absolute top-0 right-0 w-5 h-5 opacity-60 group-hover:opacity-100 transition-opacity duration-300"
+                viewBox="0 0 20 20"
             >
                 <path
-                    d="M0 0 H10 V10"
+                    d="M6 2 H18 M18 2 V14"
                     fill="none"
                     stroke="currentColor"
-                    strokeWidth="1"
-                    className="text-primary"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="text-primary drop-shadow-[0_0_6px_rgba(0,255,0,0.6)]"
                 />
             </svg>
             <svg
-                className="absolute bottom-1 left-1 md:bottom-0 md:left-0 w-3 h-3 opacity-50 group-hover:opacity-100 transition-opacity duration-300"
-                viewBox="0 0 10 10"
+                className="absolute bottom-0 left-0 w-5 h-5 opacity-60 group-hover:opacity-100 transition-opacity duration-300"
+                viewBox="0 0 20 20"
             >
                 <path
-                    d="M0 0 V10 H10"
+                    d="M14 18 H2 M2 18 V6"
                     fill="none"
                     stroke="currentColor"
-                    strokeWidth="1"
-                    className="text-primary"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="text-primary drop-shadow-[0_0_6px_rgba(0,255,0,0.6)]"
                 />
             </svg>
 

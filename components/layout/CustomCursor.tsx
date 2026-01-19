@@ -1,6 +1,6 @@
 'use client';
 import { gsap, useGSAP } from '@/lib/gsap-setup';
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 
 const CustomCursor = () => {
     const cursorDotRef = useRef<HTMLDivElement>(null);
@@ -9,7 +9,7 @@ const CustomCursor = () => {
     useGSAP((context, contextSafe) => {
         if (window.innerWidth < 768) return;
 
-        const handleMouseMove = contextSafe?.((e: MouseEvent) => {
+        const handleMouseMove = (e: MouseEvent) => {
             const { clientX, clientY } = e;
 
             // Animate the dot (fast, follows cursor immediately)
@@ -27,24 +27,24 @@ const CustomCursor = () => {
                 duration: 0.3,
                 ease: 'power2.out',
             });
-        }) as any;
+        };
 
-        const handleMouseEnter = contextSafe?.(() => {
+        const handleMouseEnter = () => {
             gsap.to([cursorDotRef.current, cursorOutlineRef.current], {
                 opacity: 1,
                 duration: 0.3,
             });
-        }) as any;
+        };
 
-        const handleMouseLeave = contextSafe?.(() => {
+        const handleMouseLeave = () => {
             gsap.to([cursorDotRef.current, cursorOutlineRef.current], {
                 opacity: 0,
                 duration: 0.3,
             });
-        }) as any;
+        };
 
         // Scale up on hover over interactive elements
-        const handleLinkHover = contextSafe?.(() => {
+        const handleLinkHover = () => {
             gsap.to(cursorOutlineRef.current, {
                 scale: 2,
                 duration: 0.3,
@@ -54,9 +54,9 @@ const CustomCursor = () => {
                 scale: 0,
                 duration: 0.3,
             });
-        }) as any;
+        };
 
-        const handleLinkLeave = contextSafe?.(() => {
+        const handleLinkLeave = () => {
             gsap.to(cursorOutlineRef.current, {
                 scale: 1,
                 duration: 0.3,
@@ -66,28 +66,35 @@ const CustomCursor = () => {
                 scale: 1,
                 duration: 0.3,
             });
-        }) as any;
+        };
 
-        window.addEventListener('mousemove', handleMouseMove);
-        document.body.addEventListener('mouseenter', handleMouseEnter);
-        document.body.addEventListener('mouseleave', handleMouseLeave);
+        // Wrap handlers with contextSafe for proper cleanup
+        const safeMouseMove = contextSafe?.(handleMouseMove) ?? handleMouseMove;
+        const safeMouseEnter = contextSafe?.(handleMouseEnter) ?? handleMouseEnter;
+        const safeMouseLeave = contextSafe?.(handleMouseLeave) ?? handleMouseLeave;
+        const safeLinkHover = contextSafe?.(handleLinkHover) ?? handleLinkHover;
+        const safeLinkLeave = contextSafe?.(handleLinkLeave) ?? handleLinkLeave;
+
+        window.addEventListener('mousemove', safeMouseMove);
+        document.body.addEventListener('mouseenter', safeMouseEnter);
+        document.body.addEventListener('mouseleave', safeMouseLeave);
 
         // Add hover effect for interactive elements
         const interactiveElements = document.querySelectorAll(
             'a, button, [role="button"], input, textarea, select',
         );
         interactiveElements.forEach((el) => {
-            el.addEventListener('mouseenter', handleLinkHover);
-            el.addEventListener('mouseleave', handleLinkLeave);
+            el.addEventListener('mouseenter', safeLinkHover);
+            el.addEventListener('mouseleave', safeLinkLeave);
         });
 
         return () => {
-            window.removeEventListener('mousemove', handleMouseMove);
-            document.body.removeEventListener('mouseenter', handleMouseEnter);
-            document.body.removeEventListener('mouseleave', handleMouseLeave);
+            window.removeEventListener('mousemove', safeMouseMove);
+            document.body.removeEventListener('mouseenter', safeMouseEnter);
+            document.body.removeEventListener('mouseleave', safeMouseLeave);
             interactiveElements.forEach((el) => {
-                el.removeEventListener('mouseenter', handleLinkHover);
-                el.removeEventListener('mouseleave', handleLinkLeave);
+                el.removeEventListener('mouseenter', safeLinkHover);
+                el.removeEventListener('mouseleave', safeLinkLeave);
             });
         };
     });

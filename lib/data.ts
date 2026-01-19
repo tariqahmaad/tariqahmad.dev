@@ -12,7 +12,10 @@ export const GENERAL_INFO = {
 
 export const SOCIAL_LINKS = [
     { name: 'GitHub', url: 'https://github.com/tariqahmaad' },
-    { name: 'LinkedIn', url: 'https://www.linkedin.com/in/tariq-ahmad-a43320264/' },
+    {
+        name: 'LinkedIn',
+        url: 'https://www.linkedin.com/in/tariq-ahmad-a43320264/',
+    },
 ];
 
 export const MY_STACK = {
@@ -182,7 +185,13 @@ export const PROJECTS: IProject[] = [
         <li>🧪 Testing: Performed comprehensive testing across devices</li>
       </ul>
       `,
-        techStack: ['React Native', 'JavaScript', 'Node.js', 'Firebase', 'REST API'],
+        techStack: [
+            'React Native',
+            'JavaScript',
+            'Node.js',
+            'Firebase',
+            'REST API',
+        ],
         sourceCode: 'https://github.com/tariqahmaad/BudgetWise',
     },
     {
@@ -220,7 +229,8 @@ export const PROJECTS: IProject[] = [
             <li>🔐 Secure user authentication and role-based access control</li>
         </ul>`,
         role: ``,
-        sourceCode: 'https://github.com/tariqahmaad/Note-Taking-Web-Application',
+        sourceCode:
+            'https://github.com/tariqahmaad/Note-Taking-Web-Application',
     },
     {
         title: 'Hospital Management System',
@@ -352,7 +362,7 @@ export const MY_EXPERIENCE = [
 
 export const MY_CERTIFICATIONS = [
     {
-        provider: ' Oxford International Digital Institute',
+        provider: 'Oxford International Digital Institute',
         certifications: [
             {
                 title: 'Oxford Test of English - Overall Score: 8.0',
