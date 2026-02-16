@@ -133,7 +133,7 @@ export const MY_STACK = {
 
 export const PROJECTS: IProject[] = [
     {
-        title: 'CV-Builder',
+        title: 'CV Builder',
         slug: 'cv-builder',
         year: 2026,
         techStack: ['Next.js', 'TypeScript', 'React', 'Tailwind'],
@@ -219,7 +219,7 @@ export const PROJECTS: IProject[] = [
         title: 'Graduation Project Presentation',
         slug: 'graduation-presentation',
         techStack: ['HTML', 'CSS', 'JavaScript', 'Presentation'],
-        year: 2024,
+        year: 2025,
         description: `Developed an interactive presentation showcasing my graduation project, utilizing HTML, CSS, and JavaScript for a dynamic and engaging user experience. The presentation features smooth transitions, interactive elements, and modern web design principles.<br/><br/>
 
         Highlights:<br/>
@@ -254,27 +254,6 @@ export const PROJECTS: IProject[] = [
             'https://github.com/tariqahmaad/Note-Taking-Web-Application',
     },
     {
-        title: 'Hospital Management System',
-        slug: 'hospital-management',
-        techStack: ['Java', 'Spring Boot', 'MySQL', 'REST API'],
-        year: 2023,
-        description: `Created a Java Spring Boot-based Hospital Management System to streamline hospital functions, featuring patient, doctor, and appointment management with RESTful APIs and MySQL. The system manages patient records, appointments, medical staff, inventory, and billing operations, demonstrating strong backend development and system design skills in healthcare software solutions.<br/><br/>
-
-        Impact:<br/>
-        <ul>
-            <li>Reduced data management errors by 15%</li>
-            <li>Optimized database operations for faster processing</li>
-            <li>Streamlined patient-doctor interaction workflows</li>
-            <li>Integrated pharmacy and inventory management</li>
-        </ul>`,
-        role: `As the full-stack developer, I:<br/>
-        - Architected the application using Spring Boot and MVC pattern<br/>
-        - Implemented complex business logic for healthcare operations<br/>
-        - Designed normalized MySQL database schema<br/>
-        - Developed secure authentication and authorization system with RESTful APIs`,
-        sourceCode: 'https://github.com/tariqahmaad/Hospital-Management-System',
-    },
-    {
         title: 'Hand-Written Digit Classifier',
         slug: 'digit-classifier',
         techStack: ['Python', 'Neural Networks', 'Deep Learning', 'TensorFlow'],
@@ -306,45 +285,6 @@ export const PROJECTS: IProject[] = [
             <li>Implemented CRUD operations for efficient data management</li>
         </ul>`,
         role: ``,
-    },
-    {
-        title: 'Banking Management System',
-        slug: 'banking-system',
-        techStack: ['Java', 'Swing', 'GUI', 'Security'],
-        year: 2022,
-        description: `Created a Java-based Banking Management System with a user-friendly interface for account management, including features like deposit, withdrawal, and account details, enhancing user experience in secure financial transactions. Built with strong security measures and user authentication.<br/><br/>
-
-        Key Features:<br/>
-        <ul>
-            <li>Facilitated secure financial transactions</li>
-            <li>Account management and balance inquiries</li>
-            <li>Fund transfer functionality (deposit and withdrawal)</li>
-            <li>Transaction history tracking</li>
-            <li>User-friendly GUI built with Java Swing</li>
-        </ul>`,
-        role: ``,
-    },
-    {
-        title: 'Airport Management System',
-        slug: 'airport-management',
-        techStack: ['Python', 'Django', 'MySQL', 'HTML/CSS', 'JavaScript'],
-        year: 2024,
-        description: `A web-based Airport Management System developed with HTML, CSS, JavaScript, Python, Django framework, and MySQL database. The platform handles flight scheduling, passenger management, staff coordination, and facility oversight with secure user authentication and role-specific functions. <br/><br/>
-
-        Key achievements:<br/>
-        <ul>
-            <li>Improved issue resolution by 20%</li>
-            <li>Streamlined operational workflows</li>
-            <li>Enhanced team productivity significantly</li>
-            <li>Implemented secure user authentication and role-based access</li>
-            <li>Responsive, cross-browser interface</li>
-        </ul>`,
-        role: `As the backend developer, I: <br/>
-        - Designed and implemented the system architecture using Django framework<br/>
-        - Developed RESTful APIs for frontend integration<br/>
-        - Optimized MySQL database queries for better performance<br/>
-        - Created responsive admin dashboard with modern web technologies`,
-        sourceCode: 'https://github.com/tariqahmaad/vercel-project',
     },
 ];
 
