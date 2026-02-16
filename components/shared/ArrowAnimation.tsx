@@ -2,7 +2,11 @@
 import { gsap, useGSAP } from '@/lib/gsap-setup';
 import { useRef } from 'react';
 
-const ArrowAnimation = () => {
+interface ArrowAnimationProps {
+    className?: string;
+}
+
+const ArrowAnimation = ({ className = '' }: ArrowAnimationProps) => {
     const svgRef = useRef<SVGSVGElement>(null);
     const arrow1Ref = useRef<SVGPathElement>(null);
     const arrow2Ref = useRef<SVGPathElement>(null);
@@ -51,7 +55,7 @@ const ArrowAnimation = () => {
             viewBox="0 0 376 111"
             fill="transparent"
             xmlns="http://www.w3.org/2000/svg"
-            className="block absolute bottom-52 md:bottom-20 left-1/2 -translate-x-1/2 z-0 pointer-events-none"
+            className={`block left-1/2 -translate-x-1/2 z-10 pointer-events-none ${className || 'absolute bottom-52 md:bottom-20'}`}
             style={{ overflow: 'hidden' }}
             ref={svgRef}
         >

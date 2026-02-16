@@ -176,7 +176,7 @@ const ProjectDetails = ({ project }: Props) => {
                             )}
                         </div>
 
-                        <ArrowAnimation />
+                        <ArrowAnimation className="relative mt-8 md:absolute md:bottom-20 md:mt-0" />
                     </div>
                 </div>
 
