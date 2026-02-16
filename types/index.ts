@@ -28,7 +28,6 @@ export interface IExperience {
     title: string;
     company: string;
     duration: string;
-    type: 'Full-time' | 'Part-time' | 'Internship' | 'Contract';
     description?: string;
     highlighted?: boolean;
 }
