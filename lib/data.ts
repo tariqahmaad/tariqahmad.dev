@@ -133,19 +133,40 @@ export const MY_STACK = {
 
 export const PROJECTS: IProject[] = [
     {
+        title: 'CV-Builder',
+        slug: 'cv-builder',
+        year: 2026,
+        techStack: ['Next.js', 'TypeScript', 'React', 'Tailwind'],
+        description: `A modern, privacy-focused resume builder with real-time preview and ATS-friendly PDF export. Built with Next.js and TypeScript, this application keeps all data in the browser for maximum privacy while offering powerful features for creating professional resumes.<br/><br/>
+
+        Key Features:<br/>
+        <ul>
+            <li>Smart form-based editor with real-time preview</li>
+            <li>PDF export with ATS-friendly formatting</li>
+            <li>Privacy-first architecture - data stays in browser</li>
+            <li>Auto-save functionality with local storage</li>
+            <li>Version control for multiple resume versions</li>
+            <li>3 professional templates: Classic, Rhyhorn, Nexus</li>
+            <li>Fast and responsive user interface</li>
+        </ul>`,
+        role: ``,
+        sourceCode: 'https://github.com/tariqahmaad/CV-Builder',
+        liveUrl: 'https://ta-cv.vercel.app/',
+    },
+    {
         title: 'Quizlet',
         slug: 'quizlet',
         techStack: ['HTML', 'CSS', 'JavaScript', 'Responsive'],
-        year: 2024,
+        year: 2025,
         description: `A web-based quiz application designed to help students practice and test their knowledge in university-level courses. The platform supports course-specific quizzes, timer-based sessions, real-time scoring, and a responsive interface.<br/><br/>
 
         Key Features:<br/>
         <ul>
-            <li>📚 Course-specific quiz modules</li>
-            <li>⏱️ Timer-based quiz sessions</li>
-            <li>📊 Real-time scoring and feedback</li>
-            <li>📱 Fully responsive design for mobile and desktop</li>
-            <li>🎯 Interactive user interface for better learning experience</li>
+            <li>Course-specific quiz modules</li>
+            <li>Timer-based quiz sessions</li>
+            <li>Real-time scoring and feedback</li>
+            <li>Fully responsive design for mobile and desktop</li>
+            <li>Interactive user interface for better learning experience</li>
         </ul>`,
         role: ``,
         sourceCode: 'https://github.com/tariqahmaad/quizlet',
@@ -160,11 +181,11 @@ export const PROJECTS: IProject[] = [
 
       Key Features:<br/>
       <ul>
-        <li>💰 Expense Tracking: Log daily transactions with categories</li>
-        <li>📊 Budget Management: Set and monitor budget limits</li>
-        <li>📱 Real-time Sync: Cloud-based data synchronization with Firebase</li>
-        <li>📈 Financial Reports: Visual analytics and spending insights</li>
-        <li>🔒 Secure Authentication: User login and data protection</li>
+        <li>Expense Tracking: Log daily transactions with categories</li>
+        <li>Budget Management: Set and monitor budget limits</li>
+        <li>Real-time Sync: Cloud-based data synchronization with Firebase</li>
+        <li>Financial Reports: Visual analytics and spending insights</li>
+        <li>Secure Authentication: User login and data protection</li>
       </ul><br/>
 
       Technical Highlights:
@@ -178,11 +199,11 @@ export const PROJECTS: IProject[] = [
         role: `
       Full-Stack Developer <br/>
       <ul>
-        <li>📱 Mobile Development: Built cross-platform app using React Native</li>
-        <li>🔧 Backend: Implemented Node.js API for data management</li>
-        <li>☁️ Cloud Integration: Connected Firebase for real-time synchronization</li>
-        <li>🎨 UI/UX: Designed intuitive user interface for financial tracking</li>
-        <li>🧪 Testing: Performed comprehensive testing across devices</li>
+        <li>Mobile Development: Built cross-platform app using React Native</li>
+        <li>Backend: Implemented Node.js API for data management</li>
+        <li>Cloud Integration: Connected Firebase for real-time synchronization</li>
+        <li>UI/UX: Designed intuitive user interface for financial tracking</li>
+        <li>Testing: Performed comprehensive testing across devices</li>
       </ul>
       `,
         techStack: [
@@ -203,11 +224,11 @@ export const PROJECTS: IProject[] = [
 
         Highlights:<br/>
         <ul>
-            <li>🎨 Modern and interactive design</li>
-            <li>📱 Responsive layout for all devices</li>
-            <li>✨ Smooth transitions and animations</li>
-            <li>📊 Dynamic content display</li>
-            <li>🎯 Engaging user experience</li>
+            <li>Modern and interactive design</li>
+            <li>Responsive layout for all devices</li>
+            <li>Smooth transitions and animations</li>
+            <li>Dynamic content display</li>
+            <li>Engaging user experience</li>
         </ul>`,
         role: ``,
         sourceCode: 'https://github.com/tariqahmaad/Presentation',
@@ -222,11 +243,11 @@ export const PROJECTS: IProject[] = [
 
         Results:<br/>
         <ul>
-            <li>📈 Increased user engagement significantly</li>
-            <li>👍 Received positive feedback from users</li>
-            <li>🔍 Implemented advanced search and filtering</li>
-            <li>📱 Responsive design for mobile and desktop</li>
-            <li>🔐 Secure user authentication and role-based access control</li>
+            <li>Increased user engagement significantly</li>
+            <li>Received positive feedback from users</li>
+            <li>Implemented advanced search and filtering</li>
+            <li>Responsive design for mobile and desktop</li>
+            <li>Secure user authentication and role-based access control</li>
         </ul>`,
         role: ``,
         sourceCode:
@@ -241,10 +262,10 @@ export const PROJECTS: IProject[] = [
 
         Impact:<br/>
         <ul>
-            <li>📉 Reduced data management errors by 15%</li>
-            <li>⚡ Optimized database operations for faster processing</li>
-            <li>🏥 Streamlined patient-doctor interaction workflows</li>
-            <li>💊 Integrated pharmacy and inventory management</li>
+            <li>Reduced data management errors by 15%</li>
+            <li>Optimized database operations for faster processing</li>
+            <li>Streamlined patient-doctor interaction workflows</li>
+            <li>Integrated pharmacy and inventory management</li>
         </ul>`,
         role: `As the full-stack developer, I:<br/>
         - Architected the application using Spring Boot and MVC pattern<br/>
@@ -262,10 +283,10 @@ export const PROJECTS: IProject[] = [
 
         Technical Details:<br/>
         <ul>
-            <li>🧠 Implemented multi-layer neural network architecture</li>
-            <li>📊 Trained on 60,000 training images from MNIST dataset</li>
-            <li>✨ Achieved over 95% accuracy on test data</li>
-            <li>⚙️ Used backpropagation and gradient descent optimization</li>
+            <li>Implemented multi-layer neural network architecture</li>
+            <li>Trained on 60,000 training images from MNIST dataset</li>
+            <li>Achieved over 95% accuracy on test data</li>
+            <li>Used backpropagation and gradient descent optimization</li>
         </ul>`,
         role: ``,
     },
@@ -278,11 +299,11 @@ export const PROJECTS: IProject[] = [
 
         Achievements:<br/>
         <ul>
-            <li>🏨 Enhanced booking and reservation processes</li>
-            <li>📅 Automated room availability tracking</li>
-            <li>👥 Improved guest management workflows</li>
-            <li>💼 Streamlined check-in/check-out operations</li>
-            <li>💾 Implemented CRUD operations for efficient data management</li>
+            <li>Enhanced booking and reservation processes</li>
+            <li>Automated room availability tracking</li>
+            <li>Improved guest management workflows</li>
+            <li>Streamlined check-in/check-out operations</li>
+            <li>Implemented CRUD operations for efficient data management</li>
         </ul>`,
         role: ``,
     },
@@ -295,11 +316,11 @@ export const PROJECTS: IProject[] = [
 
         Key Features:<br/>
         <ul>
-            <li>🔐 Facilitated secure financial transactions</li>
-            <li>💰 Account management and balance inquiries</li>
-            <li>💸 Fund transfer functionality (deposit and withdrawal)</li>
-            <li>📝 Transaction history tracking</li>
-            <li>🖥️ User-friendly GUI built with Java Swing</li>
+            <li>Facilitated secure financial transactions</li>
+            <li>Account management and balance inquiries</li>
+            <li>Fund transfer functionality (deposit and withdrawal)</li>
+            <li>Transaction history tracking</li>
+            <li>User-friendly GUI built with Java Swing</li>
         </ul>`,
         role: ``,
     },
@@ -312,11 +333,11 @@ export const PROJECTS: IProject[] = [
 
         Key achievements:<br/>
         <ul>
-            <li>✅ Improved issue resolution by 20%</li>
-            <li>📊 Streamlined operational workflows</li>
-            <li>👥 Enhanced team productivity significantly</li>
-            <li>🔐 Implemented secure user authentication and role-based access</li>
-            <li>📱 Responsive, cross-browser interface</li>
+            <li>Improved issue resolution by 20%</li>
+            <li>Streamlined operational workflows</li>
+            <li>Enhanced team productivity significantly</li>
+            <li>Implemented secure user authentication and role-based access</li>
+            <li>Responsive, cross-browser interface</li>
         </ul>`,
         role: `As the backend developer, I: <br/>
         - Designed and implemented the system architecture using Django framework<br/>
