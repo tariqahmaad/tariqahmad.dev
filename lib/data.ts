@@ -293,44 +293,44 @@ export const MY_EXPERIENCE: IExperience[] = [
         title: 'Research Assistant',
         company: 'Industry 4.0 Research Centre',
         duration: 'Oct 2024 - July 2025',
-        type: 'Full-time',
-        description: 'Working on Industry 4.0 research projects, focusing on AI integration and smart manufacturing systems.',
+        description:
+            'Working on Industry 4.0 research projects, focusing on AI integration and smart manufacturing systems.',
         highlighted: true,
     },
     {
         title: 'Research Assistant Intern',
         company: 'Istanbul Aydin University',
         duration: 'March 2024 - May 2024',
-        type: 'Internship',
-        description: 'Assisted in academic research projects and data analysis.',
+        description:
+            'Assisted in academic research projects and data analysis.',
     },
     {
         title: 'Frontend Developer Intern',
         company: 'Caretta Software Company',
         duration: 'Nov 2023 - Jan 2024',
-        type: 'Internship',
-        description: 'Developed responsive web interfaces using React and modern CSS frameworks.',
+        description:
+            'Developed responsive web interfaces using React and modern CSS frameworks.',
     },
     {
         title: 'Research Intern',
         company: 'Istanbul Aydin University',
         duration: 'Oct 2023 - Jan 2024',
-        type: 'Internship',
-        description: 'Contributed to ongoing research initiatives in the computer engineering department.',
+        description:
+            'Contributed to ongoing research initiatives in the computer engineering department.',
     },
     {
         title: 'Network Technician',
         company: 'Tawhid Almas Logistics Company',
         duration: 'July 2023 - Sept 2023',
-        type: 'Full-time',
-        description: 'Managed network infrastructure and ensured reliable connectivity across all departments.',
+        description:
+            'Managed network infrastructure and ensured reliable connectivity across all departments.',
     },
     {
         title: 'IT Support Specialist',
         company: 'Tawhid Almas Logistics Company',
         duration: 'July 2022 - Sept 2022',
-        type: 'Full-time',
-        description: 'Provided technical support and maintained IT systems for logistics operations.',
+        description:
+            'Provided technical support and maintained IT systems for logistics operations.',
     },
 ];
 

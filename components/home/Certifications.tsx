@@ -137,16 +137,16 @@ const Certifications = () => {
                                                             )
                                                         }
                                                     >
-                                                        <div className="sm:col-span-9">
+                                                        <div className="sm:col-span-8">
                                                             <p
                                                                 className={`${foregroundGradientClass} ${isCertHovered ? 'bg-left' : 'bg-right'} text-body-base sm:text-body-lg break-words`}
                                                             >
                                                                 {cert.title}
                                                             </p>
                                                         </div>
-                                                        <div className="sm:col-span-3">
+                                                        <div className="sm:col-span-4">
                                                             <p
-                                                                className={`${mutedGradientClass} ${isCertHovered ? 'bg-left' : 'bg-right'} text-body-sm sm:text-body-base`}
+                                                                className={`${mutedGradientClass} ${isCertHovered ? 'bg-left' : 'bg-right'} text-body-sm sm:text-body-base text-right`}
                                                             >
                                                                 {cert.date}
                                                             </p>

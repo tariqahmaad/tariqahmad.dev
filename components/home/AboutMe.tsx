@@ -41,16 +41,16 @@ const AboutMe = () => {
         <section className="pb-section" id="about-me">
             <div className="container" ref={container}>
                 <h2 className="text-heading-sm sm:text-heading-md md:text-heading-lg font-thin mb-8 xs:mb-12 md:mb-20 slide-up-and-fade leading-tight">
-                    Building scalable, efficient software solutions that bridge
-                    the gap between complex systems and user-centric design.
+                    Engineering scalable solutions that balance technical
+                    excellence with intuitive design.
                 </h2>
 
                 <SectionTitle title="ABOUT ME" className="slide-up-and-fade" />
 
                 <div className="grid md:grid-cols-12 mt-6 xs:mt-9 gap-y-8 md:gap-12 items-start">
                     <div className="md:col-span-5 mb-6 md:mb-0 flex flex-col items-center text-center md:items-end md:text-right">
-                        <p className="text-heading-sm sm:text-heading-md md:text-heading-lg slide-up-and-fade">
-                            Hi, I&apos;m Tariq Ahmad.
+                        <p className="text-heading-sm sm:text-heading-md md:text-heading-lg slide-up-and-fade font-mono tracking-tight">
+                            Behind the code.
                         </p>
                         <div className="mt-6 flex justify-center md:justify-end w-full">
                             <div className="relative w-full max-w-[320px] sm:max-w-[350px] md:max-w-[380px] aspect-square group">
@@ -68,21 +68,23 @@ const AboutMe = () => {
                         <div className="text-body-lg sm:text-body-xl text-muted-foreground max-w-[450px] md:max-w-none">
                             <p className="slide-up-and-fade">
                                 I am a dedicated Computer Engineering graduate
-                                from Istanbul Aydin University (CGPA 3.36/4.0),
-                                combining a strong theoretical foundation with
-                                practical expertise in full-stack development
-                                and network infrastructure. My passion lies in
-                                engineering systems that are not just
-                                functional, but also robust and scalable.
+                                from Istanbul Aydin University, combining a
+                                strong theoretical foundation with hands-on
+                                expertise in full-stack development and network
+                                infrastructure. My passion lies in engineering
+                                systems that are not just functional, but also
+                                robust, scalable, and maintainable.
                             </p>
                             <p className="mt-3 slide-up-and-fade">
-                                With hands-on experience ranging from Industry
-                                4.0 research to network management, I bring a
-                                holistic view to software engineering. I excel
-                                at strategic problem-solving and technical
-                                leadership, having successfully delivered
-                                complex projects by fostering collaboration and
-                                maintaining rigorous quality standards.
+                                With professional experience spanning Industry
+                                4.0 research, network administration, and
+                                software engineering, I bring a holistic
+                                approach to building technology solutions. I
+                                excel at strategic problem-solving and
+                                technical leadership, having successfully
+                                delivered complex projects by fostering
+                                collaboration and maintaining rigorous quality
+                                standards.
                             </p>
                             <p className="mt-3 slide-up-and-fade">
                                 Fluent in English, Dari, and conversational in

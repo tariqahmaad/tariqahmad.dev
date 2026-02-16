@@ -195,9 +195,8 @@ const Banner = () => {
                         <span className="font-medium text-foreground">
                             Tariq Ahmad
                         </span>
-                        . Computer engineer with expertise in full-stack
-                        development, networking, and system architecture.
-                        Building innovative solutions with modern technologies.
+                        . I architect robust systems and craft seamless digital
+                        experiences from infrastructure to interface.
                     </p>
                     <Button
                         as="link"
