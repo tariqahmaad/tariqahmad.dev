@@ -4,6 +4,7 @@ import SectionTitle from '@/components/shared/SectionTitle';
 import { MY_EXPERIENCE } from '@/lib/data';
 import { gsap, useGSAP } from '@/lib/gsap-setup';
 import { useScrollExitAnimation } from '@/hooks/useScrollExitAnimation';
+import { IExperience } from '@/types';
 import { useRef } from 'react';
 
 interface TimelineItemProps {
