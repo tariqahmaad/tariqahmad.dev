@@ -141,8 +141,6 @@ const CvDownloadButton = () => {
                 {downloadStatus === 'success' ? 'DOWNLOADED' : displayText}
             </span>
 
-            {/* Bottom Progress Bar */}
-            <div className="absolute bottom-0 left-0 h-[2px] bg-gradient-to-r from-transparent via-primary to-transparent transition-all duration-500 ease-out opacity-0 group-hover:opacity-100 group-hover:w-full w-0" />
         </a>
     );
 };

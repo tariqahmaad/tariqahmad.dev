@@ -10,9 +10,10 @@ interface Props {
     project: IProject;
     selectedProject: string | null;
     onMouseEnter: (slug: string) => void;
+    onMouseLeave: () => void;
 }
 
-const Project = ({ index, project, selectedProject, onMouseEnter }: Props) => {
+const Project = ({ index, project, selectedProject, onMouseEnter, onMouseLeave }: Props) => {
     const externalLinkSVGRef = useRef<SVGSVGElement>(null);
 
     const { context, contextSafe } = useGSAP(() => {}, {
@@ -80,14 +81,17 @@ const Project = ({ index, project, selectedProject, onMouseEnter }: Props) => {
 
     const handleMouseLeave = contextSafe?.(() => {
         context.kill();
+        onMouseLeave();
     });
 
     return (
-        <TransitionLink
-            href={`/projects/${project.slug}`}
-            className="project-item group leading-none md:py-5 md:border-b first:!pt-0 last:pb-0 last:border-none md:group-hover/projects:opacity-30 md:hover:!opacity-100 transition-all"
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
+        <div
+            className={cn(
+                'project-item leading-none md:py-5 md:border-b first:!pt-0 last:pb-0 last:border-none transition-all',
+                selectedProject !== null &&
+                    selectedProject !== project.slug &&
+                    'md:opacity-30',
+            )}
         >
             {selectedProject === null && project.thumbnail && (
                 <Image
@@ -95,9 +99,7 @@ const Project = ({ index, project, selectedProject, onMouseEnter }: Props) => {
                     alt={`${project.title} thumbnail`}
                     width="300"
                     height="200"
-                    className={cn(
-                        'w-full object-cover mb-6 aspect-[3/2] object-top',
-                    )}
+                    className="w-full object-cover mb-6 aspect-[3/2] object-top"
                     key={project.slug}
                     loading="lazy"
                 />
@@ -106,9 +108,18 @@ const Project = ({ index, project, selectedProject, onMouseEnter }: Props) => {
                 <div className="font-anton text-muted-foreground text-body-base sm:text-body-lg">
                     _{(index + 1).toString().padStart(2, '0')}.
                 </div>
-                <div className="">
-                    <h4 className="text-heading-sm sm:text-heading-md md:text-heading-lg font-anton transition-all duration-700 bg-gradient-to-r from-primary to-foreground from-[50%] to-[50%] bg-[length:200%] bg-right bg-clip-text text-transparent group-hover:bg-left leading-tight flex items-center gap-2">
-                        <span>{project.title}</span>
+                <div>
+                    <TransitionLink
+                        href={`/projects/${project.slug}`}
+                        className="group inline-flex items-center gap-2"
+                    >
+                        <h4
+                            className="text-heading-sm sm:text-heading-md md:text-heading-lg font-anton transition-all duration-700 bg-gradient-to-r from-primary to-foreground from-[50%] to-[50%] bg-[length:200%] bg-right bg-clip-text text-transparent hover:bg-left leading-tight"
+                            onMouseEnter={handleMouseEnter}
+                            onMouseLeave={handleMouseLeave}
+                        >
+                            {project.title}
+                        </h4>
                         <span className="text-foreground opacity-0 group-hover:opacity-100 transition-all inline-flex items-center">
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -131,7 +142,7 @@ const Project = ({ index, project, selectedProject, onMouseEnter }: Props) => {
                                 <path id="arrow-curb" d="M15 3h6v6"></path>
                             </svg>
                         </span>
-                    </h4>
+                    </TransitionLink>
                     <ul className="mt-2 flex flex-wrap gap-3 text-muted-foreground text-ui-base sm:text-body-sm">
                         {project.techStack
                             .slice(0, 3)
@@ -149,7 +160,7 @@ const Project = ({ index, project, selectedProject, onMouseEnter }: Props) => {
                     </ul>
                 </div>
             </div>
-        </TransitionLink>
+        </div>
     );
 };
 

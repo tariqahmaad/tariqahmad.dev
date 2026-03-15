@@ -13,9 +13,7 @@ const ProjectList = () => {
     const projectListRef = useRef<HTMLDivElement>(null);
     const imageContainer = useRef<HTMLDivElement>(null);
     const imageRef = useRef<HTMLImageElement>(null);
-    const [selectedProject, setSelectedProject] = useState<string | null>(
-        PROJECTS[0].slug,
-    );
+    const [selectedProject, setSelectedProject] = useState<string | null>(null);
 
     // update imageRef.current href based on the cursor hover position
     // also update image position
@@ -116,12 +114,16 @@ const ProjectList = () => {
         setSelectedProject(slug);
     };
 
+    const handleMouseLeave = () => {
+        setSelectedProject(null);
+    };
+
     return (
         <section className="py-section" id="selected-projects">
             <div className="container">
                 <SectionTitle title="SELECTED PROJECTS" />
 
-                <div className="group/projects relative" ref={containerRef}>
+                <div className="relative" ref={containerRef}>
                     {selectedProject !== null && (
                         <div
                             className="max-md:hidden absolute right-0 top-0 z-[1] pointer-events-none w-[200px] xl:w-[350px] aspect-[3/4] overflow-hidden opacity-0"
@@ -161,6 +163,7 @@ const ProjectList = () => {
                                 project={project}
                                 selectedProject={selectedProject}
                                 onMouseEnter={handleMouseEnter}
+                                onMouseLeave={handleMouseLeave}
                                 key={project.slug}
                             />
                         ))}
