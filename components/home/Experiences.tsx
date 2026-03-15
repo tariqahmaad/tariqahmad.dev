@@ -15,9 +15,7 @@ interface TimelineItemProps {
 
 const TimelineItem = ({ experience, index, isLast }: TimelineItemProps) => {
     return (
-        <div
-            className={`timeline-item relative flex gap-6 ${isLast ? '' : 'pb-5 md:pb-6'}`}
-        >
+        <div className="timeline-item relative flex gap-6 pb-5 md:pb-6">
             {/* Timeline line and dot */}
             <div className="relative flex flex-col items-center">
                 {/* Dot with pulse ring layers */}
@@ -35,39 +33,38 @@ const TimelineItem = ({ experience, index, isLast }: TimelineItemProps) => {
                         <div className="timeline-line-fill absolute inset-x-0 top-0 h-0 bg-gradient-to-b from-primary via-primary/50 to-primary/20 rounded-full" />
                     </div>
                 )}
+                {/* Spacer so last item's timeline column matches siblings */}
+                {isLast && <div className="w-0.5 flex-1 mt-2" />}
             </div>
 
             {/* Content card */}
-            <div className="flex-1 experience-card group relative p-5 sm:p-6 bg-background-light border border-border rounded-lg overflow-hidden transition-all duration-300 hover:border-primary/50 hover:shadow-[0_0_20px_rgba(0,255,0,0.08)] -mt-1">
-                {/* Header row: Date */}
-                <div className="flex flex-wrap items-center gap-2 mb-2">
-                    <span className="text-xs sm:text-body-sm font-medium px-2.5 py-1 rounded-full border bg-muted/30 text-muted-foreground border-border">
+            <div className="flex-1 experience-card group relative flex flex-col p-5 sm:p-6 bg-background-light border border-transparent rounded-lg transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,255,0,0.08)]">
+                {/* Header row: Title/Company on left, Date on right */}
+                <div className="flex items-start justify-between gap-4 mb-2.5">
+                    <div>
+                        <h3 className="font-anton text-body-xl sm:text-heading-sm text-primary leading-tight mb-1.5">
+                            {experience.title}
+                        </h3>
+                        <p className="text-body-sm sm:text-body-base text-foreground">
+                            {experience.company}
+                        </p>
+                    </div>
+                    <span className="text-xs sm:text-body-sm font-medium px-2.5 py-1 rounded-full border bg-muted/30 text-muted-foreground border-border whitespace-nowrap flex-shrink-0">
                         {experience.duration}
                     </span>
                 </div>
 
-                {/* Title */}
-                <h3 className="font-anton text-body-xl sm:text-heading-sm text-primary leading-tight mb-1.5">
-                    {experience.title}
-                </h3>
-
-                {/* Company */}
-                <p className="text-body-sm sm:text-body-base text-foreground mb-2.5">
-                    {experience.company}
-                </p>
-
                 {/* Description */}
                 {experience.description && (
-                    <p className="text-body-sm text-muted-foreground leading-relaxed">
+                    <p className="text-body-sm text-muted-foreground leading-relaxed line-clamp-2">
                         {experience.description}
                     </p>
                 )}
 
                 {/* Hover corner accents */}
-                <div className="absolute top-0 left-0 w-6 h-6 border-t border-l border-transparent group-hover:border-primary/40 transition-colors duration-300" />
-                <div className="absolute top-0 right-0 w-6 h-6 border-t border-r border-transparent group-hover:border-primary/40 transition-colors duration-300" />
-                <div className="absolute bottom-0 left-0 w-6 h-6 border-b border-l border-transparent group-hover:border-primary/40 transition-colors duration-300" />
-                <div className="absolute bottom-0 right-0 w-6 h-6 border-b border-r border-transparent group-hover:border-primary/40 transition-colors duration-300" />
+                {(['top-0 left-0 border-t border-l', 'top-0 right-0 border-t border-r', 'bottom-0 left-0 border-b border-l', 'bottom-0 right-0 border-b border-r'] as const).map((pos) => (
+                    <div key={pos} className={`absolute ${pos} w-6 h-6 border-transparent group-hover:border-primary/70 transition-colors duration-300`} />
+                ))}
             </div>
         </div>
     );
@@ -211,7 +208,10 @@ const Experiences = () => {
                     }
                 }
 
-                const orderedIndexes = [...leftColumnIndexes, ...rightColumnIndexes];
+                const orderedIndexes = [
+                    ...leftColumnIndexes,
+                    ...rightColumnIndexes,
+                ];
 
                 const masterTimeline = gsap.timeline({
                     scrollTrigger: {
@@ -223,7 +223,9 @@ const Experiences = () => {
 
                 orderedIndexes.forEach((index) => {
                     const dot = dots[index];
-                    const lineFill = lineFills[index] as HTMLElement | undefined;
+                    const lineFill = lineFills[index] as
+                        | HTMLElement
+                        | undefined;
 
                     if (!dot) return;
 
@@ -281,7 +283,7 @@ const Experiences = () => {
                 <SectionTitle title="My Experience" />
 
                 {/* Timeline - 2 columns on desktop */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-10 gap-y-0 mx-auto">
+                <div className="grid grid-cols-1 lg:grid-cols-2 !gap-x-10 !gap-y-0 mx-auto">
                     {MY_EXPERIENCE.map((experience, index) => (
                         <TimelineItem
                             key={`${experience.title}-${index}`}

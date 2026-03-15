@@ -102,7 +102,7 @@ const Navbar = () => {
     return (
         <>
             {/* Hamburger Button - Optimized Touch Targets */}
-            <div className="sticky top-0 z-[4]">
+            <div className="sticky top-0 z-[40]">
                 <button
                     className={cn(
                         'group',
@@ -156,7 +156,7 @@ const Navbar = () => {
             {/* Backdrop */}
             <div
                 className={cn(
-                    'fixed inset-0 z-[2] bg-black/90 backdrop-blur-md',
+                    'fixed inset-0 z-[30] bg-black/90 backdrop-blur-md',
                     'transition-all duration-300 ease-&lsqb;cubic-bezier(0.4,0,0.2,1)&rsqb;',
                     'will-change-transform',
                     isMenuOpen
@@ -174,7 +174,7 @@ const Navbar = () => {
                     'fixed top-0 right-0 h-[100dvh] overflow-y-auto',
                     // Progressive width enhancement for better desktop experience
                     'w-full sm:w-[85vw] md:w-[550px] lg:w-[580px] xl:w-[620px]',
-                    'transform transition-all duration-400 ease-&lsqb;cubic-bezier(0.4,0,0.2,1)&rsqb; z-[3]',
+                    'transform transition-all duration-400 ease-&lsqb;cubic-bezier(0.4,0,0.2,1)&rsqb; z-[31]',
                     // Mobile-optimized spacing - reduced on mobile only
                     'py-14 sm:py-16 md:py-20 lg:py-20',
                     'px-4 sm:px-6 md:px-10 lg:px-12 xl:px-14',
