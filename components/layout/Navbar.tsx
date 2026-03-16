@@ -10,7 +10,7 @@ import {
     Award,
     FolderGit2,
 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { GENERAL_INFO, SOCIAL_LINKS } from '@/lib/data';
 import { useScrollDetection } from '@/hooks/useScrollDetection';
 import { useScrollLock } from '@/hooks/useScrollLock';
@@ -62,6 +62,7 @@ const MENU_LINKS = [
 ] as const;
 
 const Navbar = () => {
+    const pathname = usePathname();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const router = useRouter();
     const menuRef = useRef<HTMLDivElement>(null);
@@ -98,6 +99,9 @@ const Navbar = () => {
             }, 0);
         }
     }, [focusedIndex]);
+
+    // Hide navbar on project details pages
+    if (pathname?.startsWith('/projects/')) return null;
 
     return (
         <>

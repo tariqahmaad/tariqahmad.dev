@@ -1,120 +1,180 @@
 'use client';
 import { gsap, useGSAP } from '@/lib/gsap-setup';
-import { useRef, useEffect } from 'react';
+import { useRef } from 'react';
+
+// Selectors for interactive elements that trigger hover effects
+const INTERACTIVE_SELECTORS = 'a, button, [role="button"], input, textarea, select';
+
+// Animation constants
+const HOVER_SCALE = 1.5;
+const CLICK_SCALE_FACTOR = 0.5;
+const MOVE_DURATION = 0.35;
+const HOVER_DURATION = 0.4;
+const CLICK_DURATION = 0.15;
+
+// Mask gradient constants
+const MASK_INNER_STOP = 45;
+const MASK_DEFAULT_OUTER_STOP = 70;
+const MASK_CLICK_OUTER_STOP = 46;
+const MASK_TRANSITION_RANGE = 24;
+
+// Helper: Check if element is interactive (or nested inside one)
+function isInteractiveElement(element: HTMLElement | null): boolean {
+    if (!element) return false;
+    return element.matches(INTERACTIVE_SELECTORS) || element.closest(INTERACTIVE_SELECTORS) !== null;
+}
+
+// Helper: Update ring mask gradient
+function updateRingMask(ring: HTMLDivElement, outerStop: number): void {
+    const gradient = `radial-gradient(circle, #000 0%, #000 ${MASK_INNER_STOP}%, transparent ${outerStop}%)`;
+    ring.style.mask = gradient;
+    (ring.style as CSSStyleDeclaration & { webkitMask: string }).webkitMask = gradient;
+}
 
 const CustomCursor = () => {
-    const cursorDotRef = useRef<HTMLDivElement>(null);
-    const cursorOutlineRef = useRef<HTMLDivElement>(null);
+    const spotlightRef = useRef<HTMLDivElement>(null);
+    const ringRef = useRef<HTMLDivElement>(null);
 
     useGSAP((context, contextSafe) => {
+        // Skip on mobile or if user prefers reduced motion
         if (window.innerWidth < 768) return;
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+        // Animation state (closure-scoped for GSAP callbacks)
+        let currentScale = 1;
+        let isHovering = false;
 
         const handleMouseMove = (e: MouseEvent) => {
-            const { clientX, clientY } = e;
-
-            // Animate the dot (fast, follows cursor immediately)
-            gsap.to(cursorDotRef.current, {
-                x: clientX,
-                y: clientY,
-                duration: 0.1,
-                ease: 'power2.out',
-            });
-
-            // Animate the outline (slower, creates trailing effect)
-            gsap.to(cursorOutlineRef.current, {
-                x: clientX,
-                y: clientY,
-                duration: 0.3,
-                ease: 'power2.out',
+            gsap.to(spotlightRef.current, {
+                x: e.clientX,
+                y: e.clientY,
+                duration: MOVE_DURATION,
+                ease: 'power3.out',
+                overwrite: 'auto',
             });
         };
 
         const handleMouseEnter = () => {
-            gsap.to([cursorDotRef.current, cursorOutlineRef.current], {
-                opacity: 1,
-                duration: 0.3,
-            });
+            gsap.to(spotlightRef.current, { opacity: 1, duration: HOVER_DURATION });
         };
 
         const handleMouseLeave = () => {
-            gsap.to([cursorDotRef.current, cursorOutlineRef.current], {
-                opacity: 0,
-                duration: 0.3,
-            });
+            gsap.to(spotlightRef.current, { opacity: 0, duration: 0.3 });
         };
 
-        // Scale up on hover over interactive elements
-        const handleLinkHover = () => {
-            gsap.to(cursorOutlineRef.current, {
-                scale: 2,
-                duration: 0.3,
+        const handleMouseDown = () => {
+            gsap.to(spotlightRef.current, {
+                scale: currentScale * CLICK_SCALE_FACTOR,
+                duration: CLICK_DURATION,
                 ease: 'power2.out',
+                overwrite: true,
             });
-            gsap.to(cursorDotRef.current, {
-                scale: 0,
-                duration: 0.3,
-            });
-        };
-
-        const handleLinkLeave = () => {
-            gsap.to(cursorOutlineRef.current, {
-                scale: 1,
-                duration: 0.3,
+            gsap.to(ringRef.current, {
+                duration: CLICK_DURATION,
                 ease: 'power2.out',
-            });
-            gsap.to(cursorDotRef.current, {
-                scale: 1,
-                duration: 0.3,
+                onUpdate: function () {
+                    if (!ringRef.current) return;
+                    const progress = this.progress();
+                    const stop = MASK_DEFAULT_OUTER_STOP - MASK_TRANSITION_RANGE * progress;
+                    updateRingMask(ringRef.current, stop);
+                },
             });
         };
 
-        // Wrap handlers with contextSafe for proper cleanup
+        const handleMouseUp = () => {
+            gsap.to(spotlightRef.current, {
+                scale: currentScale,
+                duration: CLICK_DURATION,
+                ease: 'power2.out',
+                overwrite: true,
+            });
+            gsap.to(ringRef.current, {
+                duration: CLICK_DURATION,
+                ease: 'power2.out',
+                onUpdate: function () {
+                    if (!ringRef.current) return;
+                    const progress = this.progress();
+                    const stop = MASK_CLICK_OUTER_STOP + MASK_TRANSITION_RANGE * progress;
+                    updateRingMask(ringRef.current, stop);
+                },
+            });
+        };
+
+        const handleMouseOver = (e: MouseEvent) => {
+            const target = e.target as HTMLElement;
+            if (isInteractiveElement(target) && !isHovering) {
+                isHovering = true;
+                currentScale = HOVER_SCALE;
+                gsap.to(spotlightRef.current, {
+                    scale: HOVER_SCALE,
+                    duration: HOVER_DURATION,
+                    ease: 'power3.out',
+                });
+            }
+        };
+
+        const handleMouseOut = (e: MouseEvent) => {
+            const target = e.target as HTMLElement;
+            const relatedTarget = e.relatedTarget as HTMLElement;
+
+            // Only scale down if leaving an interactive element and not entering another
+            if (isInteractiveElement(target) && !isInteractiveElement(relatedTarget)) {
+                isHovering = false;
+                currentScale = 1;
+                gsap.to(spotlightRef.current, {
+                    scale: 1,
+                    duration: HOVER_DURATION,
+                    ease: 'power3.out',
+                });
+            }
+        };
+
+        // Wrap handlers with contextSafe for proper GSAP cleanup
         const safeMouseMove = contextSafe?.(handleMouseMove) ?? handleMouseMove;
         const safeMouseEnter = contextSafe?.(handleMouseEnter) ?? handleMouseEnter;
         const safeMouseLeave = contextSafe?.(handleMouseLeave) ?? handleMouseLeave;
-        const safeLinkHover = contextSafe?.(handleLinkHover) ?? handleLinkHover;
-        const safeLinkLeave = contextSafe?.(handleLinkLeave) ?? handleLinkLeave;
+        const safeMouseDown = contextSafe?.(handleMouseDown) ?? handleMouseDown;
+        const safeMouseUp = contextSafe?.(handleMouseUp) ?? handleMouseUp;
+        const safeMouseOver = contextSafe?.(handleMouseOver) ?? handleMouseOver;
+        const safeMouseOut = contextSafe?.(handleMouseOut) ?? handleMouseOut;
 
+        // Attach event listeners
         window.addEventListener('mousemove', safeMouseMove);
         document.body.addEventListener('mouseenter', safeMouseEnter);
         document.body.addEventListener('mouseleave', safeMouseLeave);
-
-        // Add hover effect for interactive elements
-        const interactiveElements = document.querySelectorAll(
-            'a, button, [role="button"], input, textarea, select',
-        );
-        interactiveElements.forEach((el) => {
-            el.addEventListener('mouseenter', safeLinkHover);
-            el.addEventListener('mouseleave', safeLinkLeave);
-        });
+        document.addEventListener('mousedown', safeMouseDown);
+        document.addEventListener('mouseup', safeMouseUp);
+        document.addEventListener('mouseover', safeMouseOver);
+        document.addEventListener('mouseout', safeMouseOut);
 
         return () => {
             window.removeEventListener('mousemove', safeMouseMove);
             document.body.removeEventListener('mouseenter', safeMouseEnter);
             document.body.removeEventListener('mouseleave', safeMouseLeave);
-            interactiveElements.forEach((el) => {
-                el.removeEventListener('mouseenter', safeLinkHover);
-                el.removeEventListener('mouseleave', safeLinkLeave);
-            });
+            document.removeEventListener('mousedown', safeMouseDown);
+            document.removeEventListener('mouseup', safeMouseUp);
+            document.removeEventListener('mouseover', safeMouseOver);
+            document.removeEventListener('mouseout', safeMouseOut);
         };
     });
 
     return (
-        <>
-            {/* Cursor Dot - Inner circle */}
+        <div
+            ref={spotlightRef}
+            className="hidden md:block fixed top-0 left-0 opacity-0 z-[9999] pointer-events-none -translate-x-1/2 -translate-y-1/2"
+            style={{ mixBlendMode: 'difference', willChange: 'transform' }}
+        >
             <div
-                ref={cursorDotRef}
-                className="hidden md:block fixed top-0 left-0 w-2 h-2 bg-primary rounded-full opacity-0 z-[9999] pointer-events-none -translate-x-1/2 -translate-y-1/2"
-                style={{ mixBlendMode: 'difference' }}
+                ref={ringRef}
+                className="w-[80px] h-[80px] rounded-full"
+                style={{
+                    backgroundColor: 'hsl(140, 100%, 50%)',
+                    mask: `radial-gradient(circle, #000 0%, #000 ${MASK_INNER_STOP}%, transparent ${MASK_DEFAULT_OUTER_STOP}%)`,
+                    WebkitMask: `radial-gradient(circle, #000 0%, #000 ${MASK_INNER_STOP}%, transparent ${MASK_DEFAULT_OUTER_STOP}%)`,
+                }}
             />
-
-            {/* Cursor Outline - Outer circle */}
-            <div
-                ref={cursorOutlineRef}
-                className="hidden md:block fixed top-0 left-0 w-10 h-10 border-2 border-primary rounded-full opacity-0 z-[9999] pointer-events-none -translate-x-1/2 -translate-y-1/2"
-                style={{ mixBlendMode: 'difference' }}
-            />
-        </>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1 h-1 rounded-full bg-black" />
+        </div>
     );
 };
 
