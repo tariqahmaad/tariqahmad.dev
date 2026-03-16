@@ -52,6 +52,14 @@
     html {
         @apply overflow-x-hidden;
     }
+
+    /* Disable smooth scroll snapping for users who prefer reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+        html {
+            scroll-behavior: auto;
+        }
+    }
+
     body {
         @apply bg-background text-foreground font-roboto-flex overflow-x-hidden;
     }
@@ -376,4 +384,5 @@
             display: none;
         }
     }
-}
+
+    }

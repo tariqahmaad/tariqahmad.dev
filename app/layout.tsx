@@ -12,6 +12,7 @@ import CustomCursor from '@/components/layout/CustomCursor';
 import Preloader from '@/components/layout/Preloader';
 import StickyEmail from '@/components/layout/StickyEmail';
 import StructuredData from '@/components/layout/StructuredData';
+import ScrollSnap from '@/components/layout/ScrollSnap';
 import { ErrorBoundary } from '@/components/error/ErrorBoundary';
 
 const antonFont = Anton({
@@ -125,6 +126,7 @@ export default function RootLayout({
                         <ScrollProgressIndicator />
                         <ParticleBackground />
                         <StickyEmail />
+                        <ScrollSnap />
                     </ReactLenis>
                 </ErrorBoundary>
             </body>
