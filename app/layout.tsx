@@ -13,6 +13,7 @@ import Preloader from '@/components/layout/Preloader';
 import StickyEmail from '@/components/layout/StickyEmail';
 import StructuredData from '@/components/layout/StructuredData';
 import ScrollSnap from '@/components/layout/ScrollSnap';
+import ScrollToTop from '@/components/layout/ScrollToTop';
 import { ErrorBoundary } from '@/components/error/ErrorBoundary';
 
 const antonFont = Anton({
@@ -127,6 +128,7 @@ export default function RootLayout({
                         <ParticleBackground />
                         <StickyEmail />
                         <ScrollSnap />
+                        <ScrollToTop />
                     </ReactLenis>
                 </ErrorBoundary>
             </body>
