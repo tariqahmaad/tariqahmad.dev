@@ -11,7 +11,7 @@ const ROLES = [
     { first: 'COMPUTER', second: 'ENGINEER' },
     { first: 'SOFTWARE', second: 'DEVELOPER' },
     { first: 'FULL-STACK', second: 'DEVELOPER' },
-    { first: 'AI/ML', second: 'ENGINEER' },
+    { first: 'AI/ML', second: 'ENTHUSIAST' },
     { first: 'NETWORK', second: 'SPECIALIST' },
     { first: 'RESEARCH', second: 'ASSISTANT' },
 ];
