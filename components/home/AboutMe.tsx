@@ -59,6 +59,7 @@ const AboutMe = () => {
                                     src="/personal/profile.jpg"
                                     alt="Tariq Ahmad"
                                     fill
+                                    sizes="(min-width: 768px) 380px, (min-width: 640px) 350px, 320px"
                                     className="object-cover rounded-2xl border border-primary/10 shadow-xl transition-all duration-500 z-10 group-hover:scale-[1.02]"
                                 />
                             </div>
