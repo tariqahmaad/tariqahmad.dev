@@ -28,6 +28,8 @@ export interface IExperience {
     title: string;
     company: string;
     duration: string;
+    startDate: string;
+    endDate: string;
     description?: string;
     highlighted?: boolean;
 }

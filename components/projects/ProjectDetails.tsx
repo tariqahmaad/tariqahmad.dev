@@ -115,7 +115,7 @@ const ProjectDetails = ({ project }: Props) => {
                             </div>
                             <div className="fade-in-later">
                                 <p className="text-muted-foreground font-anton mb-3">
-                                    Tech & Technique
+                                    Technologies
                                 </p>
 
                                 <div className="text-lg">

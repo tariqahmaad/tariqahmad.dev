@@ -156,7 +156,7 @@ export const PROJECTS: IProject[] = [
     {
         title: 'Quizlet',
         slug: 'quizlet',
-        techStack: ['HTML', 'CSS', 'JavaScript', 'Responsive'],
+        techStack: ['HTML', 'CSS', 'JavaScript'],
         year: 2025,
         description: `A web-based quiz application designed to help students practice and test their knowledge in university-level courses. The platform supports course-specific quizzes, timer-based sessions, real-time scoring, and a responsive interface.<br/><br/>
 
@@ -218,7 +218,7 @@ export const PROJECTS: IProject[] = [
     {
         title: 'Graduation Project Presentation',
         slug: 'graduation-presentation',
-        techStack: ['HTML', 'CSS', 'JavaScript', 'Presentation'],
+        techStack: ['HTML', 'CSS', 'JavaScript'],
         year: 2025,
         description: `Developed an interactive presentation showcasing my graduation project, utilizing HTML, CSS, and JavaScript for a dynamic and engaging user experience. The presentation features smooth transitions, interactive elements, and modern web design principles.<br/><br/>
 
@@ -237,7 +237,7 @@ export const PROJECTS: IProject[] = [
     {
         title: 'Note-Taking Web Application',
         slug: 'note-app',
-        techStack: ['PHP', 'MySQL', 'JavaScript', 'Authentication'],
+        techStack: ['PHP', 'MySQL', 'JavaScript', 'Bootstrap'],
         year: 2024,
         description: `Developed a web-based note-taking app with PHP, MySQL, and front-end technologies, offering secure user authentication, role-specific functions, and a responsive, cross-browser interface. Features include rich text editing, categorization, search functionality, and user authentication.<br/><br/>
 
@@ -272,7 +272,7 @@ export const PROJECTS: IProject[] = [
     {
         title: 'Hotel Management System',
         slug: 'hotel-management',
-        techStack: ['C#', '.NET', 'MySQL', 'CRUD'],
+        techStack: ['C#', '.NET', 'MySQL', 'Windows Forms'],
         year: 2022,
         description: `Developed a C# Hotel Management System in Microsoft Visual Studio, featuring CRUD operations for customer and room management, integrated with MySQL for secure data handling, enhancing skills in SQL and database management. A comprehensive system designed to streamline booking and reservation processes for hospitality businesses.<br/><br/>
 
@@ -293,14 +293,17 @@ export const MY_EXPERIENCE: IExperience[] = [
         title: 'Research Assistant',
         company: 'Industry 4.0 Research Centre',
         duration: 'Oct 2024 - July 2025',
+        startDate: 'Oct 2024',
+        endDate: 'July 2025',
         description:
             'Working on Industry 4.0 research projects, focusing on AI integration and smart manufacturing systems.',
-        highlighted: true,
     },
     {
         title: 'Research Assistant Intern',
         company: 'Istanbul Aydin University',
         duration: 'March 2024 - May 2024',
+        startDate: 'Mar 2024',
+        endDate: 'May 2024',
         description:
             'Assisted in academic research projects and data analysis.',
     },
@@ -308,6 +311,8 @@ export const MY_EXPERIENCE: IExperience[] = [
         title: 'Frontend Developer Intern',
         company: 'Caretta Software Company',
         duration: 'Nov 2023 - Jan 2024',
+        startDate: 'Nov 2023',
+        endDate: 'Jan 2024',
         description:
             'Developed responsive web interfaces using React and modern CSS frameworks.',
     },
@@ -315,6 +320,8 @@ export const MY_EXPERIENCE: IExperience[] = [
         title: 'Research Intern',
         company: 'Istanbul Aydin University',
         duration: 'Oct 2023 - Jan 2024',
+        startDate: 'Oct 2023',
+        endDate: 'Jan 2024',
         description:
             'Contributed to ongoing research initiatives in the computer engineering department.',
     },
@@ -322,6 +329,8 @@ export const MY_EXPERIENCE: IExperience[] = [
         title: 'Network Technician',
         company: 'Tawhid Almas Logistics Company',
         duration: 'July 2023 - Sept 2023',
+        startDate: 'Jul 2023',
+        endDate: 'Sep 2023',
         description:
             'Managed network infrastructure and ensured reliable connectivity across all departments.',
     },
@@ -329,6 +338,8 @@ export const MY_EXPERIENCE: IExperience[] = [
         title: 'IT Support Specialist',
         company: 'Tawhid Almas Logistics Company',
         duration: 'July 2022 - Sept 2022',
+        startDate: 'Jul 2022',
+        endDate: 'Sep 2022',
         description:
             'Provided technical support and maintained IT systems for logistics operations.',
     },

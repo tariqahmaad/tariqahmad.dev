@@ -9,11 +9,11 @@ import React from 'react';
 
 const ROLES = [
     { first: 'COMPUTER', second: 'ENGINEER' },
-    { first: 'CYBERSECURITY', second: 'ANALYST' },
     { first: 'SOFTWARE', second: 'DEVELOPER' },
     { first: 'FULL-STACK', second: 'DEVELOPER' },
-    { first: 'NETWORK', second: 'ENGINEER' },
-    { first: 'AI', second: 'ENTHUSIAST' },
+    { first: 'AI/ML', second: 'ENGINEER' },
+    { first: 'NETWORK', second: 'SPECIALIST' },
+    { first: 'RESEARCH', second: 'ASSISTANT' },
 ];
 
 const Banner = () => {
@@ -226,15 +226,15 @@ const Banner = () => {
                         </div>
                         <div className="slide-up-and-fade">
                             <h5 className="text-heading-sm sm:text-heading-md md:text-heading-lg font-anton text-primary mb-1.5">
-                                10+
+                                7+
                             </h5>
                             <p className="text-body-sm md:text-body-base text-muted-foreground">
-                                Major Projects
+                                Projects
                             </p>
                         </div>
                         <div className="slide-up-and-fade">
                             <h5 className="text-heading-sm sm:text-heading-md md:text-heading-lg font-anton text-primary mb-1.5">
-                                15+
+                                14+
                             </h5>
                             <p className="text-body-sm md:text-body-base text-muted-foreground">
                                 Certifications

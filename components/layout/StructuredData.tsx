@@ -5,7 +5,7 @@ export default function StructuredData() {
         name: 'Tariq Ahmad',
         url: 'https://tariqahmad.dev',
         image: 'https://tariqahmad.dev/og-image.png',
-        jobTitle: 'Software Developer',
+        jobTitle: 'Computer Engineer',
         description:
             'Computer Engineering graduate from Istanbul Aydin University with expertise in full-stack development, networking, and AI.',
         email: 'tariq_muzamil@live.com',

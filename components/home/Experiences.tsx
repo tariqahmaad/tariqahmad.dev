@@ -6,6 +6,7 @@ import { gsap, useGSAP } from '@/lib/gsap-setup';
 import { useScrollExitAnimation } from '@/hooks/useScrollExitAnimation';
 import { IExperience } from '@/types';
 import { useRef } from 'react';
+import DurationBar from './DurationBar';
 
 interface TimelineItemProps {
     experience: IExperience;
@@ -49,10 +50,15 @@ const TimelineItem = ({ experience, index, isLast }: TimelineItemProps) => {
                             {experience.company}
                         </p>
                     </div>
-                    <span className="text-xs sm:text-body-sm font-medium px-2.5 py-1 rounded-full border bg-muted/30 text-muted-foreground border-border whitespace-nowrap flex-shrink-0">
-                        {experience.duration}
-                    </span>
                 </div>
+
+                {/* Duration Bar */}
+                <DurationBar
+                    startDate={experience.startDate}
+                    endDate={experience.endDate}
+                    isHighlighted={experience.highlighted}
+                    className="mb-2.5"
+                />
 
                 {/* Description */}
                 {experience.description && (
@@ -85,6 +91,7 @@ const Experiences = () => {
                     borderColor: 'hsl(140, 100%, 50%)',
                 });
                 gsap.set('.timeline-line-fill', { height: '100%' });
+                gsap.set('.duration-bar-fill', { width: '100%' });
                 return;
             }
 
@@ -118,11 +125,15 @@ const Experiences = () => {
             const lineFills = gsap.utils.toArray<HTMLElement>(
                 '.timeline-line-fill',
             );
+            const durationBarFills = gsap.utils.toArray<HTMLElement>(
+                '.duration-bar-fill',
+            );
 
             const addPulseAnimation = (
                 tl: gsap.core.Timeline,
                 dot: HTMLElement,
                 lineFill?: HTMLElement,
+                durationBarFill?: HTMLElement,
             ) => {
                 const pulseRing = dot.querySelector(
                     '.timeline-pulse-ring',
@@ -193,25 +204,28 @@ const Experiences = () => {
                         '-=0.5',
                     );
                 }
+
+                // 5. Duration bar fills from left to right
+                if (durationBarFill) {
+                    tl.to(
+                        durationBarFill,
+                        {
+                            width: '100%',
+                            duration: 0.5,
+                            ease: 'power2.out',
+                        },
+                        '-=0.4',
+                    );
+                }
             };
 
             if (isDesktop) {
-                // Desktop: strict column sequence -> all left items first, then all right items.
-                const leftColumnIndexes: number[] = [];
-                const rightColumnIndexes: number[] = [];
-
-                for (let i = 0; i < dots.length; i += 1) {
-                    if (i % 2 === 0) {
-                        leftColumnIndexes.push(i);
-                    } else {
-                        rightColumnIndexes.push(i);
-                    }
-                }
-
-                const orderedIndexes = [
-                    ...leftColumnIndexes,
-                    ...rightColumnIndexes,
-                ];
+                // Desktop: column-by-column order with grid-flow-col
+                // First half = left column, Second half = right column
+                const halfLength = Math.ceil(dots.length / 2);
+                const leftColumnIndexes = Array.from({ length: halfLength }, (_, i) => i);
+                const rightColumnIndexes = Array.from({ length: dots.length - halfLength }, (_, i) => i + halfLength);
+                const orderedIndexes = [...leftColumnIndexes, ...rightColumnIndexes];
 
                 const masterTimeline = gsap.timeline({
                     scrollTrigger: {
@@ -226,15 +240,19 @@ const Experiences = () => {
                     const lineFill = lineFills[index] as
                         | HTMLElement
                         | undefined;
+                    const durationBarFill = durationBarFills[index] as
+                        | HTMLElement
+                        | undefined;
 
                     if (!dot) return;
 
-                    addPulseAnimation(masterTimeline, dot, lineFill);
+                    addPulseAnimation(masterTimeline, dot, lineFill, durationBarFill);
                 });
             } else {
                 // Mobile: keep one-by-one item triggers.
                 dots.forEach((dot, i) => {
                     const lineFill = lineFills[i] as HTMLElement | undefined;
+                    const durationBarFill = durationBarFills[i] as HTMLElement | undefined;
                     const tl = gsap.timeline({
                         scrollTrigger: {
                             trigger: dot,
@@ -243,7 +261,7 @@ const Experiences = () => {
                         },
                     });
 
-                    addPulseAnimation(tl, dot, lineFill);
+                    addPulseAnimation(tl, dot, lineFill, durationBarFill);
                 });
             }
 
@@ -282,8 +300,8 @@ const Experiences = () => {
             <div className="container relative z-10" ref={containerRef}>
                 <SectionTitle title="My Experience" />
 
-                {/* Timeline - 2 columns on desktop */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 !gap-x-10 !gap-y-0 mx-auto">
+                {/* Timeline - 2 columns on desktop, flows column-by-column */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 lg:grid-rows-3 lg:grid-flow-col !gap-x-10 !gap-y-0 mx-auto">
                     {MY_EXPERIENCE.map((experience, index) => (
                         <TimelineItem
                             key={`${experience.title}-${index}`}

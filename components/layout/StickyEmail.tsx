@@ -1,7 +1,13 @@
+'use client';
+
 import { GENERAL_INFO } from '@/lib/data';
-import React from 'react';
+import { usePathname } from 'next/navigation';
 
 const StickyEmail = () => {
+    const pathname = usePathname();
+
+    if (pathname.startsWith('/projects/')) return null;
+
     return (
         <div className="max-xl:hidden fixed bottom-32 left-0 block">
             <a
