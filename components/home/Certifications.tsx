@@ -63,8 +63,10 @@ const Certifications = () => {
         return () => window.removeEventListener('scroll', handleScroll);
     }, [hoveredCategory, hoveredCertificate]);
 
-    const gradientClass =
-        'transition-all duration-700 bg-gradient-to-r from-primary to-foreground from-[50%] to-[50%] bg-[length:200%] bg-clip-text text-transparent leading-tight';
+    const baseGradientClass =
+        'transition-all duration-700 bg-gradient-to-r from-[50%] to-[50%] bg-[length:200%] bg-clip-text text-transparent leading-tight';
+    const mutedGradientClass = `${baseGradientClass} from-primary to-muted-foreground`;
+    const foregroundGradientClass = `${baseGradientClass} from-primary to-foreground`;
 
     return (
         <section className="py-section select-none" id="certifications">
@@ -96,11 +98,7 @@ const Certifications = () => {
                                 >
                                     <div className="cursor-pointer mb-4 xs:mb-6">
                                         <p
-                                            className={cn(
-                                                gradientClass,
-                                                isCategoryHovered ? 'bg-left' : 'bg-right',
-                                                'text-heading-sm sm:text-heading-md md:text-heading-lg font-anton uppercase break-words'
-                                            )}
+                                            className={`${mutedGradientClass} ${isCategoryHovered ? 'bg-left' : 'bg-right'} text-heading-sm sm:text-heading-md md:text-heading-lg font-anton uppercase break-words`}
                                         >
                                             {category.provider}
                                         </p>
@@ -141,22 +139,14 @@ const Certifications = () => {
                                                     >
                                                         <div className="sm:col-span-8">
                                                             <p
-                                                                className={cn(
-                                                                    gradientClass,
-                                                                    isCertHovered ? 'bg-left' : 'bg-right',
-                                                                    'text-body-base sm:text-body-lg break-words'
-                                                                )}
+                                                                className={`${foregroundGradientClass} ${isCertHovered ? 'bg-left' : 'bg-right'} text-body-base sm:text-body-lg break-words`}
                                                             >
                                                                 {cert.title}
                                                             </p>
                                                         </div>
                                                         <div className="sm:col-span-4">
                                                             <p
-                                                                className={cn(
-                                                                    gradientClass,
-                                                                    isCertHovered ? 'bg-left' : 'bg-right',
-                                                                    'text-body-sm sm:text-body-base text-left sm:text-right'
-                                                                )}
+                                                                className={`${mutedGradientClass} ${isCertHovered ? 'bg-left' : 'bg-right'} text-body-sm sm:text-body-base text-left sm:text-right`}
                                                             >
                                                                 {cert.date}
                                                             </p>
