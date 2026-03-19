@@ -3,7 +3,7 @@ import { gsap, useGSAP } from '@/lib/gsap-setup';
 import { useRef } from 'react';
 
 // Selectors for interactive elements that trigger hover effects
-const INTERACTIVE_SELECTORS = 'a, button, [role="button"], input, textarea, select';
+const INTERACTIVE_SELECTORS = 'a, button, [role="button"], input, textarea, select, .cursor-pointer';
 
 // Animation constants
 const HOVER_SCALE = 1.5;
@@ -102,6 +102,14 @@ const CustomCursor = () => {
 
         const handleMouseOver = (e: MouseEvent) => {
             const target = e.target as HTMLElement;
+            
+            // Hide cursor on elements with data-cursor-hide attribute
+            const shouldHideCursor = target.closest('[data-cursor-hide]');
+            if (shouldHideCursor) {
+                gsap.to(spotlightRef.current, { opacity: 0, duration: 0.2 });
+                return;
+            }
+            
             if (isInteractiveElement(target) && !isHovering) {
                 isHovering = true;
                 currentScale = HOVER_SCALE;
@@ -116,6 +124,13 @@ const CustomCursor = () => {
         const handleMouseOut = (e: MouseEvent) => {
             const target = e.target as HTMLElement;
             const relatedTarget = e.relatedTarget as HTMLElement;
+
+            // Restore cursor opacity when leaving a hide-cursor element
+            const wasHidden = target.closest('[data-cursor-hide]');
+            const isEnteringHidden = relatedTarget?.closest('[data-cursor-hide]');
+            if (wasHidden && !isEnteringHidden) {
+                gsap.to(spotlightRef.current, { opacity: 1, duration: 0.2 });
+            }
 
             // Only scale down if leaving an interactive element and not entering another
             if (isInteractiveElement(target) && !isInteractiveElement(relatedTarget)) {
