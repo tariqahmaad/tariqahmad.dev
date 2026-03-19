@@ -14,7 +14,7 @@ const Footer = () => {
                 <p className="text-body-lg">Have a project in mind?</p>
                 <a
                     href={`mailto:${GENERAL_INFO.email}`}
-                    className="text-heading-sm sm:text-heading-md font-anton inline-block mt-5 mb-10 hover:underline"
+                    className="text-heading-sm sm:text-heading-md font-anton inline-block mt-5 mb-10 hover:text-primary hover:underline"
                 >
                     {GENERAL_INFO.email}
                 </a>

@@ -9,6 +9,9 @@ import React, { useRef } from 'react';
 const Skills = () => {
     const containerRef = useRef<HTMLDivElement>(null);
 
+    const gradientClass =
+        'transition-all duration-700 bg-gradient-to-r from-primary to-foreground from-[50%] to-[50%] bg-[length:200%] bg-right bg-clip-text text-transparent hover:bg-left';
+
     useGSAP(
         () => {
             const categories = containerRef.current?.querySelectorAll('.stack-category');
@@ -29,28 +32,32 @@ const Skills = () => {
                     return;
                 }
 
+                // Set initial state immediately (prevents race condition with ScrollTrigger)
+                gsap.set(categoryTitle, { opacity: 0, x: -50 });
+                gsap.set(categoryItems, { opacity: 0, y: 30 });
+
                 const tl = gsap.timeline({
                     scrollTrigger: {
                         trigger: category,
-                        start: 'top 95%', // More lenient trigger point
+                        start: 'top 85%', // Match other components for consistent timing
                         toggleActions: 'play none none reverse',
                     },
                 });
 
                 // Animate title first
-                tl.from(categoryTitle, {
-                    opacity: 0,
-                    x: -50,
+                tl.to(categoryTitle, {
+                    opacity: 1,
+                    x: 0,
                     duration: 0.6,
                     ease: 'power2.out',
                 });
 
                 // Then animate items with stagger
-                tl.from(
+                tl.to(
                     categoryItems,
                     {
-                        opacity: 0,
-                        y: 30,
+                        opacity: 1,
+                        y: 0,
                         duration: 0.5,
                         stagger: 0.1,
                         ease: 'power2.out',
@@ -73,7 +80,7 @@ const Skills = () => {
                     {Object.entries(MY_STACK).map(([key, value]) => (
                         <div className="grid sm:grid-cols-12 stack-category" key={key}>
                             <div className="sm:col-span-5 mb-4 xs:mb-6 sm:mb-0">
-                                <p className="category-title text-heading-sm sm:text-heading-md md:text-heading-lg font-anton leading-none text-muted-foreground uppercase">
+                                <p className={`category-title ${gradientClass} text-heading-sm sm:text-heading-md md:text-heading-lg font-anton leading-none uppercase`}>
                                     {key}
                                 </p>
                             </div>
@@ -90,7 +97,7 @@ const Skills = () => {
                                             height="56"
                                             className="h-8 w-8 xs:h-10 xs:w-10 md:h-14 md:w-14 object-contain"
                                         />
-                                        <span className="text-body-base sm:text-body-lg md:text-body-xl capitalize">
+                                        <span className="text-body-base sm:text-body-lg md:text-body-xl text-foreground capitalize">
                                             {item.name}
                                         </span>
                                     </div>
