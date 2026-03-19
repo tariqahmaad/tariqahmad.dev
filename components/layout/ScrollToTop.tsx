@@ -2,125 +2,152 @@
 
 import { gsap, useGSAP } from '@/lib/gsap-setup';
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { ArrowUp } from 'lucide-react';
+import { ArrowUp, ChevronsUp } from 'lucide-react';
 
-// Scroll threshold to show the button (in pixels)
 const SCROLL_THRESHOLD = 400;
-
-// Scroll direction detection tolerance (prevents flickering)
 const SCROLL_TOLERANCE = 5;
-
-// Animation constants
-const ANIMATION_DURATION = 0.3;
-const HOVER_SCALE = 1.1;
-
-type VisibilityState = 'hidden' | 'visible' | 'entering' | 'exiting';
+const PROGRESS_RING_RADIUS = 18;
+const PROGRESS_RING_CIRCUMFERENCE = 2 * Math.PI * PROGRESS_RING_RADIUS;
 
 const ScrollToTop = () => {
     const containerRef = useRef<HTMLButtonElement>(null);
     const iconRef = useRef<HTMLDivElement>(null);
-    const [visibilityState, setVisibilityState] = useState<VisibilityState>('hidden');
+    const glowRef = useRef<HTMLDivElement>(null);
+    const progressRingRef = useRef<SVGCircleElement>(null);
+    
+    const [isVisible, setIsVisible] = useState(false);
+    const [isHovered, setIsHovered] = useState(false);
+    const [clickSuccess, setClickSuccess] = useState(false);
+    
     const lastScrollYRef = useRef(0);
-    const lastDirectionRef = useRef<'up' | 'down' | null>(null);
-    const prefersReducedMotion = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    
+    const prefersReducedMotion = typeof window !== 'undefined' && 
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    // Determine if button should be visible based on scroll position and direction
     const updateVisibility = useCallback(() => {
         const currentScrollY = window.scrollY;
         const scrollDelta = currentScrollY - lastScrollYRef.current;
-
-        // Ignore tiny scroll movements (debounce)
-        if (Math.abs(scrollDelta) < SCROLL_TOLERANCE) {
-            return;
-        }
-
-        // Determine scroll direction
+        
+        if (Math.abs(scrollDelta) < SCROLL_TOLERANCE) return;
+        
         const isScrollingDown = scrollDelta > 0;
-        const currentDirection = isScrollingDown ? 'down' : 'up';
-        lastDirectionRef.current = currentDirection;
-
-        // Check if we're past the threshold
         const pastThreshold = currentScrollY > SCROLL_THRESHOLD;
-
-        // Logic: Show when scrolling UP and past threshold, hide when scrolling DOWN
         const shouldBeVisible = pastThreshold && !isScrollingDown;
-
-        // Update visibility state
-        setVisibilityState(prev => {
-            // Prevent state changes during animation transitions
-            if (prev === 'entering' || prev === 'exiting') return prev;
-
-            if (shouldBeVisible && prev === 'hidden') {
-                return 'entering';
-            } else if (!shouldBeVisible && prev === 'visible') {
-                return 'exiting';
-            }
-            return prev;
-        });
-
+        
+        setIsVisible(shouldBeVisible);
         lastScrollYRef.current = currentScrollY;
+        
+        if (progressRingRef.current) {
+            const { scrollHeight, clientHeight } = document.documentElement;
+            const scrollableHeight = scrollHeight - clientHeight;
+            const progress = Math.min(currentScrollY / scrollableHeight, 1);
+            const offset = PROGRESS_RING_CIRCUMFERENCE - progress * PROGRESS_RING_CIRCUMFERENCE;
+            progressRingRef.current.style.strokeDashoffset = String(offset);
+        }
     }, []);
 
-    // Handle scroll visibility with direction detection
     useEffect(() => {
-        // Initialize scroll position
         lastScrollYRef.current = window.scrollY;
-
-        // Check initial state
         updateVisibility();
-
+        
         window.addEventListener('scroll', updateVisibility, { passive: true });
         return () => window.removeEventListener('scroll', updateVisibility);
     }, [updateVisibility]);
 
-    // GSAP animations for slide in/out
     useGSAP(() => {
-        // Skip animation if user prefers reduced motion
-        if (prefersReducedMotion) {
-            if (visibilityState === 'entering') {
-                setVisibilityState('visible');
-            } else if (visibilityState === 'exiting') {
-                setVisibilityState('hidden');
-            }
-            return;
-        }
-
-        if (visibilityState === 'entering') {
+        if (prefersReducedMotion) return;
+        
+        if (isVisible) {
             gsap.fromTo(
                 containerRef.current,
-                { y: 100, opacity: 0 },
+                { y: 100, opacity: 0, scale: 0.8 },
                 {
                     y: 0,
                     opacity: 1,
-                    duration: ANIMATION_DURATION,
+                    scale: 1,
+                    duration: 0.5,
                     ease: 'back.out(1.7)',
-                    onComplete: () => setVisibilityState('visible'),
                 }
             );
-        } else if (visibilityState === 'exiting') {
+            
+            gsap.fromTo(
+                glowRef.current,
+                { scale: 0.8, opacity: 0 },
+                {
+                    scale: 1.5,
+                    opacity: 0.6,
+                    duration: 0.6,
+                    ease: 'power2.out',
+                }
+            );
+        } else if (containerRef.current) {
             gsap.to(containerRef.current, {
                 y: 100,
                 opacity: 0,
-                duration: ANIMATION_DURATION,
+                scale: 0.8,
+                duration: 0.3,
                 ease: 'power2.in',
-                onComplete: () => setVisibilityState('hidden'),
             });
         }
-    }, [visibilityState]);
+    }, [isVisible]);
 
-    // Hover animation helper
-    const animateHover = (scale: number, iconY: number) => {
+    const handleMouseEnter = () => {
+        setIsHovered(true);
         if (prefersReducedMotion) return;
-        gsap.to(containerRef.current, { scale, duration: 0.3, ease: 'power2.out' });
-        gsap.to(iconRef.current, { y: iconY, duration: 0.3, ease: 'power2.out' });
+        
+        gsap.to(containerRef.current, { 
+            scale: 1.05, 
+            duration: 0.3, 
+            ease: 'power2.out' 
+        });
+        gsap.to(iconRef.current, { 
+            y: -2, 
+            duration: 0.2, 
+            ease: 'power2.out' 
+        });
     };
 
-    const handleMouseEnter = () => animateHover(HOVER_SCALE, -3);
-    const handleMouseLeave = () => animateHover(1, 0);
+    const handleMouseLeave = () => {
+        setIsHovered(false);
+        if (prefersReducedMotion) return;
+        
+        gsap.to(containerRef.current, { 
+            scale: 1, 
+            duration: 0.3, 
+            ease: 'power2.out' 
+        });
+        gsap.to(iconRef.current, { 
+            y: 0, 
+            duration: 0.2, 
+            ease: 'power2.out' 
+        });
+    };
 
-    // Scroll to top handler
     const scrollToTop = () => {
-        // Use Lenis instance if available (from layout.tsx)
+        if (clickSuccess) return;
+        
+        if (!prefersReducedMotion) {
+            gsap.to(containerRef.current, {
+                scale: 0.95,
+                duration: 0.1,
+                yoyo: true,
+                repeat: 1,
+                ease: 'power2.inOut',
+            });
+            
+            gsap.to(glowRef.current, {
+                scale: 2,
+                opacity: 1,
+                duration: 0.3,
+                yoyo: true,
+                repeat: 1,
+                ease: 'power2.out',
+            });
+        }
+        
+        setClickSuccess(true);
+        setTimeout(() => setClickSuccess(false), 600);
+        
         const lenis = (window as Window & { lenis?: { scrollTo: (target: string | number) => void } }).lenis;
         if (lenis) {
             lenis.scrollTo(0);
@@ -129,10 +156,32 @@ const ScrollToTop = () => {
         }
     };
 
-    // Don't render if completely hidden
-    if (visibilityState === 'hidden') return null;
+    const renderIcon = () => {
+        if (clickSuccess) {
+            return (
+                <ChevronsUp
+                    className="w-5 h-5 text-primary drop-shadow-[0_0_8px_rgba(0,255,0,0.8)] animate-bounce"
+                    strokeWidth={2.5}
+                />
+            );
+        }
+        if (isHovered) {
+            return (
+                <ChevronsUp
+                    className="w-5 h-5 text-primary drop-shadow-[0_0_6px_rgba(0,255,0,0.6)]"
+                    strokeWidth={2.5}
+                />
+            );
+        }
+        return (
+            <ArrowUp
+                className="w-5 h-5 text-primary/90 group-hover:text-primary drop-shadow-[0_0_4px_rgba(0,255,0,0.4)] transition-all duration-300"
+                strokeWidth={2.5}
+            />
+        );
+    };
 
-    const isVisible = visibilityState === 'visible' || visibilityState === 'entering';
+    if (!isVisible) return null;
 
     return (
         <button
@@ -140,30 +189,98 @@ const ScrollToTop = () => {
             onClick={scrollToTop}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
-            className="fixed bottom-8 right-[2%] z-50 group"
+            className="fixed bottom-8 right-[2%] z-50 group opacity-0"
             aria-label="Scroll to top"
             role="button"
             tabIndex={isVisible ? 0 : -1}
+            data-cursor-hide
         >
-            {/* Outer glow ring */}
-            <div className="absolute inset-0 rounded-full bg-primary/20 blur-lg scale-125 group-hover:bg-primary/30 transition-colors duration-300" />
+            <div
+                ref={glowRef}
+                className="absolute inset-0 rounded-full bg-primary/20 blur-xl opacity-0 group-hover:bg-primary/40 transition-colors duration-300"
+            />
 
-            {/* Main button container */}
-            <div className="relative flex items-center justify-center w-12 h-12 rounded-full bg-background-light border border-primary/40 backdrop-blur-sm transition-colors duration-300 group-hover:border-primary group-hover:bg-primary/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background">
-                {/* Inner gradient overlay */}
-                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/10 to-transparent" />
-
-                {/* Animated arrow icon */}
-                <div ref={iconRef} className="relative">
-                    <ArrowUp
-                        className="w-5 h-5 text-primary transition-colors duration-300"
-                        strokeWidth={2.5}
+            <div className="relative flex items-center justify-center w-14 h-14 rounded-full bg-background-light/90 border border-primary/30 backdrop-blur-md transition-all duration-300 group-hover:border-primary/60 group-hover:bg-primary/5 shadow-[0_0_20px_rgba(0,255,0,0.1)] group-hover:shadow-[0_0_30px_rgba(0,255,0,0.2)] overflow-hidden">
+                
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                
+                <div className="absolute top-0 -left-full w-1/2 h-full bg-gradient-to-r from-transparent via-primary/30 to-transparent skew-x-[-20deg] group-hover:left-[150%] transition-all duration-700 ease-in-out" />
+                
+                <svg
+                    className="absolute top-0 right-0 w-4 h-4 opacity-50 group-hover:opacity-100 transition-opacity duration-300"
+                    viewBox="0 0 16 16"
+                >
+                    <path
+                        d="M5 2 H14 M14 2 V11"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="text-primary drop-shadow-[0_0_4px_rgba(0,255,0,0.5)]"
                     />
+                </svg>
+                <svg
+                    className="absolute bottom-0 left-0 w-4 h-4 opacity-50 group-hover:opacity-100 transition-opacity duration-300"
+                    viewBox="0 0 16 16"
+                >
+                    <path
+                        d="M11 14 H2 M2 14 V5"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="text-primary drop-shadow-[0_0_4px_rgba(0,255,0,0.5)]"
+                    />
+                </svg>
+
+                <svg
+                    className="absolute inset-0 w-full h-full -rotate-90"
+                    viewBox="0 0 44 44"
+                >
+                    <circle
+                        cx="22"
+                        cy="22"
+                        r="18"
+                        fill="none"
+                        stroke="hsl(var(--primary) / 0.15)"
+                        strokeWidth="1.5"
+                    />
+                    <circle
+                        ref={progressRingRef}
+                        cx="22"
+                        cy="22"
+                        r="18"
+                        fill="none"
+                        stroke="hsl(var(--primary) / 0.6)"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeDasharray={PROGRESS_RING_CIRCUMFERENCE}
+                        strokeDashoffset={PROGRESS_RING_CIRCUMFERENCE}
+                        className="drop-shadow-[0_0_4px_rgba(0,255,0,0.5)] transition-all duration-100"
+                    />
+                </svg>
+
+                <div ref={iconRef} className="relative z-10">
+                    {renderIcon()}
                 </div>
 
-                {/* Subtle inner shadow for depth */}
-                <div className="absolute inset-0 rounded-full shadow-[inset_0_1px_2px_rgba(255,255,255,0.05)]" />
+                <div className="absolute inset-0 rounded-full shadow-[inset_0_2px_4px_rgba(0,255,0,0.05)]" />
+                
+                <div className="absolute inset-0 rounded-full bg-primary/0 group-hover:bg-primary/5 transition-colors duration-300" />
             </div>
+
+            <style jsx>{`
+                @keyframes breathe {
+                    0%, 100% { opacity: 0.2; transform: scale(1.5); }
+                    50% { opacity: 0.4; transform: scale(1.7); }
+                }
+                
+                button:not(:hover) > div:first-child {
+                    animation: breathe 3s ease-in-out infinite;
+                }
+            `}</style>
         </button>
     );
 };

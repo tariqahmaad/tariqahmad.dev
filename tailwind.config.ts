@@ -241,4 +241,9 @@ export default {
         },
     },
     plugins: [tailwindAnimate],
+    safelist: [
+        // Background position classes for gradient reveal animations
+        'bg-left',
+        'bg-right',
+    ],
 } satisfies Config;
