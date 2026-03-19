@@ -90,6 +90,20 @@
         @apply gap-[25px];
     }
 
+    /* Responsive menu grid pattern - larger cells on mobile, denser on desktop */
+    .bg-menu-grid {
+        background-image:
+            linear-gradient(rgba(0, 255, 0, 0.15) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0, 255, 0, 0.15) 1px, transparent 1px);
+        background-size: 32px 32px;
+    }
+
+    @media (min-width: 640px) {
+        .bg-menu-grid {
+            background-size: 24px 24px;
+        }
+    }
+
     .markdown-text ul {
         @apply pl-5 mt-2 list-disc;
     }

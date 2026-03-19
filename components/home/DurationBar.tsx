@@ -25,7 +25,7 @@ const DurationBar = ({
             )}
         >
             {/* Start date */}
-            <span className="text-[10px] sm:text-body-xs font-medium text-muted-foreground whitespace-nowrap">
+            <span className="text-body-sm font-medium text-foreground whitespace-nowrap">
                 {startDate}
             </span>
 
@@ -44,7 +44,7 @@ const DurationBar = ({
             <div className="flex items-center gap-1.5">
                 {isPresent ? (
                     <>
-                        <span className="text-[10px] sm:text-body-xs font-medium text-primary whitespace-nowrap">
+                        <span className="text-body-sm font-medium text-primary whitespace-nowrap">
                             Present
                         </span>
                         {/* Pulsing dot for current roles */}
@@ -56,7 +56,7 @@ const DurationBar = ({
                         />
                     </>
                 ) : (
-                    <span className="text-[10px] sm:text-body-xs font-medium text-muted-foreground whitespace-nowrap">
+                    <span className="text-body-sm font-medium text-foreground whitespace-nowrap">
                         {endDate}
                     </span>
                 )}
