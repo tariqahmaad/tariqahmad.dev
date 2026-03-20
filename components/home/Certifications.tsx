@@ -65,7 +65,6 @@ const Certifications = () => {
 
     const baseGradientClass =
         'transition-all duration-700 bg-gradient-to-r from-[50%] to-[50%] bg-[length:200%] bg-clip-text text-transparent leading-tight';
-    const mutedGradientClass = `${baseGradientClass} from-primary to-muted-foreground`;
     const foregroundGradientClass = `${baseGradientClass} from-primary to-foreground`;
 
     return (
@@ -98,7 +97,7 @@ const Certifications = () => {
                                 >
                                     <div className="cursor-pointer mb-4 xs:mb-6">
                                         <p
-                                            className={`${mutedGradientClass} ${isCategoryHovered ? 'bg-left' : 'bg-right'} text-heading-sm sm:text-heading-md md:text-heading-lg font-anton uppercase break-words`}
+                                            className={`${foregroundGradientClass} ${isCategoryHovered ? 'bg-left' : 'bg-right'} text-heading-sm sm:text-heading-md md:text-heading-lg font-anton uppercase break-words`}
                                         >
                                             {category.provider}
                                         </p>
@@ -146,7 +145,7 @@ const Certifications = () => {
                                                         </div>
                                                         <div className="sm:col-span-4">
                                                             <p
-                                                                className={`${mutedGradientClass} ${isCertHovered ? 'bg-left' : 'bg-right'} text-body-sm sm:text-body-base text-left sm:text-right`}
+                                                                className={`${foregroundGradientClass} ${isCertHovered ? 'bg-left' : 'bg-right'} text-body-sm sm:text-body-base text-left sm:text-right`}
                                                             >
                                                                 {cert.date}
                                                             </p>

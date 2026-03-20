@@ -43,8 +43,23 @@ const CustomCursor = () => {
         // Animation state (closure-scoped for GSAP callbacks)
         let currentScale = 1;
         let isHovering = false;
+        let isOverHiddenElement = false;
 
         const handleMouseMove = (e: MouseEvent) => {
+            // Re-evaluate hide state on every move. This prevents the cursor
+            // from getting stuck hidden when a hide-target unmounts mid-scroll.
+            const hoveredElement = document.elementFromPoint(e.clientX, e.clientY) as HTMLElement | null;
+            const shouldHideCursor = Boolean(hoveredElement?.closest('[data-cursor-hide]'));
+
+            if (shouldHideCursor !== isOverHiddenElement) {
+                isOverHiddenElement = shouldHideCursor;
+                gsap.to(spotlightRef.current, {
+                    opacity: shouldHideCursor ? 0 : 1,
+                    duration: 0.15,
+                    overwrite: 'auto',
+                });
+            }
+
             gsap.to(spotlightRef.current, {
                 x: e.clientX,
                 y: e.clientY,
@@ -106,6 +121,7 @@ const CustomCursor = () => {
             // Hide cursor on elements with data-cursor-hide attribute
             const shouldHideCursor = target.closest('[data-cursor-hide]');
             if (shouldHideCursor) {
+                isOverHiddenElement = true;
                 gsap.to(spotlightRef.current, { opacity: 0, duration: 0.2 });
                 return;
             }
@@ -129,6 +145,7 @@ const CustomCursor = () => {
             const wasHidden = target.closest('[data-cursor-hide]');
             const isEnteringHidden = relatedTarget?.closest('[data-cursor-hide]');
             if (wasHidden && !isEnteringHidden) {
+                isOverHiddenElement = false;
                 gsap.to(spotlightRef.current, { opacity: 1, duration: 0.2 });
             }
 

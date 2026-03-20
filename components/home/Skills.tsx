@@ -33,13 +33,13 @@ const Skills = () => {
                 }
 
                 // Set initial state immediately (prevents race condition with ScrollTrigger)
-                gsap.set(categoryTitle, { opacity: 0, x: -50 });
-                gsap.set(categoryItems, { opacity: 0, y: 30 });
+                gsap.set(categoryTitle, { opacity: 0, x: -20 });
+                gsap.set(categoryItems, { opacity: 0, y: 20 });
 
                 const tl = gsap.timeline({
                     scrollTrigger: {
                         trigger: category,
-                        start: 'top 85%', // Match other components for consistent timing
+                        start: 'top 95%', // Trigger earlier for quicker reveal
                         toggleActions: 'play none none reverse',
                     },
                 });
@@ -48,7 +48,7 @@ const Skills = () => {
                 tl.to(categoryTitle, {
                     opacity: 1,
                     x: 0,
-                    duration: 0.6,
+                    duration: 0.4,
                     ease: 'power2.out',
                 });
 
@@ -58,11 +58,11 @@ const Skills = () => {
                     {
                         opacity: 1,
                         y: 0,
-                        duration: 0.5,
-                        stagger: 0.1,
+                        duration: 0.4,
+                        stagger: 0.08,
                         ease: 'power2.out',
                     },
-                    '-=0.3',
+                    '-=0.2',
                 );
             });
         },
