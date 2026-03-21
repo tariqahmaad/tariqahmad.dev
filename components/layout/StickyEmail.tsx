@@ -1,6 +1,7 @@
 'use client';
 
 import { GENERAL_INFO } from '@/lib/data';
+import { isProjectDetailPage } from '@/lib/utils';
 import { usePathname } from 'next/navigation';
 import { useRef, useEffect, useState } from 'react';
 import gsap from 'gsap';
@@ -72,7 +73,7 @@ const StickyEmail = () => {
         }
     }, [isHovered]);
 
-    if (pathname.startsWith('/projects/')) return null;
+    if (isProjectDetailPage(pathname)) return null;
 
     return (
         <div

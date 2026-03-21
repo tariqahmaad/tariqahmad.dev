@@ -3,14 +3,12 @@ import SectionTitle from '@/components/shared/SectionTitle';
 import { MY_STACK } from '@/lib/data';
 import { gsap, useGSAP } from '@/lib/gsap-setup';
 import { useScrollExitAnimation } from '@/hooks/useScrollExitAnimation';
+import { gradientTextClass, shouldSkipAnimation } from '@/lib/utils';
 import Image from 'next/image';
 import React, { useRef } from 'react';
 
 const Skills = () => {
     const containerRef = useRef<HTMLDivElement>(null);
-
-    const gradientClass =
-        'transition-all duration-700 bg-gradient-to-r from-primary to-foreground from-[50%] to-[50%] bg-[length:200%] bg-right bg-clip-text text-transparent hover:bg-left';
 
     useGSAP(
         () => {
@@ -18,16 +16,14 @@ const Skills = () => {
 
             if (!categories?.length) return;
 
-            // Check if user prefers reduced motion or screen is very small
-            const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-            const isVerySmallScreen = window.innerWidth < 400;
+            const skipAnimation = shouldSkipAnimation();
 
             categories.forEach((category) => {
                 const categoryTitle = category.querySelector('.category-title');
                 const categoryItems = category.querySelectorAll('.category-item');
 
                 // Skip animations on very small screens or if user prefers reduced motion
-                if (isVerySmallScreen || prefersReducedMotion) {
+                if (skipAnimation) {
                     gsap.set([categoryTitle, categoryItems], { opacity: 1, x: 0, y: 0 });
                     return;
                 }
@@ -80,7 +76,7 @@ const Skills = () => {
                     {Object.entries(MY_STACK).map(([key, value]) => (
                         <div className="grid sm:grid-cols-12 stack-category" key={key}>
                             <div className="sm:col-span-5 mb-4 xs:mb-6 sm:mb-0">
-                                <p className={`category-title ${gradientClass} text-heading-sm sm:text-heading-md md:text-heading-lg font-anton leading-none uppercase`}>
+                                <p className={`category-title ${gradientTextClass} text-heading-sm sm:text-heading-md md:text-heading-lg font-anton leading-none uppercase`}>
                                     {key}
                                 </p>
                             </div>

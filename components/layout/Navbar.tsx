@@ -11,12 +11,9 @@ import {
     FolderGit2,
     Mail,
 } from 'lucide-react';
-import {
-    GitHubIcon,
-    LinkedInIcon,
-} from '@/components/shared/icons';
 import { useRouter, usePathname } from 'next/navigation';
 import { GENERAL_INFO, SOCIAL_LINKS } from '@/lib/data';
+import { scrollToSection, isProjectDetailPage } from '@/lib/utils';
 import { useScrollDetection } from '@/hooks/useScrollDetection';
 import { useScrollLock } from '@/hooks/useScrollLock';
 import { useMenuKeyboardNavigation } from '@/hooks/useMenuKeyboardNavigation';
@@ -101,11 +98,6 @@ const CornerBracket = ({ position }: { position: CornerPosition }) => {
     );
 };
 
-const SOCIAL_ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
-    GitHub: GitHubIcon,
-    LinkedIn: LinkedInIcon,
-};
-
 const Navbar = () => {
     const pathname = usePathname();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -146,7 +138,7 @@ const Navbar = () => {
     }, [focusedIndex]);
 
     // Hide navbar on project details pages
-    if (pathname?.startsWith('/projects/')) return null;
+    if (isProjectDetailPage(pathname ?? '')) return null;
 
     return (
         <>
@@ -177,7 +169,7 @@ const Navbar = () => {
                             className={cn(
                                 'absolute left-1/2 -translate-x-1/2',
                                 'w-6 sm:w-7 h-[2.5px] rounded-full',
-                                'bg-foreground transition-all duration-500 ease-&lsqb;cubic-bezier(0.68,-0.6,0.32,1.6)&rsqb;',
+                                'bg-foreground transition-all duration-500 ease-menu-spring',
                                 'will-change-transform',
                                 isMenuOpen
                                     ? 'top-1/2 -translate-y-1/2 rotate-45 bg-primary shadow-[0_0_8px_rgba(0,255,0,0.4)]'
@@ -189,7 +181,7 @@ const Navbar = () => {
                             className={cn(
                                 'absolute left-1/2 -translate-x-1/2',
                                 'w-6 sm:w-7 h-[2.5px] rounded-full',
-                                'bg-foreground transition-all duration-500 ease-&lsqb;cubic-bezier(0.68,-0.6,0.32,1.6)&rsqb; delay-75',
+                                'bg-foreground transition-all duration-500 ease-menu-spring delay-75',
                                 'will-change-transform',
                                 isMenuOpen
                                     ? 'bottom-1/2 translate-y-1/2 -rotate-45 bg-primary shadow-[0_0_8px_rgba(0,255,0,0.4)]'
@@ -204,7 +196,7 @@ const Navbar = () => {
             <div
                 className={cn(
                     'fixed inset-0 z-[30] bg-black/90 backdrop-blur-md',
-                    'transition-all duration-300 ease-&lsqb;cubic-bezier(0.4,0,0.2,1)&rsqb;',
+                    'transition-all duration-300 ease-menu-in',
                     'will-change-transform',
                     'before:absolute before:inset-0 before:bg-[radial-gradient(ellipse_at_center,transparent_30%,rgba(0,0,0,0.6)_100%)]',
                     'after:absolute after:inset-0 after:bg-[radial-gradient(circle_at_center,rgba(0,255,0,0.03)_0%,transparent_60%)]',
@@ -222,7 +214,7 @@ const Navbar = () => {
                 className={cn(
                     'fixed top-0 right-0 h-[100dvh] overflow-y-auto',
                     'w-full sm:w-[85vw] md:w-[550px] lg:w-[580px] xl:w-[620px]',
-                    'transform transition-all duration-500 ease-&lsqb;cubic-bezier(0.65,0,0.35,1)&rsqb; z-[31]',
+                    'transform transition-all duration-500 ease-menu-slide z-[31]',
                     'py-12 sm:py-14 md:py-14 lg:py-14',
                     'px-5 sm:px-6 md:px-6 lg:px-8 xl:px-10',
                     'will-change-transform',
@@ -301,28 +293,7 @@ const Navbar = () => {
                                                 closeMenu();
 
                                                 if (link.url.startsWith('/#')) {
-                                                    const id =
-                                                        link.url.substring(2);
-                                                    setTimeout(() => {
-                                                        const element =
-                                                            document.getElementById(
-                                                                id,
-                                                            );
-                                                        if (element) {
-                                                            const offset = 80;
-                                                            const elementPosition =
-                                                                element.getBoundingClientRect()
-                                                                    .top +
-                                                                window.scrollY;
-                                                            window.scrollTo({
-                                                                top:
-                                                                    elementPosition -
-                                                                    offset,
-                                                                behavior:
-                                                                    'smooth',
-                                                            });
-                                                        }
-                                                    }, 300);
+                                                    scrollToSection(link.url.substring(2));
                                                 } else {
                                                     router.push(link.url);
                                                 }
@@ -434,8 +405,7 @@ const Navbar = () => {
                         </div>
                         <div className="grid grid-cols-2 gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-2.5">
                             {SOCIAL_LINKS.map((link, idx) => {
-                                const SocialIcon =
-                                    SOCIAL_ICON_MAP[link.name] || MoveUpRight;
+                                const SocialIcon = link.icon;
                                 return (
                                     <a
                                         key={link.name}

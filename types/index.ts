@@ -10,6 +10,21 @@ export type Variant =
     | 'link'
     | 'no-color';
 
+export interface ISkill {
+    name: string;
+    icon: string;
+}
+
+export interface ICertification {
+    title: string;
+    date: string;
+}
+
+export interface ICertificationCategory {
+    provider: string;
+    certifications: ICertification[];
+}
+
 export interface IProject {
     title: string;
     year: number;
@@ -27,7 +42,6 @@ export interface IProject {
 export interface IExperience {
     title: string;
     company: string;
-    duration: string;
     startDate: string;
     endDate: string;
     description?: string;

@@ -85,10 +85,12 @@ const Experiences = () => {
                 '(prefers-reduced-motion: reduce)',
             ).matches;
 
+            const primaryColor = `hsl(${getComputedStyle(document.documentElement).getPropertyValue('--primary').trim()})`;
+
             if (prefersReducedMotion) {
                 gsap.set('.timeline-item', { opacity: 1, x: 0 });
                 gsap.set('.timeline-dot', {
-                    borderColor: 'hsl(140, 100%, 50%)',
+                    borderColor: primaryColor,
                 });
                 gsap.set('.timeline-line-fill', { height: '100%' });
                 gsap.set('.duration-bar-fill', { width: '100%' });
@@ -149,7 +151,7 @@ const Experiences = () => {
 
                 // 1. Dot activates — border turns green, gains glow
                 tl.to(dot, {
-                    borderColor: 'hsl(140, 100%, 50%)',
+                    borderColor: primaryColor,
                     boxShadow:
                         '0 0 16px rgba(0,255,0,0.7), 0 0 30px rgba(0,255,0,0.2)',
                     scale: 1.25,

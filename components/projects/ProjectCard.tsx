@@ -1,5 +1,5 @@
 import TransitionLink from '@/components/shared/TransitionLink';
-import { cn } from '@/lib/utils';
+import { cn, gradientTextClass } from '@/lib/utils';
 import { IProject } from '@/types';
 import { gsap, useGSAP } from '@/lib/gsap-setup';
 import Image from 'next/image';
@@ -26,13 +26,15 @@ const Project = ({ index, project, selectedProject, onMouseEnter, onMouseLeave }
 
         const arrowLine = externalLinkSVGRef.current?.querySelector(
             '#arrow-line',
-        ) as SVGPathElement;
+        ) as SVGPathElement | null;
         const arrowCurb = externalLinkSVGRef.current?.querySelector(
             '#arrow-curb',
-        ) as SVGPathElement;
+        ) as SVGPathElement | null;
         const box = externalLinkSVGRef.current?.querySelector(
             '#box',
-        ) as SVGPathElement;
+        ) as SVGPathElement | null;
+
+        if (!box || !arrowLine || !arrowCurb) return;
 
         gsap.set(box, {
             opacity: 0,
@@ -114,7 +116,7 @@ const Project = ({ index, project, selectedProject, onMouseEnter, onMouseLeave }
                         className="group inline-flex items-center gap-2"
                     >
                         <h4
-                            className="text-heading-sm sm:text-heading-md md:text-heading-lg font-anton transition-all duration-700 bg-gradient-to-r from-primary to-foreground from-[50%] to-[50%] bg-[length:200%] bg-right bg-clip-text text-transparent hover:bg-left leading-tight"
+                            className={`${gradientTextClass} text-heading-sm sm:text-heading-md md:text-heading-lg font-anton leading-tight`}
                             onMouseEnter={handleMouseEnter}
                             onMouseLeave={handleMouseLeave}
                         >

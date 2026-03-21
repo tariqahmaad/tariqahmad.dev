@@ -36,6 +36,6 @@ export const useScrollExitAnimation = ({
                 opacity: opacity,
             });
         },
-        { scope: containerRef },
+        { scope: containerRef, dependencies: [startTrigger, endTrigger, yOffset, opacity], revertOnUpdate: true },
     );
 };

@@ -1,12 +1,13 @@
 'use client';
 
 import { GENERAL_INFO } from '@/lib/data';
+import { isProjectDetailPage } from '@/lib/utils';
 import { usePathname } from 'next/navigation';
 
 const Footer = () => {
     const pathname = usePathname();
 
-    if (pathname.startsWith('/projects/')) return null;
+    if (isProjectDetailPage(pathname)) return null;
 
     return (
         <footer className="text-center pb-5" id="contact">
