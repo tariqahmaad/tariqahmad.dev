@@ -7,6 +7,7 @@ export default {
         './pages/**/*.{js,ts,jsx,tsx,mdx}',
         './components/**/*.{js,ts,jsx,tsx,mdx}',
         './app/**/*.{js,ts,jsx,tsx,mdx}',
+        './lib/**/*.{js,ts,jsx,tsx}',
     ],
     theme: {
         extend: {
@@ -138,6 +139,9 @@ export default {
             transitionTimingFunction: {
                 menu: 'cubic-bezier(0.65, 0, 0.35, 1)',
                 slide: 'cubic-bezier(0.77, 0, 0.175, 1)',
+                'menu-spring': 'cubic-bezier(0.68, -0.6, 0.32, 1.6)',
+                'menu-in': 'cubic-bezier(0.4, 0, 0.2, 1)',
+                'menu-slide': 'cubic-bezier(0.65, 0, 0.35, 1)',
             },
             keyframes: {
                 scan: {

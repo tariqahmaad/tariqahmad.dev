@@ -1,6 +1,8 @@
 'use client';
 import { gsap, useGSAP } from '@/lib/gsap-setup';
 import SectionTitle from '@/components/shared/SectionTitle';
+import { ABOUT_ME } from '@/lib/data';
+import { shouldSkipAnimation } from '@/lib/utils';
 import Image from 'next/image';
 import React from 'react';
 
@@ -9,13 +11,7 @@ const AboutMe = () => {
 
     useGSAP(
         () => {
-            // Check if user prefers reduced motion or screen is very small
-            const prefersReducedMotion = window.matchMedia(
-                '(prefers-reduced-motion: reduce)',
-            ).matches;
-            const isVerySmallScreen = window.innerWidth < 400;
-
-            if (isVerySmallScreen || prefersReducedMotion) {
+            if (shouldSkipAnimation()) {
                 // Set elements to visible immediately on small screens or reduced motion
                 gsap.set('.slide-up-and-fade', { opacity: 1, y: 0 });
                 return;
@@ -41,8 +37,7 @@ const AboutMe = () => {
         <section className="pb-section" id="about-me">
             <div className="container" ref={container}>
                 <h2 className="text-heading-sm sm:text-heading-md md:text-heading-lg font-thin mb-8 xs:mb-12 md:mb-20 slide-up-and-fade leading-tight">
-                    Engineering scalable solutions that balance technical
-                    excellence with intuitive design.
+                    {ABOUT_ME.tagline}
                 </h2>
 
                 <SectionTitle title="ABOUT ME" className="slide-up-and-fade" />
@@ -67,34 +62,14 @@ const AboutMe = () => {
                     </div>
                     <div className="md:col-span-7 flex flex-col justify-center">
                         <div className="text-body-lg sm:text-body-xl text-muted-foreground max-w-[450px] md:max-w-none">
-                            <p className="slide-up-and-fade">
-                                I am a dedicated Computer Engineering graduate
-                                from Istanbul Aydin University, combining a
-                                strong theoretical foundation with hands-on
-                                expertise in full-stack development and network
-                                infrastructure. My passion lies in engineering
-                                systems that are not just functional, but also
-                                robust, scalable, and maintainable.
-                            </p>
-                            <p className="mt-3 slide-up-and-fade">
-                                With professional experience spanning Industry
-                                4.0 research, network administration, and
-                                software engineering, I bring a holistic
-                                approach to building technology solutions. I
-                                excel at strategic problem-solving and
-                                technical leadership, having successfully
-                                delivered complex projects by fostering
-                                collaboration and maintaining rigorous quality
-                                standards.
-                            </p>
-                            <p className="mt-3 slide-up-and-fade">
-                                Fluent in English, Dari, and conversational in
-                                Hindi, I thrive in diverse, cross-functional
-                                teams. My technical toolkit includes C, C++,
-                                Java, Python, and modern web frameworks,
-                                enabling me to tackle challenges across the
-                                entire development lifecycle.
-                            </p>
+                            {ABOUT_ME.bio.map((paragraph, i) => (
+                                <p
+                                    key={i}
+                                    className={`slide-up-and-fade${i > 0 ? ' mt-3' : ''}`}
+                                >
+                                    {paragraph}
+                                </p>
+                            ))}
                         </div>
                     </div>
                 </div>

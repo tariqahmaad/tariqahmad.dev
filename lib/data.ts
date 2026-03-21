@@ -1,4 +1,6 @@
-import { IProject, IExperience } from '@/types';
+import { IProject, IExperience, ICertificationCategory } from '@/types';
+import { GitHubIcon, LinkedInIcon } from '@/components/shared/icons';
+import { type ComponentType } from 'react';
 
 export const GENERAL_INFO = {
     email: 'tariq_muzamil@live.com',
@@ -10,11 +12,16 @@ export const GENERAL_INFO = {
     phone: '+90 53 454 03345',
 };
 
-export const SOCIAL_LINKS = [
-    { name: 'GitHub', url: 'https://github.com/tariqahmaad' },
+export const SOCIAL_LINKS: Array<{
+    name: string;
+    url: string;
+    icon: ComponentType<{ className?: string }>;
+}> = [
+    { name: 'GitHub', url: 'https://github.com/tariqahmaad', icon: GitHubIcon },
     {
         name: 'LinkedIn',
         url: 'https://www.linkedin.com/in/tariq-ahmad-a43320264/',
+        icon: LinkedInIcon,
     },
 ];
 
@@ -292,7 +299,6 @@ export const MY_EXPERIENCE: IExperience[] = [
     {
         title: 'Research Assistant',
         company: 'Industry 4.0 Research Centre',
-        duration: 'Oct 2024 - July 2025',
         startDate: 'Oct 2024',
         endDate: 'July 2025',
         description:
@@ -301,7 +307,6 @@ export const MY_EXPERIENCE: IExperience[] = [
     {
         title: 'Research Assistant Intern',
         company: 'Istanbul Aydin University',
-        duration: 'March 2024 - May 2024',
         startDate: 'Mar 2024',
         endDate: 'May 2024',
         description:
@@ -310,7 +315,6 @@ export const MY_EXPERIENCE: IExperience[] = [
     {
         title: 'Frontend Developer Intern',
         company: 'Caretta Software Company',
-        duration: 'Nov 2023 - Jan 2024',
         startDate: 'Nov 2023',
         endDate: 'Jan 2024',
         description:
@@ -319,7 +323,6 @@ export const MY_EXPERIENCE: IExperience[] = [
     {
         title: 'Research Intern',
         company: 'Istanbul Aydin University',
-        duration: 'Oct 2023 - Jan 2024',
         startDate: 'Oct 2023',
         endDate: 'Jan 2024',
         description:
@@ -328,7 +331,6 @@ export const MY_EXPERIENCE: IExperience[] = [
     {
         title: 'Network Technician',
         company: 'Tawhid Almas Logistics Company',
-        duration: 'July 2023 - Sept 2023',
         startDate: 'Jul 2023',
         endDate: 'Sep 2023',
         description:
@@ -337,7 +339,6 @@ export const MY_EXPERIENCE: IExperience[] = [
     {
         title: 'IT Support Specialist',
         company: 'Tawhid Almas Logistics Company',
-        duration: 'July 2022 - Sept 2022',
         startDate: 'Jul 2022',
         endDate: 'Sep 2022',
         description:
@@ -345,7 +346,7 @@ export const MY_EXPERIENCE: IExperience[] = [
     },
 ];
 
-export const MY_CERTIFICATIONS = [
+export const MY_CERTIFICATIONS: ICertificationCategory[] = [
     {
         provider: 'Oxford International Digital Institute',
         certifications: [
@@ -443,3 +444,28 @@ export const MY_CERTIFICATIONS = [
         ],
     },
 ];
+
+export const BANNER_ROLES = [
+    { first: 'COMPUTER', second: 'ENGINEER' },
+    { first: 'SOFTWARE', second: 'DEVELOPER' },
+    { first: 'FULL-STACK', second: 'DEVELOPER' },
+    { first: 'AI/ML', second: 'ENTHUSIAST' },
+    { first: 'NETWORK', second: 'SPECIALIST' },
+    { first: 'RESEARCH', second: 'ASSISTANT' },
+];
+
+export const BANNER_STATS = {
+    cgpa: '3.36',
+    projects: `${PROJECTS.length}+`,
+    certifications: `${MY_CERTIFICATIONS.reduce((acc, cat) => acc + cat.certifications.length, 0)}+`,
+};
+
+export const ABOUT_ME = {
+    tagline:
+        'Engineering scalable solutions that balance technical excellence with intuitive design.',
+    bio: [
+        'I am a dedicated Computer Engineering graduate from Istanbul Aydin University, combining a strong theoretical foundation with hands-on expertise in full-stack development and network infrastructure. My passion lies in engineering systems that are not just functional, but also robust, scalable, and maintainable.',
+        'With professional experience spanning Industry 4.0 research, network administration, and software engineering, I bring a holistic approach to building technology solutions. I excel at strategic problem-solving and technical leadership, having successfully delivered complex projects by fostering collaboration and maintaining rigorous quality standards.',
+        'Fluent in English, Dari, and conversational in Hindi, I thrive in diverse, cross-functional teams. My technical toolkit includes C, C++, Java, Python, and modern web frameworks, enabling me to tackle challenges across the entire development lifecycle.',
+    ],
+};

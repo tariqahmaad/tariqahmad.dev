@@ -1,7 +1,7 @@
 'use client';
 import SectionTitle from '@/components/shared/SectionTitle';
 import { PROJECTS } from '@/lib/data';
-import { cn } from '@/lib/utils';
+import { cn, shouldSkipAnimation } from '@/lib/utils';
 import { gsap, useGSAP } from '@/lib/gsap-setup';
 import { useScrollExitAnimation } from '@/hooks/useScrollExitAnimation';
 import Image from 'next/image';
@@ -71,13 +71,7 @@ const ProjectList = () => {
 
     useGSAP(
         () => {
-            // Check if user prefers reduced motion or screen is very small
-            const prefersReducedMotion = window.matchMedia(
-                '(prefers-reduced-motion: reduce)',
-            ).matches;
-            const isVerySmallScreen = window.innerWidth < 400;
-
-            if (isVerySmallScreen || prefersReducedMotion) {
+            if (shouldSkipAnimation()) {
                 // Set element to visible immediately
                 if (containerRef.current) {
                     gsap.set(containerRef.current, { opacity: 1, y: 0 });

@@ -60,7 +60,7 @@ function DefaultErrorFallback({
 }: {
     error: Error;
     resetErrorBoundary: () => void;
-}) {
+}): React.ReactNode {
     return (
         <div className="flex items-center justify-center min-h-screen bg-background text-foreground p-4">
             <div className="max-w-md w-full text-center space-y-6">

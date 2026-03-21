@@ -5,16 +5,8 @@ import { GENERAL_INFO } from '@/lib/data';
 import CvDownloadButton from '@/components/home/CvDownloadButton';
 import { gsap, useGSAP } from '@/lib/gsap-setup';
 import { useGlitchText, AnimationPhase } from '@/hooks/useGlitchText';
+import { BANNER_ROLES, BANNER_STATS } from '@/lib/data';
 import React from 'react';
-
-const ROLES = [
-    { first: 'COMPUTER', second: 'ENGINEER' },
-    { first: 'SOFTWARE', second: 'DEVELOPER' },
-    { first: 'FULL-STACK', second: 'DEVELOPER' },
-    { first: 'AI/ML', second: 'ENTHUSIAST' },
-    { first: 'NETWORK', second: 'SPECIALIST' },
-    { first: 'RESEARCH', second: 'ASSISTANT' },
-];
 
 const Banner = () => {
     const containerRef = React.useRef<HTMLDivElement>(null);
@@ -23,7 +15,7 @@ const Banner = () => {
     const [phase, setPhase] = React.useState<AnimationPhase>('entering');
     const [showCursor, setShowCursor] = React.useState(true);
 
-    const currentRole = ROLES[currentRoleIndex];
+    const currentRole = BANNER_ROLES[currentRoleIndex];
     const firstWord = useGlitchText(currentRole.first, phase, 0);
     const secondWord = useGlitchText(currentRole.second, phase, 150);
 
@@ -72,7 +64,7 @@ const Banner = () => {
             ) {
                 // Pause - change role at start of pause
                 if (cyclePosition - (STABLE_DURATION + EXIT_DURATION) < 50) {
-                    setCurrentRoleIndex((prev) => (prev + 1) % ROLES.length);
+                    setCurrentRoleIndex((prev) => (prev + 1) % BANNER_ROLES.length);
                 }
             } else {
                 // Enter phase
@@ -218,7 +210,7 @@ const Banner = () => {
                     <div className="flex w-full justify-around md:flex-col md:w-auto md:gap-8 items-center md:items-end">
                         <div className="slide-up-and-fade">
                             <h5 className="text-heading-sm sm:text-heading-md md:text-heading-lg font-anton text-primary mb-1.5">
-                                3.36
+                                {BANNER_STATS.cgpa}
                             </h5>
                             <p className="text-body-sm md:text-body-base text-muted-foreground">
                                 CGPA / 4.0
@@ -226,7 +218,7 @@ const Banner = () => {
                         </div>
                         <div className="slide-up-and-fade">
                             <h5 className="text-heading-sm sm:text-heading-md md:text-heading-lg font-anton text-primary mb-1.5">
-                                7+
+                                {BANNER_STATS.projects}
                             </h5>
                             <p className="text-body-sm md:text-body-base text-muted-foreground">
                                 Projects
@@ -234,7 +226,7 @@ const Banner = () => {
                         </div>
                         <div className="slide-up-and-fade">
                             <h5 className="text-heading-sm sm:text-heading-md md:text-heading-lg font-anton text-primary mb-1.5">
-                                14+
+                                {BANNER_STATS.certifications}
                             </h5>
                             <p className="text-body-sm md:text-body-base text-muted-foreground">
                                 Certifications
