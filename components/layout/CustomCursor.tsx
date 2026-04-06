@@ -1,6 +1,7 @@
 'use client';
 import { gsap, useGSAP } from '@/lib/gsap-setup';
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
+import { usePathname } from 'next/navigation';
 
 // Selectors for interactive elements that trigger hover effects
 const INTERACTIVE_SELECTORS = 'a, button, [role="button"], input, textarea, select, .cursor-pointer';
@@ -34,20 +35,36 @@ function updateRingMask(ring: HTMLDivElement, outerStop: number): void {
 const CustomCursor = () => {
     const spotlightRef = useRef<HTMLDivElement>(null);
     const ringRef = useRef<HTMLDivElement>(null);
+    const pathname = usePathname();
+
+    // Shared cursor state accessible from both useEffect and useGSAP
+    const cursorStateRef = useRef({ isHovering: false, currentScale: 1 });
+
+    // Reset cursor on route changes
+    useEffect(() => {
+        // Reset visual state
+        gsap.set(spotlightRef.current, {
+            scale: 1,
+            opacity: 1,
+        });
+        if (ringRef.current) {
+            updateRingMask(ringRef.current, MASK_DEFAULT_OUTER_STOP);
+        }
+        // Reset shared state so useGSAP handlers see a clean slate
+        cursorStateRef.current.isHovering = false;
+        cursorStateRef.current.currentScale = 1;
+    }, [pathname]);
 
     useGSAP((context, contextSafe) => {
         // Skip on mobile or if user prefers reduced motion
         if (window.innerWidth < 768) return;
         if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-        // Animation state (closure-scoped for GSAP callbacks)
-        let currentScale = 1;
-        let isHovering = false;
+        // Read/write isHovering and currentScale from cursorStateRef.current
+        // to stay in sync with the pathname-reset useEffect
         let isOverHiddenElement = false;
 
         const handleMouseMove = (e: MouseEvent) => {
-            // Re-evaluate hide state on every move. This prevents the cursor
-            // from getting stuck hidden when a hide-target unmounts mid-scroll.
             const hoveredElement = document.elementFromPoint(e.clientX, e.clientY) as HTMLElement | null;
             const shouldHideCursor = Boolean(hoveredElement?.closest('[data-cursor-hide]'));
 
@@ -74,12 +91,14 @@ const CustomCursor = () => {
         };
 
         const handleMouseLeave = () => {
-            gsap.to(spotlightRef.current, { opacity: 0, duration: 0.3 });
+            cursorStateRef.current.isHovering = false;
+            cursorStateRef.current.currentScale = 1;
+            gsap.set(spotlightRef.current, { scale: 1, opacity: 0 });
         };
 
         const handleMouseDown = () => {
             gsap.to(spotlightRef.current, {
-                scale: currentScale * CLICK_SCALE_FACTOR,
+                scale: cursorStateRef.current.currentScale * CLICK_SCALE_FACTOR,
                 duration: CLICK_DURATION,
                 ease: 'power2.out',
                 overwrite: true,
@@ -98,7 +117,7 @@ const CustomCursor = () => {
 
         const handleMouseUp = () => {
             gsap.to(spotlightRef.current, {
-                scale: currentScale,
+                scale: cursorStateRef.current.currentScale,
                 duration: CLICK_DURATION,
                 ease: 'power2.out',
                 overwrite: true,
@@ -117,18 +136,17 @@ const CustomCursor = () => {
 
         const handleMouseOver = (e: MouseEvent) => {
             const target = e.target as HTMLElement;
-            
-            // Hide cursor on elements with data-cursor-hide attribute
+
             const shouldHideCursor = target.closest('[data-cursor-hide]');
             if (shouldHideCursor) {
                 isOverHiddenElement = true;
                 gsap.to(spotlightRef.current, { opacity: 0, duration: 0.2 });
                 return;
             }
-            
-            if (isInteractiveElement(target) && !isHovering) {
-                isHovering = true;
-                currentScale = HOVER_SCALE;
+
+            if (isInteractiveElement(target) && !cursorStateRef.current.isHovering) {
+                cursorStateRef.current.isHovering = true;
+                cursorStateRef.current.currentScale = HOVER_SCALE;
                 gsap.to(spotlightRef.current, {
                     scale: HOVER_SCALE,
                     duration: HOVER_DURATION,
@@ -141,7 +159,6 @@ const CustomCursor = () => {
             const target = e.target as HTMLElement;
             const relatedTarget = e.relatedTarget as HTMLElement;
 
-            // Restore cursor opacity when leaving a hide-cursor element
             const wasHidden = target.closest('[data-cursor-hide]');
             const isEnteringHidden = relatedTarget?.closest('[data-cursor-hide]');
             if (wasHidden && !isEnteringHidden) {
@@ -149,10 +166,9 @@ const CustomCursor = () => {
                 gsap.to(spotlightRef.current, { opacity: 1, duration: 0.2 });
             }
 
-            // Only scale down if leaving an interactive element and not entering another
             if (isInteractiveElement(target) && !isInteractiveElement(relatedTarget)) {
-                isHovering = false;
-                currentScale = 1;
+                cursorStateRef.current.isHovering = false;
+                cursorStateRef.current.currentScale = 1;
                 gsap.to(spotlightRef.current, {
                     scale: 1,
                     duration: HOVER_DURATION,
