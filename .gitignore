@@ -45,8 +45,14 @@ pnpm-debug.log*
 # AI Assistant Folders
 # ===================
 /.claude/
-.CLAUDE.md
 /.gemini/
+.CLAUDE.md
+
+# ===================
+# MemPalace (Local Memory System)
+# ===================
+mempalace.yaml
+entities.json
 
 
 # ===================

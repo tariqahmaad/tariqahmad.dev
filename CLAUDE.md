@@ -193,3 +193,30 @@ All animations respect `prefers-reduced-motion`:
 Auto-deploys to Vercel on push to `main` branch.
 
 Domain: **tariqahmad.dev**
+
+## MemPalace Agents
+
+You have MemPalace agents available for persistent memory across sessions. Use them to track patterns, decisions, and expertise.
+
+**Available Agents:**
+- `reviewer` - Code quality, bug patterns, best practices
+- `frontend` - React components, Tailwind, accessibility, UX
+- `animation` - GSAP, ScrollTrigger, motion design, reduced motion support
+
+**Usage:**
+```
+# At session start, check relevant agent diary
+mempalace_diary_read("animation", last_n=10)
+
+# After discovering patterns or making decisions, log to appropriate agent
+mempalace_diary_write("animation", "COMP|gsap.pattern|start:top.80%|perf:smooth|★★★")
+
+# Query knowledge graph for project entities
+mempalace_kg_query("tariq.dev")
+```
+
+**When to use:**
+- After fixing bugs → log pattern to `reviewer`
+- After implementing UI → log component pattern to `frontend`
+- After animation work → log technique to `animation`
+- At session end → write summary to relevant agent diary
