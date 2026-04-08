@@ -158,7 +158,7 @@ export const PROJECTS: IProject[] = [
         </ul>`,
         role: ``,
         sourceCode: 'https://github.com/tariqahmaad/CV-Builder',
-        liveUrl: 'https://ta-cv.vercel.app/',
+        liveUrl: 'https://cv.tariqahmad.dev/',
     },
     {
         title: 'Quizlet',

@@ -6,7 +6,8 @@
       "Bash(npx create-next-app@latest:*)",
       "Bash(npm install)",
       "Bash(npm run build:*)",
-      "WebSearch"
+      "WebSearch",
+      "WebFetch(domain:github.com)"
     ],
     "deny": [],
     "ask": []
