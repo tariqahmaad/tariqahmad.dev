@@ -7,7 +7,7 @@
         "build": "next build",
         "start": "next start",
         "lint": "next lint",
-        "svgr:icons": "svgr --title-prop --no-dimensions --typescript -d components/icons -- components/icons/svgs"
+        "svgr:icons": "svgr --title-prop --no-dimensions --typescript -d components/shared/icons -- components/shared/icons/svgs"
     },
     "dependencies": {
         "@gsap/react": "^2.1.1",

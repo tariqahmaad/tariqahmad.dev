@@ -135,23 +135,30 @@ const Banner = () => {
                 ref={containerRef}
             >
                 <div className="max-md:grow max-md:flex flex-col justify-center items-start max-w-[544px]">
-                    <h1 className="banner-title slide-up-and-fade leading-[.95] text-display-sm sm:text-display-md md:text-display-lg xl:text-display-xl font-anton mb-4 w-[95vw] xs:w-[85vw] sm:w-[500px] md:w-[600px] max-w-[900px] overflow-hidden">
+                    <h1 className="banner-title slide-up-and-fade leading-[.95] font-anton mb-4 w-[95vw] xs:w-[85vw] sm:w-[500px] md:w-[600px] max-w-[900px] overflow-hidden">
                         <span
                             ref={roleRef}
                             className="block relative"
                             style={{ minHeight: 'clamp(80px, 20vw, 100px)' }}
                         >
                             <span
-                                className="text-primary inline-block transition-all duration-300 will-change-transform"
+                                className={`text-primary inline-block transition-all duration-300 will-change-transform ${
+                                    phase !== 'stable' ? 'glitch-text glitch-primary' : ''
+                                }`}
+                                data-text={currentRole.first}
                                 style={{
                                     opacity: firstWord.opacity,
                                     textShadow:
                                         phase !== 'stable'
-                                            ? 'var(--banner-text-shadow-glitch-primary)'
+                                            ? firstWord.intensity
+                                                ? '0 0 8px hsl(var(--primary)), 5px 0 0 hsl(0 100% 50%), -5px 0 0 hsl(var(--secondary))'
+                                                : 'var(--banner-text-shadow-glitch-primary)'
                                             : 'none',
                                     transform:
                                         phase !== 'stable'
-                                            ? 'var(--banner-transform-glitch-x-pos)'
+                                            ? firstWord.intensity
+                                                ? 'translate3d(-5px, 2px, 0)'
+                                                : 'var(--banner-transform-glitch-x-pos)'
                                             : 'var(--banner-transform-normal)',
                                 }}
                             >
@@ -159,16 +166,23 @@ const Banner = () => {
                             </span>
                             <br />
                             <span
-                                className="ml-2 xs:ml-4 text-foreground inline-block transition-all duration-300 will-change-transform"
+                                className={`ml-2 xs:ml-4 text-foreground inline-block transition-all duration-300 will-change-transform ${
+                                    phase !== 'stable' ? 'glitch-text glitch-secondary' : ''
+                                }`}
+                                data-text={currentRole.second}
                                 style={{
                                     opacity: secondWord.opacity,
                                     textShadow:
                                         phase !== 'stable'
-                                            ? 'var(--banner-text-shadow-glitch-secondary)'
+                                            ? secondWord.intensity
+                                                ? '0 0 8px hsl(var(--foreground)), 5px 0 0 hsl(0 100% 50%), -5px 0 0 hsl(var(--primary))'
+                                                : 'var(--banner-text-shadow-glitch-secondary)'
                                             : 'none',
                                     transform:
                                         phase !== 'stable'
-                                            ? 'var(--banner-transform-glitch-x-neg)'
+                                            ? secondWord.intensity
+                                                ? 'translate3d(5px, -2px, 0)'
+                                                : 'var(--banner-transform-glitch-x-neg)'
                                             : 'var(--banner-transform-normal)',
                                 }}
                             >

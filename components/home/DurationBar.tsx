@@ -34,8 +34,10 @@ const DurationBar = ({
                 {/* Gradient fill */}
                 <div
                     className={cn(
-                        'duration-bar-fill absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-primary to-secondary',
-                        isHighlighted && 'animate-pulse-subtle'
+                        'duration-bar-fill absolute inset-y-0 left-0 rounded-full',
+                        isHighlighted
+                            ? 'bg-gradient-to-r from-primary via-secondary to-primary animate-pulse-subtle'
+                            : 'bg-gradient-to-r from-primary to-secondary'
                     )}
                 />
             </div>

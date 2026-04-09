@@ -39,7 +39,13 @@ const TimelineItem = ({ experience, index, isLast }: TimelineItemProps) => {
             </div>
 
             {/* Content card */}
-            <div className="flex-1 experience-card group relative flex flex-col p-5 sm:p-6 bg-background-light border border-transparent rounded-lg transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,255,0,0.08)]">
+            <div className={`flex-1 experience-card group relative flex flex-col p-5 sm:p-6 bg-background-light border border-transparent rounded-lg transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,255,0,0.08)] ${experience.highlighted ? 'experience-card-highlighted' : ''}`}>
+                {/* Featured badge */}
+                {experience.highlighted && (
+                    <div className="absolute -top-2 -right-2 px-2 py-0.5 bg-primary text-background text-body-sm font-anton rounded shadow-lg shadow-primary/20 z-10">
+                        Featured
+                    </div>
+                )}
                 {/* Header row: Title/Company on left, Date on right */}
                 <div className="flex items-start justify-between gap-4 mb-2.5">
                     <div>
@@ -91,6 +97,7 @@ const Experiences = () => {
                 gsap.set('.timeline-item', { opacity: 1, x: 0 });
                 gsap.set('.timeline-dot', {
                     borderColor: primaryColor,
+                    backgroundColor: primaryColor,
                 });
                 gsap.set('.timeline-line-fill', { height: '100%' });
                 gsap.set('.duration-bar-fill', { width: '100%' });
@@ -149,9 +156,10 @@ const Experiences = () => {
                     dot.classList.add('timeline-dot-active');
                 });
 
-                // 1. Dot activates — border turns green, gains glow
+                // 1. Dot activates — border turns green, background fills green, gains glow
                 tl.to(dot, {
                     borderColor: primaryColor,
+                    backgroundColor: primaryColor,
                     boxShadow:
                         '0 0 16px rgba(0,255,0,0.7), 0 0 30px rgba(0,255,0,0.2)',
                     scale: 1.25,
@@ -233,7 +241,7 @@ const Experiences = () => {
                     scrollTrigger: {
                         trigger: containerRef.current ?? items[0],
                         start: 'top 75%',
-                        toggleActions: 'play none none reverse',
+                        toggleActions: 'play none none none',
                     },
                 });
 
@@ -259,7 +267,7 @@ const Experiences = () => {
                         scrollTrigger: {
                             trigger: dot,
                             start: 'top 82%',
-                            toggleActions: 'play none none reverse',
+                            toggleActions: 'play none none none',
                         },
                     });
 

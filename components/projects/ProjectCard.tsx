@@ -3,6 +3,7 @@ import { cn, gradientTextClass } from '@/lib/utils';
 import { IProject } from '@/types';
 import { gsap, useGSAP } from '@/lib/gsap-setup';
 import Image from 'next/image';
+import { ExternalLink } from 'lucide-react';
 import { useRef } from 'react';
 
 interface Props {
@@ -106,11 +107,11 @@ const Project = ({ index, project, selectedProject, onMouseEnter, onMouseLeave }
                     loading="lazy"
                 />
             )}
-            <div className="flex gap-2 md:gap-5">
+            <div className="flex gap-2 md:gap-5 items-start">
                 <div className="font-anton text-muted-foreground text-body-base sm:text-body-lg">
                     _{(index + 1).toString().padStart(2, '0')}.
                 </div>
-                <div>
+                <div className="flex-1">
                     <TransitionLink
                         href={`/projects/${project.slug}`}
                         className="group inline-flex items-center gap-2"
@@ -161,6 +162,37 @@ const Project = ({ index, project, selectedProject, onMouseEnter, onMouseLeave }
                             ))}
                     </ul>
                 </div>
+                {project.slug === 'cv-builder' && project.liveUrl && (
+                    <a
+                        href={project.liveUrl}
+                        target="_blank"
+                        rel="noreferrer noopener"
+                        className={cn(
+                            'group relative self-center',
+                            'inline-flex items-center justify-center',
+                            'h-9 px-4 sm:h-11 sm:px-6 md:h-12 md:px-7',
+                            'bg-primary',
+                            'uppercase font-anton tracking-[0.15em] sm:tracking-[0.2em]',
+                            'rounded-sm',
+                            'outline-none',
+                            'overflow-hidden',
+                            'transition-colors duration-300',
+                            // LinkedIn-style white fill animation from bottom
+                            'before:absolute before:top-[200%] before:left-0 before:right-0',
+                            'before:h-full before:bg-white before:rounded-[50%] before:scale-150',
+                            'before:transition-all before:duration-500',
+                            'hover:before:top-0',
+                        )}
+                    >
+                        <span className="relative z-[1] flex items-center gap-1.5 sm:gap-2 md:gap-2.5 text-primary-foreground group-hover:text-primary transition-colors duration-500 text-[13px] sm:text-body-sm md:text-body-base">
+                            <span>Visit</span>
+                            <ExternalLink
+                                size={14}
+                                className="sm:size-[16px] md:size-[18px] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-300"
+                            />
+                        </span>
+                    </a>
+                )}
             </div>
         </div>
     );

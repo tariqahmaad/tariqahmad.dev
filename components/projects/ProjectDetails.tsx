@@ -140,7 +140,7 @@ const ProjectDetails = ({ project }: Props) => {
                                                 <span>View Source Code</span>
                                             </a>
                                         )}
-                                        {project.liveUrl && (
+                                        {project.liveUrl && project.slug !== 'cv-builder' && (
                                             <a
                                                 href={project.liveUrl}
                                                 target="_blank"

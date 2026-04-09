@@ -60,9 +60,9 @@ export default {
                 // Typography System - Mobile First, Progressive Enhancement
                 // Display Sizes (Hero Titles)
                 'display-sm': [
-                    '3rem',
+                    '4rem',
                     { lineHeight: '1', letterSpacing: '-0.02em' },
-                ], // 48px
+                ], // 64px - bigger for mobile impact
                 'display-md': [
                     '3.5rem',
                     { lineHeight: '1', letterSpacing: '-0.02em' },

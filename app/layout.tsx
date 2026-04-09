@@ -14,6 +14,7 @@ import StickyEmail from '@/components/layout/StickyEmail';
 import StructuredData from '@/components/layout/StructuredData';
 import ScrollSnap from '@/components/layout/ScrollSnap';
 import ScrollToTop from '@/components/layout/ScrollToTop';
+import LenisBridge from '@/components/layout/LenisBridge';
 import { ErrorBoundary } from '@/components/error/ErrorBoundary';
 
 const antonFont = Anton({
@@ -118,6 +119,7 @@ export default function RootLayout({
                             duration: 1.4,
                         }}
                     >
+                        <LenisBridge />
                         <Navbar />
                         <main>{children}</main>
                         <Footer />

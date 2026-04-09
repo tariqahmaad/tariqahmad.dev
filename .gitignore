@@ -48,12 +48,6 @@ pnpm-debug.log*
 /.gemini/
 .CLAUDE.md
 
-# ===================
-# MemPalace (Local Memory System)
-# ===================
-mempalace.yaml
-entities.json
-
 
 # ===================
 # OS Files
