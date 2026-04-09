@@ -299,7 +299,7 @@ export const MY_EXPERIENCE: IExperience[] = [
     {
         title: 'Research Assistant',
         company: 'Industry 4.0 Research Centre',
-        startDate: 'Oct 2024',
+        startDate: 'October 2024',
         endDate: 'July 2025',
         description:
             'Working on Industry 4.0 research projects, focusing on AI integration and smart manufacturing systems.',
@@ -307,7 +307,7 @@ export const MY_EXPERIENCE: IExperience[] = [
     {
         title: 'Research Assistant Intern',
         company: 'Istanbul Aydin University',
-        startDate: 'Mar 2024',
+        startDate: 'March 2024',
         endDate: 'May 2024',
         description:
             'Assisted in academic research projects and data analysis.',
@@ -315,32 +315,32 @@ export const MY_EXPERIENCE: IExperience[] = [
     {
         title: 'Frontend Developer Intern',
         company: 'Caretta Software Company',
-        startDate: 'Nov 2023',
-        endDate: 'Jan 2024',
+        startDate: 'November 2023',
+        endDate: 'January 2024',
         description:
             'Developed responsive web interfaces using React and modern CSS frameworks.',
     },
     {
         title: 'Research Intern',
         company: 'Istanbul Aydin University',
-        startDate: 'Oct 2023',
-        endDate: 'Jan 2024',
+        startDate: 'October 2023',
+        endDate: 'January 2024',
         description:
             'Contributed to ongoing research initiatives in the computer engineering department.',
     },
     {
         title: 'Network Technician',
         company: 'Tawhid Almas Logistics Company',
-        startDate: 'Jul 2023',
-        endDate: 'Sep 2023',
+        startDate: 'July 2023',
+        endDate: 'September 2023',
         description:
             'Managed network infrastructure and ensured reliable connectivity across all departments.',
     },
     {
         title: 'IT Support Specialist',
         company: 'Tawhid Almas Logistics Company',
-        startDate: 'Jul 2022',
-        endDate: 'Sep 2022',
+        startDate: 'July 2022',
+        endDate: 'September 2022',
         description:
             'Provided technical support and maintained IT systems for logistics operations.',
     },
@@ -352,7 +352,7 @@ export const MY_CERTIFICATIONS: ICertificationCategory[] = [
         certifications: [
             {
                 title: 'Oxford Test of English - Overall Score: 8.0',
-                date: 'Nov 2025',
+                date: 'November 2025',
             },
         ],
     },
@@ -361,7 +361,7 @@ export const MY_CERTIFICATIONS: ICertificationCategory[] = [
         certifications: [
             {
                 title: 'IELTS - Overall Band: 6.0',
-                date: 'Feb 2025',
+                date: 'February 2025',
             },
         ],
     },
@@ -379,11 +379,11 @@ export const MY_CERTIFICATIONS: ICertificationCategory[] = [
         certifications: [
             {
                 title: 'Unsupervised Learning, Recommenders, Reinforcement Learning',
-                date: 'Sept 2024',
+                date: 'September 2024',
             },
             {
                 title: 'Supervised Machine Learning: Regression and Classification',
-                date: 'Aug 2024',
+                date: 'August 2024',
             },
         ],
     },
@@ -392,15 +392,15 @@ export const MY_CERTIFICATIONS: ICertificationCategory[] = [
         certifications: [
             {
                 title: 'Technical Support Fundamentals',
-                date: 'Dec 2023',
+                date: 'December 2023',
             },
             {
                 title: 'Crash Course of Python',
-                date: 'Nov 2023',
+                date: 'November 2023',
             },
             {
                 title: 'Introduction to Large Language Model',
-                date: 'Oct 2023',
+                date: 'October 2023',
             },
             {
                 title: 'Introduction to Generative AI',
@@ -413,7 +413,7 @@ export const MY_CERTIFICATIONS: ICertificationCategory[] = [
         certifications: [
             {
                 title: 'Introduction to C++',
-                date: 'Nov 2020',
+                date: 'November 2020',
             },
         ],
     },
@@ -422,11 +422,11 @@ export const MY_CERTIFICATIONS: ICertificationCategory[] = [
         certifications: [
             {
                 title: 'Cisco Certified Network Associate (CCNA)',
-                date: 'Aug 2019',
+                date: 'August 2019',
             },
             {
                 title: 'Wireless Networking',
-                date: 'Aug 2019',
+                date: 'August 2019',
             },
             {
                 title: 'Microsoft Certified Solution Expert (MCSE)',
@@ -439,7 +439,7 @@ export const MY_CERTIFICATIONS: ICertificationCategory[] = [
         certifications: [
             {
                 title: 'IELTS Academic Test Preparation',
-                date: 'Dec 2017',
+                date: 'December 2017',
             },
         ],
     },

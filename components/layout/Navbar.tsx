@@ -148,7 +148,7 @@ const Navbar = () => {
                     className={cn(
                         'group',
                         'w-11 h-11 sm:w-12 sm:h-12 md:w-14 md:h-14',
-                        'absolute top-4 sm:top-5 right-4 sm:right-6 md:right-8',
+                        'absolute top-4 sm:top-5 md:top-6 right-4 sm:right-6 md:right-8',
                         'z-[2]',
                         'flex items-center justify-center',
                         'bg-background/50 backdrop-blur-sm',
@@ -157,7 +157,7 @@ const Navbar = () => {
                         'border border-white/5',
                         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background',
                         'will-change-transform',
-                        isMenuOpen && 'scale-90 md:translate-y-4',
+                        isMenuOpen && 'scale-90 md:translate-y-2',
                     )}
                     onClick={() => setIsMenuOpen(!isMenuOpen)}
                     aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}

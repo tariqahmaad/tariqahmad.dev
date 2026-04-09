@@ -21,13 +21,36 @@ export function shouldSkipAnimation(): boolean {
     );
 }
 
-// Scrolls to a section by id, with an optional delay (for menu close animations) and offset
-export function scrollToSection(id: string, delay = 300, offset = 80): void {
+// Scrolls to a section by id using Lenis for proper snap alignment
+export function scrollToSection(id: string, delay = 300, offset = 0): void {
     setTimeout(() => {
         const element = document.getElementById(id);
-        if (!element) return;
-        const top = element.getBoundingClientRect().top + window.scrollY - offset;
-        window.scrollTo({ top, behavior: 'smooth' });
+        if (!element) {
+            console.warn(`[scrollToSection] Element with id "${id}" not found.`);
+            return;
+        }
+
+        // Try to use Lenis instance for proper integration with snap scroll
+        const win = window as Window & {
+            lenis?: {
+                scrollTo: (target: HTMLElement | number, options?: { offset: number; duration: number; easing?: (t: number) => number }) => void;
+            };
+        };
+
+        if (win.lenis) {
+            try {
+                win.lenis.scrollTo(element, { offset, duration: 1.2 });
+            } catch (error) {
+                console.error('[scrollToSection] Lenis scrollTo failed:', error);
+                // Fallback to native scroll on error
+                const top = element.getBoundingClientRect().top + window.scrollY - offset;
+                window.scrollTo({ top, behavior: 'smooth' });
+            }
+        } else {
+            // Lenis not available - use native scroll
+            const top = element.getBoundingClientRect().top + window.scrollY - offset;
+            window.scrollTo({ top, behavior: 'smooth' });
+        }
     }, delay);
 }
 

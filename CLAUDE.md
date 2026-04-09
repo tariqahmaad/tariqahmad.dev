@@ -49,8 +49,9 @@ Uses **GSAP** with ScrollTrigger for scroll-triggered animations:
 - Scroll triggers use `start: 'top 80%'` pattern for consistent reveal timing
 
 **Lenis** provides smooth scrolling:
-- Initialized in `app/layout.tsx` with GSAP ScrollTrigger integration
-- Configuration: `lerp: 0.1`, `duration: 1.4`
+- Initialized in `app/layout.tsx` via `ReactLenis` wrapper with `lerp: 0.1`, `duration: 1.4`
+- `LenisBridge` component exposes the instance globally for use in utility functions (`scrollToSection`)
+- Snap scrolling enabled via `ScrollSnap` component using `lenis-snap` plugin
 
 ### Styling System
 
@@ -103,27 +104,34 @@ app/
   error.tsx          # Error boundary for route errors
   loading.tsx        # Loading state for page transitions
   template.tsx       # Page template wrapper
+  not-found.tsx      # 404 page
+  robots.ts          # SEO robots.txt
+  sitemap.ts         # SEO sitemap.xml
+  projects/[slug]/   # Dynamic project detail pages
 
 components/
-  home/              # Page section components (Banner, AboutMe, Skills, etc.)
-  layout/            # Layout components (Navbar, Footer, CustomCursor, etc.)
+  home/              # Page section components (Banner, AboutMe, Skills, Experiences, Certifications, ProjectList, DurationBar, CvDownloadButton)
+  layout/            # Layout components (Navbar, Footer, CustomCursor, Preloader, ParticleBackground, ScrollProgressIndicator, StickyEmail, LenisBridge, ScrollSnap, ScrollToTop, StructuredData)
+  shared/            # Reusable components (Button, SectionTitle, TransitionLink, ArrowAnimation)
   shared/icons/      # Custom SVG icon components
   projects/          # Project detail components (ProjectCard, ProjectDetails)
   error/             # Error handling components (ErrorBoundary, GlobalErrorFallback)
 
-hooks/               # Custom React hooks
+hooks/               # Custom React hooks (useScrollExitAnimation, useGlitchText, useScrollDetection, useScrollLock, useMenuKeyboardNavigation)
 
 lib/
   data.ts            # All portfolio content (edit this to update content)
-  utils.ts           # cn() utility for Tailwind class merging
+  utils.ts           # cn() utility, scrollToSection, gradient text classes
   gsap-setup.ts      # GSAP + ScrollTrigger initialization
 
 types/
   index.ts           # TypeScript interfaces (IProject, IExperience)
+  lenis-snap.d.ts    # Lenis snap type declarations
 
 public/
   logo/              # Technology stack icons (match names in MY_STACK)
   projects/          # Project images (thumbnail/, long/, images/)
+  personal/          # Profile images
 ```
 
 ### Path Aliases
@@ -162,7 +170,7 @@ To update portfolio content, edit `lib/data.ts`:
 - Add corresponding icon file to `public/logo/`
 
 **Adding Experience:**
-- Set `highlighted: true` for current positions (adds pulse animation to timeline)
+- Set `highlighted: true` for featured/important positions (adds "Featured" badge, glow effects on timeline dot, and enhanced duration bar animation)
 
 ## Key Implementation Details
 
@@ -194,29 +202,4 @@ Auto-deploys to Vercel on push to `main` branch.
 
 Domain: **tariqahmad.dev**
 
-## MemPalace Agents
 
-You have MemPalace agents available for persistent memory across sessions. Use them to track patterns, decisions, and expertise.
-
-**Available Agents:**
-- `reviewer` - Code quality, bug patterns, best practices
-- `frontend` - React components, Tailwind, accessibility, UX
-- `animation` - GSAP, ScrollTrigger, motion design, reduced motion support
-
-**Usage:**
-```
-# At session start, check relevant agent diary
-mempalace_diary_read("animation", last_n=10)
-
-# After discovering patterns or making decisions, log to appropriate agent
-mempalace_diary_write("animation", "COMP|gsap.pattern|start:top.80%|perf:smooth|★★★")
-
-# Query knowledge graph for project entities
-mempalace_kg_query("tariq.dev")
-```
-
-**When to use:**
-- After fixing bugs → log pattern to `reviewer`
-- After implementing UI → log component pattern to `frontend`
-- After animation work → log technique to `animation`
-- At session end → write summary to relevant agent diary

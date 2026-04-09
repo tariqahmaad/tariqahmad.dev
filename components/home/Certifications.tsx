@@ -97,7 +97,7 @@ const Certifications = () => {
                                             </span>
                                         </p>
                                     </div>
-                                    <div className="grid gap-3 xs:gap-4">
+                                    <div className="grid gap-6 xs:gap-4">
                                         {category.certifications.map(
                                             (cert, certIndex) => {
                                                 const certId = `${index}-${certIndex}`;
@@ -115,7 +115,7 @@ const Certifications = () => {
                                                     <div
                                                         key={certIndex}
                                                         className={cn(
-                                                            'grid sm:grid-cols-12 gap-2 transition-opacity duration-500',
+                                                            'grid sm:grid-cols-12 gap-1 sm:gap-2 transition-opacity duration-500',
                                                             isCertDimmed
                                                                 ? 'opacity-30'
                                                                 : 'opacity-100',
