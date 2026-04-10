@@ -167,28 +167,64 @@ const Project = ({ index, project, selectedProject, onMouseEnter, onMouseLeave }
                         href={project.liveUrl}
                         target="_blank"
                         rel="noreferrer noopener"
-                        className={cn(
-                            'group relative self-center',
-                            'inline-flex items-center justify-center',
-                            'h-9 px-4 sm:h-11 sm:px-6 md:h-12 md:px-7',
-                            'bg-primary',
-                            'uppercase font-anton tracking-[0.15em] sm:tracking-[0.2em]',
-                            'rounded-sm',
-                            'outline-none',
-                            'overflow-hidden',
-                            'transition-colors duration-300',
-                            // LinkedIn-style white fill animation from bottom
-                            'before:absolute before:top-[200%] before:left-0 before:right-0',
-                            'before:h-full before:bg-white before:rounded-[50%] before:scale-150',
-                            'before:transition-all before:duration-500',
-                            'hover:before:top-0',
-                        )}
+                        className="group relative self-center inline-flex items-center justify-center h-9 px-4 sm:h-10 sm:px-5 md:h-14 md:px-8 md:rounded-tl-[10.5px] md:rounded-br-[10.5px] bg-primary/[0.06] hover:bg-primary/[0.12] outline-none transition-all duration-200 hover:shadow-[0_0_20px_hsl(var(--primary)/0.15),0_0_40px_hsl(var(--primary)/0.05)] active:scale-[0.98]"
                     >
-                        <span className="relative z-[1] flex items-center gap-1.5 sm:gap-2 md:gap-2.5 text-primary-foreground group-hover:text-primary transition-colors duration-500 text-[13px] sm:text-body-sm md:text-body-base">
+                        {/* Top-left corner bracket */}
+                        <svg
+                            className="pointer-events-none absolute -top-px -left-px md:-top-[3.5px] md:-left-[3.5px] w-8 h-8 md:w-14 md:h-14 text-primary/50 group-hover:text-primary/80 transition-colors duration-300"
+                            viewBox="-1 -1 34 34"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                        >
+                            {/* Corner - always visible */}
+                            <path d="M12 2 H8 A6 6 0 0 0 2 8 V12" />
+                            {/* Horizontal line extends on hover */}
+                            <path
+                                d="M12 2 L32 2"
+                                strokeDasharray="20"
+                                className="corner-bracket-line [stroke-dashoffset:20] group-hover:[stroke-dashoffset:0] transition-[stroke-dashoffset] duration-300 ease-out"
+                            />
+                            {/* Vertical line extends on hover */}
+                            <path
+                                d="M2 12 L2 32"
+                                strokeDasharray="20"
+                                className="corner-bracket-line [stroke-dashoffset:20] group-hover:[stroke-dashoffset:0] transition-[stroke-dashoffset] duration-300 ease-out"
+                            />
+                        </svg>
+
+                        {/* Bottom-right corner bracket */}
+                        <svg
+                            className="pointer-events-none absolute -bottom-px -right-px md:-bottom-[3.5px] md:-right-[3.5px] w-8 h-8 md:w-14 md:h-14 text-primary/50 group-hover:text-primary/80 transition-colors duration-300 delay-75"
+                            viewBox="-1 -1 34 34"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                        >
+                            {/* Corner - always visible */}
+                            <path d="M20 30 H24 A6 6 0 0 0 30 24 V20" />
+                            {/* Horizontal line extends on hover */}
+                            <path
+                                d="M20 30 L0 30"
+                                strokeDasharray="20"
+                                className="corner-bracket-line [stroke-dashoffset:20] group-hover:[stroke-dashoffset:0] transition-[stroke-dashoffset] duration-300 delay-75 ease-out"
+                            />
+                            {/* Vertical line extends on hover */}
+                            <path
+                                d="M30 20 L30 0"
+                                strokeDasharray="20"
+                                className="corner-bracket-line [stroke-dashoffset:20] group-hover:[stroke-dashoffset:0] transition-[stroke-dashoffset] duration-300 delay-75 ease-out"
+                            />
+                        </svg>
+
+                        {/* Content */}
+                        <span className="relative z-[1] flex items-center gap-1.5 sm:gap-2 md:gap-2.5 uppercase font-anton tracking-[0.12em] sm:tracking-[0.15em] text-primary/80 group-hover:text-primary group-hover:tracking-[0.16em] sm:group-hover:tracking-[0.18em] md:group-hover:tracking-[0.2em] transition-all duration-300 text-[13px] sm:text-body-sm md:text-body-lg">
                             <span>Visit</span>
                             <ExternalLink
                                 size={14}
-                                className="sm:size-[16px] md:size-[18px] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-300"
+                                className="sm:size-[16px] md:size-[22px] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-300 drop-shadow-[0_0_6px_hsl(var(--primary)/0.5)]"
                             />
                         </span>
                     </a>

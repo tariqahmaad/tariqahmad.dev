@@ -486,6 +486,16 @@
         .present-dot-active {
             animation: none;
         }
+
+        /* Footer email underline - always visible */
+        .group:hover .footer-email-underline {
+            transform: scaleX(1) !important;
+        }
+
+        /* ProjectCard corner bracket extension lines - always fully drawn */
+        .corner-bracket-line {
+            stroke-dashoffset: 0 !important;
+        }
     }
 
     /* Duration bar - GSAP handles width animation, this ensures initial state */
