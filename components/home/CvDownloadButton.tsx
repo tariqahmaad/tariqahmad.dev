@@ -39,8 +39,9 @@ const CvDownloadButton = () => {
 
     return (
         <a
-            href="/Tariq_Ahmad_Resume.pdf"
-            download="Tariq_Ahmad_Resume.pdf"
+            href="https://cv.tariqahmad.dev/share/SrQUaAO1"
+            target="_blank"
+            rel="noopener noreferrer"
             onClick={handleClick}
             className="group relative flex flex-row md:flex-col items-center justify-center gap-3 md:gap-2 px-6 md:px-3 py-3 border border-transparent bg-primary/[0.05] shadow-[0_0_15px_rgba(0,255,0,0.1)] backdrop-blur-[2px] hover:bg-primary/[0.1] hover:border-primary/50 hover:shadow-[0_0_30px_rgba(0,255,0,0.3)] active:scale-95 transition-all duration-300 ease-out rounded-tl-lg rounded-br-lg rounded-tr-none rounded-bl-none overflow-hidden w-full max-w-[300px] md:max-w-none md:w-[110px] h-14 md:h-auto md:aspect-square"
             onMouseEnter={handleMouseEnter}
