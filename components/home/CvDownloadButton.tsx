@@ -39,7 +39,7 @@ const CvDownloadButton = () => {
 
     return (
         <a
-            href="https://cv.tariqahmad.dev/share/SrQUaAO1"
+            href="https://cv.tariqahmad.dev/share/SrQUaAO1?download=1"
             target="_blank"
             rel="noopener noreferrer"
             onClick={handleClick}
@@ -141,7 +141,6 @@ const CvDownloadButton = () => {
             >
                 {downloadStatus === 'success' ? 'DOWNLOADED' : displayText}
             </span>
-
         </a>
     );
 };
