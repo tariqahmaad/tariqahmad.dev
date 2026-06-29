@@ -5,7 +5,7 @@ import { useRef, useState, useEffect, memo } from 'react';
 const ParticleBackground = memo(function ParticleBackground() {
     const containerRef = useRef<HTMLDivElement>(null);
     const particlesRef = useRef<(HTMLDivElement | null)[]>([]);
-    const [particleCount, setParticleCount] = useState(100);
+    const [particleCount, setParticleCount] = useState(64);
     const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
 
     // Check for reduced motion preference
@@ -31,7 +31,7 @@ const ParticleBackground = memo(function ParticleBackground() {
         }
 
         const updateParticleCount = () => {
-            setParticleCount(window.innerWidth < 768 ? 40 : 100);
+            setParticleCount(window.innerWidth < 768 ? 20 : 64);
         };
 
         updateParticleCount();
@@ -47,7 +47,7 @@ const ParticleBackground = memo(function ParticleBackground() {
     useGSAP(() => {
         if (prefersReducedMotion || particleCount === 0) return;
 
-        particlesRef.current.forEach((particle) => {
+        const animations = particlesRef.current.map((particle) => {
             if (!particle) return;
 
             gsap.set(particle, {
@@ -58,7 +58,7 @@ const ParticleBackground = memo(function ParticleBackground() {
                 top: Math.random() * (window.innerHeight + 1),
             });
 
-            gsap.to(particle, {
+            return gsap.to(particle, {
                 y: window.innerHeight,
                 duration: Math.random() * 10 + 10,
                 opacity: 0,
@@ -66,6 +66,10 @@ const ParticleBackground = memo(function ParticleBackground() {
                 ease: 'none',
             });
         });
+
+        return () => {
+            animations.forEach((animation) => animation?.kill());
+        };
     }, [particleCount, prefersReducedMotion]);
 
     if (prefersReducedMotion) {
@@ -83,7 +87,7 @@ const ParticleBackground = memo(function ParticleBackground() {
                     ref={(el) => {
                         particlesRef.current[i] = el;
                     }}
-                    className="absolute rounded-full bg-white"
+                    className={`absolute ${i % 5 === 0 ? 'bg-secondary' : 'bg-primary'} shadow-[0_0_6px_rgba(0,255,0,0.45)]`}
                 />
             ))}
         </div>

@@ -124,7 +124,7 @@ const CvDownloadButton = () => {
                             className="w-8 h-8 text-primary drop-shadow-[0_0_10px_rgba(0,255,0,0.8)]"
                             strokeWidth={3}
                         />
-                        <div className="absolute inset-0 bg-primary/20 blur-xl animate-ping rounded-full" />
+                        <div className="absolute inset-0 bg-primary/20 blur-xl animate-ping rounded-tl-md rounded-br-md" />
                     </div>
                 )}
             </div>

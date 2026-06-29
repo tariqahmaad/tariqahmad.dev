@@ -168,7 +168,7 @@ const Navbar = () => {
                         <span
                             className={cn(
                                 'absolute left-1/2 -translate-x-1/2',
-                                'w-6 sm:w-7 h-[2.5px] rounded-full',
+                                'w-6 sm:w-7 h-[2.5px]',
                                 'bg-foreground transition-all duration-500 ease-menu-spring',
                                 'will-change-transform',
                                 isMenuOpen
@@ -180,7 +180,7 @@ const Navbar = () => {
                         <span
                             className={cn(
                                 'absolute left-1/2 -translate-x-1/2',
-                                'w-6 sm:w-7 h-[2.5px] rounded-full',
+                                'w-6 sm:w-7 h-[2.5px]',
                                 'bg-foreground transition-all duration-500 ease-menu-spring delay-75',
                                 'will-change-transform',
                                 isMenuOpen
@@ -377,7 +377,7 @@ const Navbar = () => {
                                             {/* Status dot with enhanced glow */}
                                             <div
                                                 className={cn(
-                                                    'w-2 h-2 sm:w-2 sm:h-2 md:w-2 md:h-2 lg:w-2.5 lg:h-2.5 rounded-full transition-all flex-shrink-0',
+                                                    'w-2 h-2 sm:w-2 sm:h-2 md:w-2 md:h-2 lg:w-2.5 lg:h-2.5 rounded-none transition-all flex-shrink-0',
                                                     isActive
                                                         ? 'bg-primary shadow-[0_0_6px_rgba(0,255,0,0.5)] animate-pulse-subtle'
                                                         : 'bg-primary/40 group-hover:bg-primary group-hover:shadow-[0_0_4px_rgba(0,255,0,0.3)]',
@@ -420,7 +420,7 @@ const Navbar = () => {
                                             'px-3 xs:px-3.5 sm:px-3.5 md:px-4 lg:px-5',
                                             'py-3 xs:py-3 sm:py-3 md:py-3.5 lg:py-3.5',
                                             'border border-white/5 hover:border-primary/40',
-                                            'bg-white/[0.02] hover:bg-primary/[0.06]',
+                                            'bg-foreground/[0.02] hover:bg-primary/[0.06]',
                                             'transition-all duration-200 rounded-sm',
                                             'hover:shadow-[0_0_20px_rgba(0,255,0,0.15)]',
                                             'opacity-0',
@@ -509,10 +509,7 @@ const Navbar = () => {
                                 {GENERAL_INFO.email}
                             </a>
                             <div className="flex items-center gap-2 sm:gap-2 text-[11px] xs:text-ui-sm sm:text-ui-sm md:text-ui-base lg:text-ui-base text-muted-foreground/80">
-                                <span className="relative flex h-2 w-2 sm:h-2 sm:w-2 md:h-2.5 md:w-2.5 flex-shrink-0">
-                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
-                                    <span className="relative inline-flex rounded-full h-full w-full bg-primary shadow-[0_0_4px_rgba(0,255,0,0.6)]" />
-                                </span>
+                                <span className="h-2 w-2 sm:h-2 sm:w-2 md:h-2.5 md:w-2.5 flex-shrink-0 bg-primary shadow-[0_0_6px_rgba(0,255,0,0.7)] animate-pulse-subtle" />
                                 <span className="font-mono text-primary/70">
                                     STATUS:
                                 </span>

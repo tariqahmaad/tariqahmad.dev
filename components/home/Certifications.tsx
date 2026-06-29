@@ -122,7 +122,8 @@ const Certifications = () => {
                                                         )}
                                                     >
                                                         <div className="sm:col-span-8">
-                                                            <p className="text-body-base sm:text-body-lg break-words">
+                                                            <p className="text-body-base sm:text-body-lg break-words flex items-baseline gap-2">
+                                                                <span aria-hidden className="text-primary/40 font-mono flex-shrink-0">{'//'}</span>
                                                                 <span
                                                                     className={`${foregroundGradientClass} ${isCertHovered ? 'bg-left' : 'bg-right'}`}
                                                                     onMouseEnter={() => {
@@ -139,9 +140,9 @@ const Certifications = () => {
                                                             </p>
                                                         </div>
                                                         <div className="sm:col-span-4">
-                                                            <p className="text-body-sm sm:text-body-base text-left sm:text-right">
+                                                            <p className="text-left sm:text-right">
                                                                 <span
-                                                                    className={`${foregroundGradientClass} ${isCertHovered ? 'bg-left' : 'bg-right'}`}
+                                                                    className={`font-mono uppercase tracking-[0.15em] text-xs sm:text-sm transition-colors duration-300 ${isCertHovered ? 'text-primary' : 'text-muted-foreground'}`}
                                                                     onMouseEnter={() => {
                                                                         setHoveredCategory(index);
                                                                         setHoveredCertificate(certId);

@@ -156,7 +156,7 @@ const Project = ({ index, project, selectedProject, onMouseEnter, onMouseLeave }
                                 >
                                     <span>{tech}</span>
                                     {idx !== stackArr.length - 1 && (
-                                        <span className="inline-block size-2 rounded-full bg-background-light"></span>
+                                        <span className="text-primary/40 font-mono">{'//'}</span>
                                     )}
                                 </li>
                             ))}
@@ -167,60 +167,31 @@ const Project = ({ index, project, selectedProject, onMouseEnter, onMouseLeave }
                         href={project.liveUrl}
                         target="_blank"
                         rel="noreferrer noopener"
-                        className="group relative self-center inline-flex items-center justify-center h-9 px-4 sm:h-10 sm:px-5 md:h-14 md:px-8 md:rounded-tl-[10.5px] md:rounded-br-[10.5px] bg-primary/[0.06] hover:bg-primary/[0.12] outline-none transition-all duration-200 hover:shadow-[0_0_20px_hsl(var(--primary)/0.15),0_0_40px_hsl(var(--primary)/0.05)] active:scale-[0.98]"
+                        aria-label={`Visit ${project.title} (opens in a new tab)`}
+                        className="group relative self-center inline-flex items-center justify-center h-9 px-4 sm:h-10 sm:px-5 md:h-14 md:px-8 rounded-tl-[10px] rounded-br-[10px] bg-primary/[0.08] hover:bg-primary/[0.14] active:bg-primary/[0.2] outline-none transition-[background-color,box-shadow,transform] duration-200 ease-out hover:shadow-[0_0_24px_hsl(var(--primary)/0.18),0_0_48px_hsl(var(--primary)/0.06)] active:scale-[0.97]"
                     >
-                        {/* Top-left corner bracket */}
-                        <svg
-                            className="pointer-events-none absolute -top-px -left-px md:-top-[3.5px] md:-left-[3.5px] w-8 h-8 md:w-14 md:h-14 text-primary/50 group-hover:text-primary/80 transition-colors duration-300"
-                            viewBox="-1 -1 34 34"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
+                        {/* Scan-line sweep (clipped to the button shape) */}
+                        <span
+                            aria-hidden="true"
+                            className="pointer-events-none absolute inset-0 overflow-hidden rounded-tl-[10px] rounded-br-[10px]"
                         >
-                            {/* Corner - always visible */}
-                            <path d="M12 2 H8 A6 6 0 0 0 2 8 V12" />
-                            {/* Horizontal line extends on hover */}
-                            <path
-                                d="M12 2 L32 2"
-                                strokeDasharray="20"
-                                className="corner-bracket-line [stroke-dashoffset:20] group-hover:[stroke-dashoffset:0] transition-[stroke-dashoffset] duration-300 ease-out"
-                            />
-                            {/* Vertical line extends on hover */}
-                            <path
-                                d="M2 12 L2 32"
-                                strokeDasharray="20"
-                                className="corner-bracket-line [stroke-dashoffset:20] group-hover:[stroke-dashoffset:0] transition-[stroke-dashoffset] duration-300 ease-out"
-                            />
-                        </svg>
+                            <span className="absolute inset-y-0 -left-full w-1/2 bg-gradient-to-r from-transparent via-primary/30 to-transparent skew-x-[-20deg] group-hover:left-[150%] transition-all duration-700 ease-in-out" />
+                        </span>
 
-                        {/* Bottom-right corner bracket */}
-                        <svg
-                            className="pointer-events-none absolute -bottom-px -right-px md:-bottom-[3.5px] md:-right-[3.5px] w-8 h-8 md:w-14 md:h-14 text-primary/50 group-hover:text-primary/80 transition-colors duration-300 delay-75"
-                            viewBox="-1 -1 34 34"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                        >
-                            {/* Corner - always visible */}
-                            <path d="M20 30 H24 A6 6 0 0 0 30 24 V20" />
-                            {/* Horizontal line extends on hover */}
-                            <path
-                                d="M20 30 L0 30"
-                                strokeDasharray="20"
-                                className="corner-bracket-line [stroke-dashoffset:20] group-hover:[stroke-dashoffset:0] transition-[stroke-dashoffset] duration-300 delay-75 ease-out"
-                            />
-                            {/* Vertical line extends on hover */}
-                            <path
-                                d="M30 20 L30 0"
-                                strokeDasharray="20"
-                                className="corner-bracket-line [stroke-dashoffset:20] group-hover:[stroke-dashoffset:0] transition-[stroke-dashoffset] duration-300 delay-75 ease-out"
-                            />
-                        </svg>
+                        {/* Corner brackets — real borders that curve around the button's rounded TL/BR corners (not cropped), revealed from each corner via clip-path. Constant thickness; square TR/BL. */}
+                        {/* Top-left bracket: top + left edges, rounded TL corner */}
+                        <span
+                            aria-hidden="true"
+                            className="bracket-arm pointer-events-none absolute inset-0 border-t-2 border-l-2 border-primary/60 group-hover:border-primary rounded-tl-[10px] [clip-path:inset(0_80%_60%_0)] group-hover:[clip-path:inset(0)] transition-[clip-path,border-color] duration-300 ease-out"
+                        />
+                        {/* Bottom-right bracket: bottom + right edges, rounded BR corner */}
+                        <span
+                            aria-hidden="true"
+                            className="bracket-arm pointer-events-none absolute inset-0 border-b-2 border-r-2 border-primary/60 group-hover:border-primary rounded-br-[10px] [clip-path:inset(60%_0_0_80%)] group-hover:[clip-path:inset(0)] transition-[clip-path,border-color] duration-300 delay-75 ease-out"
+                        />
 
                         {/* Content */}
-                        <span className="relative z-[1] flex items-center gap-1.5 sm:gap-2 md:gap-2.5 uppercase font-anton tracking-[0.12em] sm:tracking-[0.15em] text-primary/80 group-hover:text-primary group-hover:tracking-[0.16em] sm:group-hover:tracking-[0.18em] md:group-hover:tracking-[0.2em] transition-all duration-300 text-[13px] sm:text-body-sm md:text-body-lg">
+                        <span className="relative z-[1] flex items-center gap-1.5 sm:gap-2 md:gap-2.5 uppercase font-anton tracking-[0.14em] text-primary/80 group-hover:text-primary transition-colors duration-300 text-[13px] sm:text-body-sm md:text-body-lg">
                             <span>Visit</span>
                             <ExternalLink
                                 size={14}

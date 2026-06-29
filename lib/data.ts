@@ -44,6 +44,10 @@ export const MY_STACK = {
             icon: '/logo/java.png',
         },
         {
+            name: 'C',
+            icon: '/logo/c.png',
+        },
+        {
             name: 'C++',
             icon: '/logo/cpp.png',
         },
@@ -157,7 +161,6 @@ export const PROJECTS: IProject[] = [
             <li>Fast and responsive user interface</li>
         </ul>`,
         role: ``,
-        sourceCode: 'https://github.com/tariqahmaad/CV-Builder',
         liveUrl: 'https://cv.tariqahmad.dev/',
     },
     {
@@ -395,7 +398,7 @@ export const MY_CERTIFICATIONS: ICertificationCategory[] = [
                 date: 'December 2023',
             },
             {
-                title: 'Crash Course of Python',
+                title: 'Crash Course on Python',
                 date: 'November 2023',
             },
             {

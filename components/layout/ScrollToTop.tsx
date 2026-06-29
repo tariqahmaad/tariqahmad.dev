@@ -14,29 +14,29 @@ const ScrollToTop = () => {
     const iconRef = useRef<HTMLDivElement>(null);
     const glowRef = useRef<HTMLDivElement>(null);
     const progressRingRef = useRef<SVGCircleElement>(null);
-    
+
     const [isVisible, setIsVisible] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
     const [clickSuccess, setClickSuccess] = useState(false);
-    
+
     const lastScrollYRef = useRef(0);
-    
-    const prefersReducedMotion = typeof window !== 'undefined' && 
+
+    const prefersReducedMotion = typeof window !== 'undefined' &&
         window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     const updateVisibility = useCallback(() => {
         const currentScrollY = window.scrollY;
         const scrollDelta = currentScrollY - lastScrollYRef.current;
-        
+
         if (Math.abs(scrollDelta) < SCROLL_TOLERANCE) return;
-        
+
         const isScrollingDown = scrollDelta > 0;
         const pastThreshold = currentScrollY > SCROLL_THRESHOLD;
         const shouldBeVisible = pastThreshold && !isScrollingDown;
-        
+
         setIsVisible(shouldBeVisible);
         lastScrollYRef.current = currentScrollY;
-        
+
         if (progressRingRef.current) {
             const { scrollHeight, clientHeight } = document.documentElement;
             const scrollableHeight = scrollHeight - clientHeight;
@@ -49,14 +49,14 @@ const ScrollToTop = () => {
     useEffect(() => {
         lastScrollYRef.current = window.scrollY;
         updateVisibility();
-        
+
         window.addEventListener('scroll', updateVisibility, { passive: true });
         return () => window.removeEventListener('scroll', updateVisibility);
     }, [updateVisibility]);
 
     useGSAP(() => {
         if (prefersReducedMotion) return;
-        
+
         if (isVisible) {
             gsap.fromTo(
                 containerRef.current,
@@ -69,7 +69,7 @@ const ScrollToTop = () => {
                     ease: 'back.out(1.7)',
                 }
             );
-            
+
             gsap.fromTo(
                 glowRef.current,
                 { scale: 0.8, opacity: 0 },
@@ -94,38 +94,38 @@ const ScrollToTop = () => {
     const handleMouseEnter = () => {
         setIsHovered(true);
         if (prefersReducedMotion) return;
-        
-        gsap.to(containerRef.current, { 
-            scale: 1.05, 
-            duration: 0.3, 
-            ease: 'power2.out' 
+
+        gsap.to(containerRef.current, {
+            scale: 1.05,
+            duration: 0.3,
+            ease: 'power2.out'
         });
-        gsap.to(iconRef.current, { 
-            y: -2, 
-            duration: 0.2, 
-            ease: 'power2.out' 
+        gsap.to(iconRef.current, {
+            y: -2,
+            duration: 0.2,
+            ease: 'power2.out'
         });
     };
 
     const handleMouseLeave = () => {
         setIsHovered(false);
         if (prefersReducedMotion) return;
-        
-        gsap.to(containerRef.current, { 
-            scale: 1, 
-            duration: 0.3, 
-            ease: 'power2.out' 
+
+        gsap.to(containerRef.current, {
+            scale: 1,
+            duration: 0.3,
+            ease: 'power2.out'
         });
-        gsap.to(iconRef.current, { 
-            y: 0, 
-            duration: 0.2, 
-            ease: 'power2.out' 
+        gsap.to(iconRef.current, {
+            y: 0,
+            duration: 0.2,
+            ease: 'power2.out'
         });
     };
 
     const scrollToTop = () => {
         if (clickSuccess) return;
-        
+
         if (!prefersReducedMotion) {
             gsap.to(containerRef.current, {
                 scale: 0.95,
@@ -134,7 +134,7 @@ const ScrollToTop = () => {
                 repeat: 1,
                 ease: 'power2.inOut',
             });
-            
+
             gsap.to(glowRef.current, {
                 scale: 2,
                 opacity: 1,
@@ -144,10 +144,10 @@ const ScrollToTop = () => {
                 ease: 'power2.out',
             });
         }
-        
+
         setClickSuccess(true);
         setTimeout(() => setClickSuccess(false), 600);
-        
+
         const lenis = (window as Window & { lenis?: { scrollTo: (target: string | number) => void } }).lenis;
         if (lenis) {
             lenis.scrollTo(0);
@@ -201,11 +201,11 @@ const ScrollToTop = () => {
             />
 
             <div className="relative flex items-center justify-center w-14 h-14 rounded-full bg-background-light/90 border border-primary/30 backdrop-blur-md transition-all duration-300 group-hover:border-primary/60 group-hover:bg-primary/5 shadow-[0_0_20px_rgba(0,255,0,0.1)] group-hover:shadow-[0_0_30px_rgba(0,255,0,0.2)] overflow-hidden">
-                
+
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                
+
                 <div className="absolute top-0 -left-full w-1/2 h-full bg-gradient-to-r from-transparent via-primary/30 to-transparent skew-x-[-20deg] group-hover:left-[150%] transition-all duration-700 ease-in-out" />
-                
+
                 <svg
                     className="absolute top-0 right-0 w-4 h-4 opacity-50 group-hover:opacity-100 transition-opacity duration-300"
                     viewBox="0 0 16 16"
@@ -267,7 +267,7 @@ const ScrollToTop = () => {
                 </div>
 
                 <div className="absolute inset-0 rounded-full shadow-[inset_0_2px_4px_rgba(0,255,0,0.05)]" />
-                
+
                 <div className="absolute inset-0 rounded-full bg-primary/0 group-hover:bg-primary/5 transition-colors duration-300" />
             </div>
 
@@ -276,7 +276,7 @@ const ScrollToTop = () => {
                     0%, 100% { opacity: 0.2; transform: scale(1.5); }
                     50% { opacity: 0.4; transform: scale(1.7); }
                 }
-                
+
                 button:not(:hover) > div:first-child {
                     animation: breathe 3s ease-in-out infinite;
                 }

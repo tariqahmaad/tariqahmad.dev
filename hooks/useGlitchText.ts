@@ -5,142 +5,130 @@ export const GLITCH_CHARS = '01█▓▒░<>{}[]|/\\';
 
 export type AnimationPhase = 'stable' | 'exiting' | 'entering';
 
+export interface GlitchTextValue {
+    displayText: string;
+    opacity: number;
+}
+
+// Reduced-motion users get an instant text swap with no scramble.
+const prefersReducedMotion = (): boolean =>
+    typeof window !== 'undefined' &&
+    typeof window.matchMedia === 'function' &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+const randomGlitchChar = (): string =>
+    GLITCH_CHARS[Math.floor(Math.random() * GLITCH_CHARS.length)];
+
+// ~40 character swaps per second. Driven by requestAnimationFrame so the
+// cadence stays aligned with paint and pauses when the tab is hidden.
+const SCRAMBLE_TICK_MS = 25;
+
 export const useGlitchText = (
     targetText: string,
     phase: AnimationPhase,
     delay: number = 0,
-) => {
-    const [displayText, setDisplayText] = useState(targetText);
-    const [opacity, setOpacity] = useState(1);
-    const [intensity, setIntensity] = useState(0);
-    const intervalRef = useRef<NodeJS.Timeout | null>(null);
-    const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-    const burstTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+): GlitchTextValue => {
+    const [value, setValue] = useState<GlitchTextValue>({
+        displayText: targetText,
+        opacity: 1,
+    });
+    const frameRef = useRef<number | null>(null);
 
     useEffect(() => {
-        // Validate inputs - handle edge cases gracefully
-        if (typeof targetText !== 'string' || !targetText) {
-            setDisplayText(typeof targetText === 'string' ? targetText : '');
-            setOpacity(1);
-            setIntensity(0);
+        // Stable phase, empty input, or reduced motion: show the resolved
+        // word with no animation.
+        if (
+            typeof targetText !== 'string' ||
+            !targetText ||
+            phase === 'stable' ||
+            prefersReducedMotion()
+        ) {
+            setValue({ displayText: targetText ?? '', opacity: 1 });
             return;
         }
 
-        // Clear any existing intervals/timeouts
-        if (intervalRef.current) clearInterval(intervalRef.current);
-        if (timeoutRef.current) clearTimeout(timeoutRef.current);
-        if (burstTimeoutRef.current) clearTimeout(burstTimeoutRef.current);
+        const textLength = targetText.length;
+        const isExiting = phase === 'exiting';
+        const maxIterations = isExiting ? textLength * 2.5 : textLength * 3;
 
-        setIntensity(0);
+        // Build one frame of the scramble for a given iteration count.
+        //  - exiting: corruption sweeps in from the right edge.
+        //  - entering: real characters resolve from the left edge.
+        const buildFrame = (iteration: number): GlitchTextValue => {
+            let display = '';
 
-        if (phase === 'stable') {
-            setDisplayText(targetText);
-            setOpacity(1);
-            return;
-        }
-
-        timeoutRef.current = setTimeout(() => {
-            const textLength = targetText.length;
-            let iteration = 0;
-
-            // Random burst effect - occasionally spike intensity
-            // Note: We already returned early if phase === 'stable', so phase is 'exiting' | 'entering'
-            const triggerBurst = () => {
-                setIntensity(1);
-                burstTimeoutRef.current = setTimeout(() => {
-                    setIntensity(0);
-                    // Schedule next potential burst
-                    const nextBurstDelay = 100 + Math.random() * 200;
-                    burstTimeoutRef.current = setTimeout(triggerBurst, nextBurstDelay);
-                }, 80 + Math.random() * 40);
-            };
-
-            // Initial burst trigger
-            const initialBurstDelay = 50 + Math.random() * 100;
-            burstTimeoutRef.current = setTimeout(triggerBurst, initialBurstDelay);
-
-            if (phase === 'exiting') {
-                const maxIterations = textLength * 2.5;
-                intervalRef.current = setInterval(() => {
-                    setDisplayText(
-                        targetText
-                            .split('')
-                            .map((char, index) => {
-                                if (char === ' ' || char === '-') return char;
-                                if (index > textLength - iteration / 2.5) {
-                                    return GLITCH_CHARS[
-                                        Math.floor(
-                                            Math.random() * GLITCH_CHARS.length,
-                                        )
-                                    ];
-                                }
-                                return targetText[index];
-                            })
-                            .join(''),
-                    );
-
-                    setOpacity(
-                        Math.max(0.3, 1 - (iteration / maxIterations) * 0.7),
-                    );
-
-                    iteration++;
-                    if (iteration >= maxIterations && intervalRef.current) {
-                        clearInterval(intervalRef.current);
-                        intervalRef.current = null;
-                        if (burstTimeoutRef.current) {
-                            clearTimeout(burstTimeoutRef.current);
-                            burstTimeoutRef.current = null;
-                        }
+            if (isExiting) {
+                const boundary = textLength - iteration / 2.5;
+                for (let i = 0; i < textLength; i++) {
+                    const ch = targetText[i];
+                    if (ch === ' ' || ch === '-') {
+                        display += ch;
+                    } else {
+                        display += i > boundary ? randomGlitchChar() : ch;
                     }
-                }, 25);
-            } else { // phase === 'entering'
-                const maxIterations = textLength * 3;
-                intervalRef.current = setInterval(() => {
-                    const progress = iteration / maxIterations;
-
-                    setDisplayText(
-                        targetText
-                            .split('')
-                            .map((char, index) => {
-                                if (char === ' ' || char === '-') return char;
-                                if (index < iteration / 3) {
-                                    return targetText[index];
-                                }
-                                return GLITCH_CHARS[
-                                    Math.floor(
-                                        Math.random() * GLITCH_CHARS.length,
-                                    )
-                                ];
-                            })
-                            .join(''),
-                    );
-
-                    setOpacity(Math.min(1, 0.3 + progress * 0.7));
-
-                    iteration++;
-                    if (iteration >= maxIterations) {
-                        if (intervalRef.current) {
-                            clearInterval(intervalRef.current);
-                            intervalRef.current = null;
-                        }
-                        if (burstTimeoutRef.current) {
-                            clearTimeout(burstTimeoutRef.current);
-                            burstTimeoutRef.current = null;
-                        }
-                        setDisplayText(targetText);
-                        setOpacity(1);
-                        setIntensity(0);
-                    }
-                }, 28);
+                }
+                const opacity = Math.max(
+                    0.3,
+                    1 - (iteration / maxIterations) * 0.7,
+                );
+                return { displayText: display, opacity };
             }
-        }, delay);
+
+            const boundary = iteration / 3;
+            for (let i = 0; i < textLength; i++) {
+                const ch = targetText[i];
+                if (ch === ' ' || ch === '-') {
+                    display += ch;
+                } else {
+                    display += i < boundary ? ch : randomGlitchChar();
+                }
+            }
+            const opacity = Math.min(1, 0.3 + (iteration / maxIterations) * 0.7);
+            return { displayText: display, opacity };
+        };
+
+        let iteration = 0;
+        let startTime = 0;
+
+        const step = (now: number) => {
+            if (startTime === 0) startTime = now;
+            // Account for the per-word start delay (staggered entrance/exit).
+            const scrambleElapsed = now - startTime - delay;
+
+            if (scrambleElapsed >= 0) {
+                const nextIteration = Math.floor(
+                    scrambleElapsed / SCRAMBLE_TICK_MS,
+                );
+                if (nextIteration !== iteration) {
+                    iteration = nextIteration;
+
+                    if (iteration >= maxIterations) {
+                        // Resolve cleanly on enter; leave the final corrupted
+                        // frame in place on exit (it gets swapped shortly).
+                        setValue(
+                            isExiting
+                                ? buildFrame(maxIterations)
+                                : { displayText: targetText, opacity: 1 },
+                        );
+                        frameRef.current = null;
+                        return;
+                    }
+                    setValue(buildFrame(iteration));
+                }
+            }
+
+            frameRef.current = requestAnimationFrame(step);
+        };
+
+        frameRef.current = requestAnimationFrame(step);
 
         return () => {
-            if (intervalRef.current) clearInterval(intervalRef.current);
-            if (timeoutRef.current) clearTimeout(timeoutRef.current);
-            if (burstTimeoutRef.current) clearTimeout(burstTimeoutRef.current);
+            if (frameRef.current !== null) {
+                cancelAnimationFrame(frameRef.current);
+                frameRef.current = null;
+            }
         };
     }, [targetText, phase, delay]);
 
-    return { displayText, opacity, intensity };
+    return value;
 };

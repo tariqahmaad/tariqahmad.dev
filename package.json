@@ -6,7 +6,7 @@
         "dev": "next dev",
         "build": "next build",
         "start": "next start",
-        "lint": "next lint",
+        "lint": "eslint .",
         "svgr:icons": "svgr --title-prop --no-dimensions --typescript -d components/shared/icons -- components/shared/icons/svgs"
     },
     "dependencies": {

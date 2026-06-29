@@ -83,17 +83,20 @@ const Skills = () => {
                             <div className="sm:col-span-7 flex gap-x-4 xs:gap-x-6 md:gap-x-8 xl:gap-x-11 gap-y-4 xs:gap-y-6 md:gap-y-9 flex-wrap">
                                 {value.map((item) => (
                                     <div
-                                        className="category-item flex gap-2 xs:gap-3 md:gap-4 items-center leading-none"
+                                        className="category-item group/item flex gap-2 xs:gap-3 md:gap-4 items-center leading-none"
                                         key={item.name}
                                     >
-                                        <Image
-                                            src={item.icon}
-                                            alt={item.name}
-                                            width="56"
-                                            height="56"
-                                            className="h-8 w-8 xs:h-10 xs:w-10 md:h-14 md:w-14 object-contain"
-                                        />
-                                        <span className="text-body-base sm:text-body-lg md:text-body-xl text-foreground capitalize">
+                                        <div className="relative flex items-center justify-center h-10 w-10 xs:h-12 xs:w-12 md:h-14 md:w-14 border border-foreground/10 bg-background-light/40 transition-colors duration-300 group-hover/item:border-primary/50">
+                                            <Image
+                                                src={item.icon}
+                                                alt={item.name}
+                                                width="56"
+                                                height="56"
+                                                className="h-7 w-7 xs:h-9 xs:w-9 md:h-11 md:w-11 object-contain transition-transform duration-300 group-hover/item:scale-110"
+                                            />
+                                            <span aria-hidden className="pointer-events-none absolute top-0 left-0 w-2.5 h-2.5 border-t border-l border-primary/60 opacity-0 group-hover/item:opacity-100 transition-opacity duration-300" />
+                                        </div>
+                                        <span className="text-body-base sm:text-body-lg md:text-body-xl text-foreground/90 font-mono lowercase tracking-wide transition-colors duration-300 group-hover/item:text-primary">
                                             {item.name}
                                         </span>
                                     </div>

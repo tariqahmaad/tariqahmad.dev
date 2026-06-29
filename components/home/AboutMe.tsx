@@ -36,7 +36,7 @@ const AboutMe = () => {
     return (
         <section className="pb-section" id="about-me">
             <div className="container" ref={container}>
-                <h2 className="text-heading-sm sm:text-heading-md md:text-heading-lg font-thin mb-8 xs:mb-12 md:mb-20 slide-up-and-fade leading-tight">
+                <h2 className="text-heading-sm sm:text-heading-md md:text-heading-lg font-anton mb-8 xs:mb-12 md:mb-20 slide-up-and-fade leading-tight">
                     {ABOUT_ME.tagline}
                 </h2>
 
@@ -44,19 +44,23 @@ const AboutMe = () => {
 
                 <div className="grid md:grid-cols-12 mt-6 xs:mt-9 gap-y-8 md:gap-12 items-start">
                     <div className="md:col-span-5 mb-6 md:mb-0 flex flex-col items-center text-center md:items-end md:text-right">
-                        <p className="text-heading-sm sm:text-heading-md md:text-heading-lg slide-up-and-fade font-mono tracking-tight">
-                            Behind the code.
+                        <p className="slide-up-and-fade font-mono uppercase tracking-[0.25em] text-primary/70 text-body-sm sm:text-body-base">
+                            {'// behind the code'}
                         </p>
                         <div className="mt-6 flex justify-center md:justify-end w-full">
                             <div className="relative w-full max-w-[320px] sm:max-w-[350px] md:max-w-[380px] aspect-square group">
-                                <div className="absolute inset-0 rounded-2xl bg-gradient-to-tr from-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10 blur-xl" />
+                                {/* Neon halo on hover */}
+                                <div className="absolute -inset-2 bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-2xl" />
                                 <Image
                                     src="/personal/profile.jpg"
                                     alt="Tariq Ahmad"
                                     fill
                                     sizes="(min-width: 768px) 380px, (min-width: 640px) 350px, 320px"
-                                    className="object-cover rounded-2xl border border-primary/10 shadow-xl transition-all duration-500 z-10 group-hover:scale-[1.02]"
+                                    className="object-cover rounded-none border border-primary/30 transition-all duration-500 z-10 group-hover:border-primary/70 group-hover:shadow-[0_0_40px_-5px_rgba(0,255,0,0.45)]"
                                 />
+                                {/* Corner brackets */}
+                                <span aria-hidden className="pointer-events-none absolute top-0 left-0 z-20 w-6 h-6 border-t-2 border-l-2 border-primary opacity-50 group-hover:opacity-100 transition-opacity duration-300" />
+                                <span aria-hidden className="pointer-events-none absolute bottom-0 right-0 z-20 w-6 h-6 border-b-2 border-r-2 border-primary opacity-50 group-hover:opacity-100 transition-opacity duration-300" />
                             </div>
                         </div>
                     </div>
