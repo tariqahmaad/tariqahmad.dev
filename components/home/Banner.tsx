@@ -1,7 +1,6 @@
 'use client';
 import ArrowAnimation from '@/components/shared/ArrowAnimation';
-import Button from '@/components/shared/Button';
-import { GENERAL_INFO } from '@/lib/data';
+import ConnectButton from '@/components/home/ConnectButton';
 import CvDownloadButton from '@/components/home/CvDownloadButton';
 import { gsap, useGSAP } from '@/lib/gsap-setup';
 import { useGlitchText, AnimationPhase } from '@/hooks/useGlitchText';
@@ -37,7 +36,6 @@ const Banner = () => {
     React.useEffect(() => {
         const STABLE_DURATION = 5000;
         const EXIT_DURATION = 800;
-        const PAUSE_DURATION = 150;
         const ENTER_DURATION = 1200;
 
         let timeoutId: NodeJS.Timeout;
@@ -57,12 +55,15 @@ const Banner = () => {
                 setPhase('exiting');
 
                 schedule(() => {
+                    // Advance the role and start entering in the same render so
+                    // the next text is only ever shown during 'entering'.
+                    // Swapping the index while still 'exiting' re-ran the exit
+                    // scramble against the new word, whose early frames show
+                    // real characters — flashing the full next role before
+                    // scrambling it back out.
                     setCurrentRoleIndex((prev) => (prev + 1) % BANNER_ROLES.length);
-
-                    schedule(() => {
-                        setPhase('entering');
-                        schedule(runCycle, ENTER_DURATION);
-                    }, PAUSE_DURATION);
+                    setPhase('entering');
+                    schedule(runCycle, ENTER_DURATION);
                 }, EXIT_DURATION);
             }, STABLE_DURATION);
         };
@@ -148,16 +149,7 @@ const Banner = () => {
                         . I architect robust systems and craft seamless digital
                         experiences from infrastructure to interface.
                     </p>
-                    <Button
-                        as="link"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        href={GENERAL_INFO.linkedIn}
-                        variant="primary"
-                        className="mt-9 banner-button slide-up-and-fade"
-                    >
-                        Let&apos;s Connect on LinkedIn
-                    </Button>
+                    <ConnectButton />
                 </div>
 
                 <div className="mt-8 md:mt-0 md:absolute bottom-[10%] right-0 md:right-[4%] flex flex-col md:flex-col gap-6 md:gap-8 text-center md:text-right w-full md:w-auto items-center md:items-end">
