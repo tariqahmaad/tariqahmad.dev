@@ -33,7 +33,7 @@ const ArrowAnimation = ({ className = '' }: ArrowAnimationProps) => {
         tl.to('#banner-arrow-svg', {
             duration: 0.5,
             delay: 0.5,
-            fill: '#ffffff08',
+            fill: 'rgba(0, 255, 60, 0.06)',
         });
         tl.to('#banner-arrow-svg', {
             duration: 0.8,
@@ -62,13 +62,13 @@ const ArrowAnimation = ({ className = '' }: ArrowAnimationProps) => {
             <path
                 className="svg-arrow svg-arrow-1"
                 d="M1 1V39.9286L188 110V70.6822L1 1Z"
-                stroke="rgba(0, 255, 0, 0.3)"
+                style={{ stroke: 'hsl(var(--primary) / 0.4)' }}
                 ref={arrow1Ref}
             />
             <path
                 className="svg-arrow svg-arrow-2"
                 d="M375 1V39.9286L188 110V70.6822L375 1Z"
-                stroke="rgba(0, 255, 0, 0.3)"
+                style={{ stroke: 'hsl(var(--secondary) / 0.4)' }}
                 ref={arrow2Ref}
             />
         </svg>

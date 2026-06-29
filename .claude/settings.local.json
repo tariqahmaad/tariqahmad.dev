@@ -8,7 +8,11 @@
       "Bash(npm run build:*)",
       "WebSearch",
       "WebFetch(domain:github.com)",
-      "Bash(pnpm lint:*)"
+      "Bash(pnpm lint:*)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" https://tariqahmaad.github.io/quizlet/index.html)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" https://tariqahmaad.github.io/Presentation/index.html)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" https://cv.tariqahmad.dev/)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" \"https://cv.tariqahmad.dev/share/SrQUaAO1?download=1\")"
     ],
     "deny": [],
     "ask": []

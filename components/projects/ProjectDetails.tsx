@@ -122,22 +122,23 @@ const ProjectDetails = ({ project }: Props) => {
                                     {project.techStack.join(', ')}
                                 </div>
                             </div>
-                            {(project.sourceCode || project.liveUrl) && (
+                            {project.slug !== 'cv-builder' && (project.sourceCode || project.liveUrl) && (
                                 <div className="fade-in-later">
                                     <p className="text-muted-foreground font-anton mb-3">
                                         Project Links
                                     </p>
 
                                     <div className="flex gap-4">
-                                        {project.sourceCode && (
+                                        {project.sourceCode && project.slug !== 'cv-builder' && (
                                             <a
                                                 href={project.sourceCode}
                                                 target="_blank"
                                                 rel="noreferrer noopener"
-                                                className="inline-flex items-center gap-2 px-4 py-2 bg-background-light hover:bg-primary hover:text-primary-foreground transition-all rounded"
+                                                className="group relative inline-flex items-center gap-2 px-4 py-2.5 border border-primary/40 bg-primary/[0.04] hover:bg-primary/[0.1] hover:border-primary text-primary/80 hover:text-primary transition-all duration-300 rounded-tl-[8px] rounded-br-[8px] rounded-tr-none rounded-bl-none overflow-hidden hover:shadow-[0_0_20px_hsl(var(--primary)/0.2)]"
                                             >
-                                                <Github size={20} />
-                                                <span>View Source Code</span>
+                                                <span aria-hidden className="pointer-events-none absolute inset-y-0 -left-full w-1/2 bg-gradient-to-r from-transparent via-primary/25 to-transparent skew-x-[-20deg] group-hover:left-[150%] transition-all duration-700 ease-out" />
+                                                <Github size={18} className="relative z-[1]" />
+                                                <span className="relative z-[1] font-mono uppercase tracking-wider text-xs">View Source</span>
                                             </a>
                                         )}
                                         {project.liveUrl && project.slug !== 'cv-builder' && (
@@ -145,10 +146,11 @@ const ProjectDetails = ({ project }: Props) => {
                                                 href={project.liveUrl}
                                                 target="_blank"
                                                 rel="noreferrer noopener"
-                                                className="inline-flex items-center gap-2 px-4 py-2 bg-background-light hover:bg-primary hover:text-primary-foreground transition-all rounded"
+                                                className="group relative inline-flex items-center gap-2 px-4 py-2.5 border border-primary/40 bg-primary/[0.04] hover:bg-primary/[0.1] hover:border-primary text-primary/80 hover:text-primary transition-all duration-300 rounded-tl-[8px] rounded-br-[8px] rounded-tr-none rounded-bl-none overflow-hidden hover:shadow-[0_0_20px_hsl(var(--primary)/0.2)]"
                                             >
-                                                <ExternalLink size={20} />
-                                                <span>Live Demo</span>
+                                                <span aria-hidden className="pointer-events-none absolute inset-y-0 -left-full w-1/2 bg-gradient-to-r from-transparent via-primary/25 to-transparent skew-x-[-20deg] group-hover:left-[150%] transition-all duration-700 ease-out" />
+                                                <ExternalLink size={18} className="relative z-[1]" />
+                                                <span className="relative z-[1] font-mono uppercase tracking-wider text-xs">Live Demo</span>
                                             </a>
                                         )}
                                     </div>

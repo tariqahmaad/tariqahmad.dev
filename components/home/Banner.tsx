@@ -10,7 +10,6 @@ import React from 'react';
 
 const Banner = () => {
     const containerRef = React.useRef<HTMLDivElement>(null);
-    const roleRef = React.useRef<HTMLSpanElement>(null);
     const [currentRoleIndex, setCurrentRoleIndex] = React.useState(0);
     const [phase, setPhase] = React.useState<AnimationPhase>('entering');
     const [showCursor, setShowCursor] = React.useState(true);
@@ -34,77 +33,47 @@ const Banner = () => {
         return () => clearInterval(interval);
     }, [phase]);
 
-    // Main animation cycle - using interval-based approach for better memory management
+    // Main animation cycle
     React.useEffect(() => {
-        // Total cycle duration: 5000ms stable + 800ms exit + 150ms pause + 1200ms enter = 7150ms
         const STABLE_DURATION = 5000;
         const EXIT_DURATION = 800;
         const PAUSE_DURATION = 150;
         const ENTER_DURATION = 1200;
-        const TOTAL_CYCLE =
-            STABLE_DURATION + EXIT_DURATION + PAUSE_DURATION + ENTER_DURATION;
 
-        let cycleStartTime = Date.now();
-        let animationFrameId: number;
-        let initialTimeoutId: NodeJS.Timeout;
+        let timeoutId: NodeJS.Timeout;
+        let isMounted = true;
 
-        const tick = () => {
-            const elapsed = Date.now() - cycleStartTime;
-            const cyclePosition = elapsed % TOTAL_CYCLE;
-
-            if (cyclePosition < STABLE_DURATION) {
-                // Stable phase
-                setPhase('stable');
-            } else if (cyclePosition < STABLE_DURATION + EXIT_DURATION) {
-                // Exit phase
-                setPhase('exiting');
-            } else if (
-                cyclePosition <
-                STABLE_DURATION + EXIT_DURATION + PAUSE_DURATION
-            ) {
-                // Pause - change role at start of pause
-                if (cyclePosition - (STABLE_DURATION + EXIT_DURATION) < 50) {
-                    setCurrentRoleIndex((prev) => (prev + 1) % BANNER_ROLES.length);
-                }
-            } else {
-                // Enter phase
-                setPhase('entering');
-            }
-
-            animationFrameId = requestAnimationFrame(tick);
+        const schedule = (callback: () => void, delay: number) => {
+            timeoutId = setTimeout(() => {
+                if (!isMounted) return;
+                callback();
+            }, delay);
         };
 
-        // Initial entering animation, then start cycle
-        initialTimeoutId = setTimeout(() => {
+        const runCycle = () => {
             setPhase('stable');
-            cycleStartTime = Date.now();
-            animationFrameId = requestAnimationFrame(tick);
-        }, ENTER_DURATION);
+
+            schedule(() => {
+                setPhase('exiting');
+
+                schedule(() => {
+                    setCurrentRoleIndex((prev) => (prev + 1) % BANNER_ROLES.length);
+
+                    schedule(() => {
+                        setPhase('entering');
+                        schedule(runCycle, ENTER_DURATION);
+                    }, PAUSE_DURATION);
+                }, EXIT_DURATION);
+            }, STABLE_DURATION);
+        };
+
+        schedule(runCycle, ENTER_DURATION);
 
         return () => {
-            clearTimeout(initialTimeoutId);
-            cancelAnimationFrame(animationFrameId);
+            isMounted = false;
+            clearTimeout(timeoutId);
         };
     }, []);
-
-    // GSAP animation on role change
-    React.useEffect(() => {
-        if (roleRef.current && phase === 'entering') {
-            gsap.fromTo(
-                roleRef.current,
-                {
-                    y: 10,
-                    filter: 'blur(4px)',
-                },
-                {
-                    y: 0,
-                    filter: 'blur(0px)',
-                    duration: 0.6,
-                    ease: 'power2.out',
-                },
-            );
-        }
-    }, [currentRoleIndex, phase]);
 
     // move the content a little up on scroll
     useGSAP(
@@ -137,54 +106,29 @@ const Banner = () => {
                 <div className="max-md:grow max-md:flex flex-col justify-center items-start max-w-[544px]">
                     <h1 className="banner-title slide-up-and-fade leading-[.95] font-anton mb-4 w-[95vw] xs:w-[85vw] sm:w-[500px] md:w-[600px] max-w-[900px] overflow-hidden">
                         <span
-                            ref={roleRef}
                             className="block relative"
                             style={{ minHeight: 'clamp(80px, 20vw, 100px)' }}
                         >
                             <span
-                                className={`text-primary inline-block transition-all duration-300 will-change-transform ${
-                                    phase !== 'stable' ? 'glitch-text glitch-primary' : ''
+                                className={`text-primary inline-block ${
+                                    phase !== 'stable'
+                                        ? 'glitch-text glitch-primary'
+                                        : ''
                                 }`}
-                                data-text={currentRole.first}
-                                style={{
-                                    opacity: firstWord.opacity,
-                                    textShadow:
-                                        phase !== 'stable'
-                                            ? firstWord.intensity
-                                                ? '0 0 8px hsl(var(--primary)), 5px 0 0 hsl(0 100% 50%), -5px 0 0 hsl(var(--secondary))'
-                                                : 'var(--banner-text-shadow-glitch-primary)'
-                                            : 'none',
-                                    transform:
-                                        phase !== 'stable'
-                                            ? firstWord.intensity
-                                                ? 'translate3d(-5px, 2px, 0)'
-                                                : 'var(--banner-transform-glitch-x-pos)'
-                                            : 'var(--banner-transform-normal)',
-                                }}
+                                data-text={firstWord.displayText}
+                                style={{ opacity: firstWord.opacity }}
                             >
                                 {firstWord.displayText}
                             </span>
                             <br />
                             <span
-                                className={`ml-2 xs:ml-4 text-foreground inline-block transition-all duration-300 will-change-transform ${
-                                    phase !== 'stable' ? 'glitch-text glitch-secondary' : ''
+                                className={`ml-2 xs:ml-4 text-foreground inline-block ${
+                                    phase !== 'stable'
+                                        ? 'glitch-text glitch-secondary'
+                                        : ''
                                 }`}
-                                data-text={currentRole.second}
-                                style={{
-                                    opacity: secondWord.opacity,
-                                    textShadow:
-                                        phase !== 'stable'
-                                            ? secondWord.intensity
-                                                ? '0 0 8px hsl(var(--foreground)), 5px 0 0 hsl(0 100% 50%), -5px 0 0 hsl(var(--primary))'
-                                                : 'var(--banner-text-shadow-glitch-secondary)'
-                                            : 'none',
-                                    transform:
-                                        phase !== 'stable'
-                                            ? secondWord.intensity
-                                                ? 'translate3d(5px, -2px, 0)'
-                                                : 'var(--banner-transform-glitch-x-neg)'
-                                            : 'var(--banner-transform-normal)',
-                                }}
+                                data-text={secondWord.displayText}
+                                style={{ opacity: secondWord.opacity }}
                             >
                                 {secondWord.displayText}
                                 <span

@@ -32,19 +32,6 @@
         --chart-3: 30 85% 60%;
         --chart-4: 280 70% 65%;
         --chart-5: 340 80% 60%;
-
-        /* Banner glitch animation variables - Enhanced for chromatic aberration */
-        --banner-text-shadow-glitch-primary:
-            0 0 2px hsl(var(--primary)),
-            2px 0 0 hsl(0 100% 50%),
-            -2px 0 0 hsl(var(--secondary));
-        --banner-text-shadow-glitch-secondary:
-            0 0 2px hsl(var(--foreground)),
-            3px 0 0 hsl(0 100% 50%),
-            -3px 0 0 hsl(var(--primary));
-        --banner-transform-glitch-x-pos: translate3d(-3px, 1px, 0);
-        --banner-transform-glitch-x-neg: translate3d(3px, -1px, 0);
-        --banner-transform-normal: translate3d(0, 0, 0);
     }
 }
 
@@ -220,97 +207,123 @@
         text-shadow: 3px 0 hsl(var(--primary)), -2px 0 hsl(0 100% 50%);
     }
 
+    /* Subtle glow on the main glyph while glitching. The RGB split itself
+       is carried by the ::before/::after layers above, so the main text only
+       needs a soft halo — no inline shadow/transform required. */
+    .glitch-text.glitch-primary {
+        text-shadow: 0 0 12px hsl(var(--primary) / 0.45);
+    }
+
+    .glitch-text.glitch-secondary {
+        text-shadow: 0 0 12px hsl(var(--secondary) / 0.45);
+    }
+
+    /* Reduced motion: the JS scramble is already disabled, so also drop the
+       RGB ghost layers and glow — transitions become instant, plain swaps. */
+    @media (prefers-reduced-motion: reduce) {
+        .glitch-text,
+        .glitch-text[data-text]::before,
+        .glitch-text[data-text]::after {
+            text-shadow: none !important;
+        }
+
+        .glitch-text[data-text]::before,
+        .glitch-text[data-text]::after {
+            content: none !important;
+        }
+    }
+
     @keyframes glitch-anim {
         0% {
-            clip-path: inset(30px 0 calc(100% - 10px) 0);
-            transform: skew(0.5deg);
+            clip-path: inset(10% 0 82% 0);
+            transform: translate(0) skew(0.3deg);
         }
         10% {
-            clip-path: inset(70px 0 calc(100% - 30px) 0);
-            transform: skew(-0.5deg);
+            clip-path: inset(65% 0 12% 0);
+            transform: translate(-2px) skew(-0.4deg);
         }
         20% {
-            clip-path: inset(50px 0 calc(100% - 60px) 0);
-            transform: skew(0.5deg);
+            clip-path: inset(25% 0 55% 0);
+            transform: translate(2px) skew(0.3deg);
         }
         30% {
-            clip-path: inset(10px 0 calc(100% - 45px) 0);
-            transform: skew(-0.5deg);
+            clip-path: inset(80% 0 5% 0);
+            transform: translate(-1px) skew(-0.3deg);
         }
         40% {
-            clip-path: inset(80px 0 calc(100% - 25px) 0);
-            transform: skew(0.3deg);
+            clip-path: inset(40% 0 40% 0);
+            transform: translate(2px) skew(0.4deg);
         }
         50% {
-            clip-path: inset(20px 0 calc(100% - 80px) 0);
-            transform: skew(-0.3deg);
+            clip-path: inset(5% 0 75% 0);
+            transform: translate(-2px) skew(-0.3deg);
         }
         60% {
-            clip-path: inset(60px 0 calc(100% - 15px) 0);
-            transform: skew(0.5deg);
+            clip-path: inset(70% 0 15% 0);
+            transform: translate(1px) skew(0.3deg);
         }
         70% {
-            clip-path: inset(35px 0 calc(100% - 70px) 0);
-            transform: skew(-0.5deg);
+            clip-path: inset(20% 0 60% 0);
+            transform: translate(-2px) skew(-0.4deg);
         }
         80% {
-            clip-path: inset(45px 0 calc(100% - 50px) 0);
-            transform: skew(0.3deg);
+            clip-path: inset(55% 0 25% 0);
+            transform: translate(2px) skew(0.3deg);
         }
         90% {
-            clip-path: inset(15px 0 calc(100% - 90px) 0);
-            transform: skew(-0.3deg);
+            clip-path: inset(35% 0 45% 0);
+            transform: translate(-1px) skew(-0.3deg);
         }
         100% {
-            clip-path: inset(55px 0 calc(100% - 40px) 0);
-            transform: skew(0.5deg);
+            clip-path: inset(15% 0 70% 0);
+            transform: translate(0) skew(0.3deg);
         }
     }
 
     @keyframes glitch-anim2 {
         0% {
-            clip-path: inset(65px 0 calc(100% - 100px) 0);
-            transform: skew(-0.5deg);
+            clip-path: inset(75% 0 10% 0);
+            transform: translate(0) skew(-0.3deg);
         }
         10% {
-            clip-path: inset(40px 0 calc(100% - 55px) 0);
-            transform: skew(0.5deg);
+            clip-path: inset(15% 0 70% 0);
+            transform: translate(2px) skew(0.4deg);
         }
         20% {
-            clip-path: inset(80px 0 calc(100% - 20px) 0);
-            transform: skew(-0.3deg);
+            clip-path: inset(60% 0 20% 0);
+            transform: translate(-2px) skew(-0.3deg);
         }
         30% {
-            clip-path: inset(25px 0 calc(100% - 85px) 0);
-            transform: skew(0.3deg);
+            clip-path: inset(30% 0 50% 0);
+            transform: translate(1px) skew(0.3deg);
         }
         40% {
-            clip-path: inset(55px 0 calc(100% - 35px) 0);
-            transform: skew(-0.5deg);
+            clip-path: inset(85% 0 5% 0);
+            transform: translate(-1px) skew(-0.4deg);
         }
         50% {
-            clip-path: inset(15px 0 calc(100% - 75px) 0);
-            transform: skew(0.5deg);
+            clip-path: inset(45% 0 35% 0);
+            transform: translate(2px) skew(0.3deg);
         }
         60% {
-            clip-path: inset(90px 0 calc(100% - 10px) 0);
-            transform: skew(-0.3deg);
+            clip-path: inset(10% 0 78% 0);
+            transform: translate(-2px) skew(-0.3deg);
         }
         70% {
-            clip-path: inset(30px 0 calc(100% - 65px) 0);
-            transform: skew(0.3deg);
+            clip-path: inset(65% 0 18% 0);
+            transform: translate(1px) skew(0.4deg);
         }
         80% {
-            clip-path: inset(70px 0 calc(100% - 45px) 0);
-            transform: skew(-0.5deg);
+            clip-path: inset(25% 0 58% 0);
+            transform: translate(-2px) skew(-0.3deg);
         }
         90% {
-            clip-path: inset(20px 0 calc(100% - 95px) 0);
-            transform: skew(0.5deg);
+            clip-path: inset(50% 0 30% 0);
+            transform: translate(2px) skew(0.3deg);
         }
         100% {
-            clip-path: inset(50px 0 calc(100% - 30px) 0);
-            transform: skew(-0.3deg);
+            clip-path: inset(20% 0 65% 0);
+            transform: translate(0) skew(-0.3deg);
         }
     }
 
@@ -477,6 +490,10 @@
             box-shadow: none !important;
         }
 
+        .duration-bar-fill::after {
+            box-shadow: none !important;
+        }
+
         .experience-card-highlighted {
             border-color: hsl(var(--primary) / 0.3);
             box-shadow: none;
@@ -492,13 +509,73 @@
             transform: scaleX(1) !important;
         }
 
-        /* ProjectCard corner bracket extension lines - always fully drawn */
-        .corner-bracket-line {
-            stroke-dashoffset: 0 !important;
+        /* ProjectCard corner brackets - always fully drawn (no clip reveal) */
+        .bracket-arm {
+            clip-path: none !important;
         }
     }
 
-    /* Duration bar - GSAP handles width animation, this ensures initial state */
+    /* ── Duration bar — segmented signal meter ───────────────────────────
+       A discrete-block meter (equalizer / terminal-loader vibe) instead of a
+       soft gradient pill. GSAP animates .duration-bar-fill width 0 → 100%,
+       revealing lit segments over the always-visible dim slots. Both layers
+       share the same repeating-gradient phase so the lit blocks land exactly
+       on top of the dim ones. */
+
+    .duration-track {
+        /* Hairline "gauge housing" with sharp, terminal-style corners */
+        border: 1px solid hsl(var(--foreground) / 0.07);
+        border-radius: 1px;
+        background-color: hsl(var(--foreground) / 0.04);
+        /* Dim, primed segment slots — faint primary so they read as "will energize" */
+        background-image: repeating-linear-gradient(
+            90deg,
+            hsl(var(--primary) / 0.16) 0,
+            hsl(var(--primary) / 0.16) 4px,
+            transparent 4px,
+            transparent 7px
+        );
+    }
+
+    /* Lit segments — width animated 0 → 100% by GSAP (Experiences.tsx) */
+    .duration-bar-fill {
+        background-image: repeating-linear-gradient(
+            90deg,
+            hsl(var(--primary)) 0,
+            hsl(var(--primary)) 4px,
+            transparent 4px,
+            transparent 7px
+        );
+        box-shadow: 0 0 6px hsl(var(--primary) / 0.35);
+    }
+
+    /* Scanning needle riding the fill's leading edge */
+    .duration-bar-fill::after {
+        content: '';
+        position: absolute;
+        top: -3px;
+        bottom: -3px;
+        right: 0;
+        width: 2px;
+        background: hsl(var(--primary));
+        box-shadow:
+            0 0 6px hsl(var(--primary)),
+            0 0 14px hsl(var(--primary) / 0.6);
+    }
+
+    /* Current role — breathing glow */
+    .duration-bar-fill--active {
+        animation: duration-pulse 1.8s ease-in-out infinite;
+    }
+
+    @keyframes duration-pulse {
+        0%, 100% {
+            box-shadow: 0 0 6px hsl(var(--primary) / 0.35);
+        }
+        50% {
+            box-shadow: 0 0 11px hsl(var(--primary) / 0.7);
+        }
+    }
 
     .present-dot {
         animation: present-pulse 2s ease-in-out infinite;
