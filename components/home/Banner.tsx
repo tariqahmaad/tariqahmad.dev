@@ -146,8 +146,9 @@ const Banner = () => {
                         <span className="font-medium text-foreground">
                             Tariq Ahmad
                         </span>
-                        . I architect robust systems and craft seamless digital
-                        experiences from infrastructure to interface.
+                        . I believe the best software disappears, leaving only
+                        the feeling that something just worked exactly as it
+                        should.
                     </p>
                     <ConnectButton />
                 </div>
