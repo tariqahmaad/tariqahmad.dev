@@ -65,6 +65,19 @@ const AboutMe = () => {
                         </div>
                     </div>
                     <div className="md:col-span-7 flex flex-col justify-center">
+                        {/* Status badge */}
+                        <div className="slide-up-and-fade flex flex-wrap items-center gap-3 mb-6">
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-primary/30 bg-primary/[0.06] rounded-sm">
+                                <span className="relative flex h-2 w-2">
+                                    <span className="absolute inline-flex h-full w-full rounded-full bg-primary opacity-75 animate-ping" />
+                                    <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
+                                </span>
+                                <span className="font-mono text-ui-sm uppercase tracking-wider text-primary/90">
+                                    {ABOUT_ME.currently}
+                                </span>
+                            </span>
+                        </div>
+
                         <div className="text-body-lg sm:text-body-xl text-muted-foreground max-w-[450px] md:max-w-none">
                             {ABOUT_ME.bio.map((paragraph, i) => (
                                 <p

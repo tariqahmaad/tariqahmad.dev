@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     metadataBase: new URL('https://tariqahmad.dev'),
     title: 'Tariq Ahmad - Software Developer | Computer Engineering Graduate',
     description:
-        'Computer Engineering graduate from Istanbul Aydin University with expertise in full-stack development, networking, and AI. CGPA 3.36/4.0. CCNA, MCSE, React Native certified.',
+        'Computer Engineering graduate and full-stack developer specializing in web development, networking, and AI. Building software that people actually enjoy using.',
     keywords: [
         'Tariq Ahmad',
         'Software Developer',
@@ -62,7 +62,7 @@ export const metadata: Metadata = {
         siteName: 'Tariq Ahmad Portfolio',
         title: 'Tariq Ahmad - Software Developer | Computer Engineering Graduate',
         description:
-            'Computer Engineering graduate from Istanbul Aydin University with expertise in full-stack development, networking, and AI. CCNA, MCSE, React Native certified.',
+            'Computer Engineering graduate and full-stack developer specializing in web development, networking, and AI.',
         images: [
             {
                 url: '/og-image.png',
@@ -76,7 +76,7 @@ export const metadata: Metadata = {
         card: 'summary_large_image',
         title: 'Tariq Ahmad - Software Developer | Computer Engineering Graduate',
         description:
-            'Computer Engineering graduate with expertise in full-stack development, networking, and AI.',
+            'Computer Engineering graduate and full-stack developer specializing in web development, networking, and AI.',
         images: ['/og-image.png'],
     },
     robots: {

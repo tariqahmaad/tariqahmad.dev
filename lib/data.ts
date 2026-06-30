@@ -148,17 +148,18 @@ export const PROJECTS: IProject[] = [
         slug: 'cv-builder',
         year: 2026,
         techStack: ['Next.js', 'TypeScript', 'React', 'Tailwind'],
-        description: `A modern, privacy-focused resume builder with real-time preview and ATS-friendly PDF export. Built with Next.js and TypeScript, this application keeps all data in the browser for maximum privacy while offering powerful features for creating professional resumes.<br/><br/>
+        description: `A resume builder I built to solve a problem I kept running into: formatting a CV shouldn't take longer than writing it. Everything runs in the browser, so your data never leaves your device. You get a real-time preview as you type, ATS-friendly PDF export, and a few templates to pick from.<br/><br/>
 
         Key Features:<br/>
         <ul>
-            <li>Smart form-based editor with real-time preview</li>
-            <li>PDF export with ATS-friendly formatting</li>
-            <li>Privacy-first architecture - data stays in browser</li>
-            <li>Auto-save functionality with local storage</li>
-            <li>Version control for multiple resume versions</li>
-            <li>3 professional templates: Classic, Rhyhorn, Nexus</li>
-            <li>Fast and responsive user interface</li>
+            <li>Real-time preview as you fill in the form</li>
+            <li>ATS-friendly PDF export</li>
+            <li>Privacy-first: all data stays in the browser</li>
+            <li>Auto-save to local storage</li>
+            <li>Multiple resume versions with version control</li>
+            <li>3 templates: Classic, Rhyhorn, Nexus</li>
+            <li>Responsive and fast</li>
+            
         </ul>`,
         role: ``,
         liveUrl: 'https://cv.tariqahmad.dev/',
@@ -168,15 +169,15 @@ export const PROJECTS: IProject[] = [
         slug: 'quizlet',
         techStack: ['HTML', 'CSS', 'JavaScript'],
         year: 2025,
-        description: `A web-based quiz application designed to help students practice and test their knowledge in university-level courses. The platform supports course-specific quizzes, timer-based sessions, real-time scoring, and a responsive interface.<br/><br/>
+        description: `A quiz app I built for fellow students to practice before exams. You pick a course, start a timed session, and get scored in real time. Nothing fancy, just something that actually helps you study instead of scrolling past it.<br/><br/>
 
         Key Features:<br/>
         <ul>
             <li>Course-specific quiz modules</li>
-            <li>Timer-based quiz sessions</li>
+            <li>Timed quiz sessions</li>
             <li>Real-time scoring and feedback</li>
-            <li>Fully responsive design for mobile and desktop</li>
-            <li>Interactive user interface for better learning experience</li>
+            <li>Works on both mobile and desktop</li>
+            <li>Clean, distraction-free interface</li>
         </ul>`,
         role: ``,
         sourceCode: 'https://github.com/tariqahmaad/quizlet',
@@ -187,33 +188,33 @@ export const PROJECTS: IProject[] = [
         slug: 'budgetwise',
         year: 2025,
         description: `
-      Mobile-first finance tracker built with React Native and Firebase. Users log daily expenses, set budgets, and view real-time analytics via RESTful APIs and cloud-sync. <br/> <br/>
+      A personal finance tracker I built to understand where my money was actually going. Log expenses, set budgets, and watch the numbers update in real time. Built with React Native and Firebase so it syncs across devices without a separate server. <br/> <br/>
 
       Key Features:<br/>
       <ul>
-        <li>Expense Tracking: Log daily transactions with categories</li>
-        <li>Budget Management: Set and monitor budget limits</li>
-        <li>Real-time Sync: Cloud-based data synchronization with Firebase</li>
-        <li>Financial Reports: Visual analytics and spending insights</li>
-        <li>Secure Authentication: User login and data protection</li>
+        <li>Log daily expenses with custom categories</li>
+        <li>Set and monitor budget limits</li>
+        <li>Real-time cloud sync via Firebase</li>
+        <li>Visual spending reports and insights</li>
+        <li>Secure user authentication</li>
       </ul><br/>
 
       Technical Highlights:
       <ul>
-        <li>Built with React Native for cross-platform compatibility</li>
-        <li>Integrated Firebase for real-time database and authentication</li>
-        <li>Implemented Node.js backend for RESTful API services</li>
-        <li>Developed responsive UI with custom components</li>
+        <li>Cross-platform with React Native</li>
+        <li>Firebase for real-time database and auth</li>
+        <li>Node.js backend for RESTful API services</li>
+        <li>Custom UI components for a clean experience</li>
       </ul>
       `,
         role: `
       Full-Stack Developer <br/>
       <ul>
-        <li>Mobile Development: Built cross-platform app using React Native</li>
-        <li>Backend: Implemented Node.js API for data management</li>
-        <li>Cloud Integration: Connected Firebase for real-time synchronization</li>
-        <li>UI/UX: Designed intuitive user interface for financial tracking</li>
-        <li>Testing: Performed comprehensive testing across devices</li>
+        <li>Built the cross-platform mobile app with React Native</li>
+        <li>Designed and implemented a Node.js REST API</li>
+        <li>Integrated Firebase for real-time sync and authentication</li>
+        <li>Created the UI and user flow from scratch</li>
+        <li>Tested across multiple devices and screen sizes</li>
       </ul>
       `,
         techStack: [
@@ -230,15 +231,15 @@ export const PROJECTS: IProject[] = [
         slug: 'graduation-presentation',
         techStack: ['HTML', 'CSS', 'JavaScript'],
         year: 2025,
-        description: `Developed an interactive presentation showcasing my graduation project, utilizing HTML, CSS, and JavaScript for a dynamic and engaging user experience. The presentation features smooth transitions, interactive elements, and modern web design principles.<br/><br/>
+        description: `Instead of a standard slide deck for my graduation project, I built an interactive web presentation from scratch. Smooth transitions, clickable navigation, and a layout that works on any screen. It was a chance to practice front-end fundamentals while making something more memorable than PowerPoint.<br/><br/>
 
         Highlights:<br/>
         <ul>
-            <li>Modern and interactive design</li>
-            <li>Responsive layout for all devices</li>
+            <li>Built from scratch with HTML, CSS, and JavaScript</li>
+            <li>Responsive across all devices</li>
             <li>Smooth transitions and animations</li>
-            <li>Dynamic content display</li>
-            <li>Engaging user experience</li>
+            <li>Interactive navigation and content display</li>
+            <li>Clean, modern design</li>
         </ul>`,
         role: ``,
         sourceCode: 'https://github.com/tariqahmaad/Presentation',
@@ -249,15 +250,15 @@ export const PROJECTS: IProject[] = [
         slug: 'note-app',
         techStack: ['PHP', 'MySQL', 'JavaScript', 'Bootstrap'],
         year: 2024,
-        description: `Developed a web-based note-taking app with PHP, MySQL, and front-end technologies, offering secure user authentication, role-specific functions, and a responsive, cross-browser interface. Features include rich text editing, categorization, search functionality, and user authentication.<br/><br/>
+        description: `A note-taking app I built to get hands-on with PHP and MySQL. It supports rich text editing, categories, search, and user accounts with role-based access. Nothing groundbreaking, but it taught me how to design a database schema, handle authentication, and build something people actually use.<br/><br/>
 
-        Results:<br/>
+        What I Learned:<br/>
         <ul>
-            <li>Increased user engagement significantly</li>
-            <li>Received positive feedback from users</li>
-            <li>Implemented advanced search and filtering</li>
-            <li>Responsive design for mobile and desktop</li>
-            <li>Secure user authentication and role-based access control</li>
+            <li>Designed a normalized MySQL schema from scratch</li>
+            <li>Implemented secure authentication and role-based access</li>
+            <li>Built search and filtering across notes</li>
+            <li>Responsive design that works across browsers</li>
+            <li>Got real feedback from users and iterated on it</li>
         </ul>`,
         role: ``,
         sourceCode:
@@ -268,14 +269,14 @@ export const PROJECTS: IProject[] = [
         slug: 'digit-classifier',
         techStack: ['Python', 'Neural Networks', 'Deep Learning', 'TensorFlow'],
         year: 2023,
-        description: `A machine learning project focused on accurate handwritten digit recognition using deep neural networks. The classifier was trained on the MNIST dataset to achieve high accuracy in digit classification.<br/><br/>
+        description: `My first real machine learning project: training a neural network to recognize handwritten digits from the MNIST dataset. It started as a course assignment but turned into a deeper dive into how neural networks actually learn. I built the architecture from scratch, trained it on 60,000 images, and got it to over 95% accuracy on test data.<br/><br/>
 
         Technical Details:<br/>
         <ul>
-            <li>Implemented multi-layer neural network architecture</li>
-            <li>Trained on 60,000 training images from MNIST dataset</li>
+            <li>Multi-layer neural network built from scratch</li>
+            <li>Trained on 60,000 images from the MNIST dataset</li>
             <li>Achieved over 95% accuracy on test data</li>
-            <li>Used backpropagation and gradient descent optimization</li>
+            <li>Backpropagation and gradient descent optimization</li>
         </ul>`,
         role: ``,
     },
@@ -284,15 +285,15 @@ export const PROJECTS: IProject[] = [
         slug: 'hotel-management',
         techStack: ['C#', '.NET', 'MySQL', 'Windows Forms'],
         year: 2022,
-        description: `Developed a C# Hotel Management System in Microsoft Visual Studio, featuring CRUD operations for customer and room management, integrated with MySQL for secure data handling, enhancing skills in SQL and database management. A comprehensive system designed to streamline booking and reservation processes for hospitality businesses.<br/><br/>
+        description: `A hotel management system I built in C# to get comfortable with desktop development and database design. It handles room bookings, guest check-in/check-out, and availability tracking, all connected to a MySQL database. It was my first time building a complete CRUD application, and it taught me how to think about data relationships and user workflows.<br/><br/>
 
-        Achievements:<br/>
+        What I Learned:<br/>
         <ul>
-            <li>Enhanced booking and reservation processes</li>
+            <li>Built full CRUD operations for rooms and guests</li>
+            <li>Designed a MySQL database schema for hotel operations</li>
             <li>Automated room availability tracking</li>
-            <li>Improved guest management workflows</li>
-            <li>Streamlined check-in/check-out operations</li>
-            <li>Implemented CRUD operations for efficient data management</li>
+            <li>Created check-in/check-out workflows</li>
+            <li>Worked with Windows Forms and .NET for the first time</li>
         </ul>`,
         role: ``,
     },
@@ -305,7 +306,7 @@ export const MY_EXPERIENCE: IExperience[] = [
         startDate: 'October 2024',
         endDate: 'July 2025',
         description:
-            'Working on Industry 4.0 research projects, focusing on AI integration and smart manufacturing systems.',
+            'Worked on Industry 4.0 research projects, exploring how AI can make manufacturing systems smarter and more adaptive. A mix of literature review, prototyping, and figuring out which ideas actually hold up when you test them.',
     },
     {
         title: 'Research Assistant Intern',
@@ -313,7 +314,7 @@ export const MY_EXPERIENCE: IExperience[] = [
         startDate: 'March 2024',
         endDate: 'May 2024',
         description:
-            'Assisted in academic research projects and data analysis.',
+            'Supported academic research through data analysis and documentation. Learned that there is a real difference between code that runs and code that proves something, and that good research starts with asking the right question.',
     },
     {
         title: 'Frontend Developer Intern',
@@ -321,7 +322,7 @@ export const MY_EXPERIENCE: IExperience[] = [
         startDate: 'November 2023',
         endDate: 'January 2024',
         description:
-            'Developed responsive web interfaces using React and modern CSS frameworks.',
+            'Built responsive web interfaces using React and modern CSS. Got my first exposure to working in a team codebase, code reviews, and the reality that "it works on my machine" is never a good enough answer.',
     },
     {
         title: 'Research Intern',
@@ -329,7 +330,7 @@ export const MY_EXPERIENCE: IExperience[] = [
         startDate: 'October 2023',
         endDate: 'January 2024',
         description:
-            'Contributed to ongoing research initiatives in the computer engineering department.',
+            'Contributed to research initiatives in the computer engineering department. Mostly data analysis and literature review, but the biggest takeaway was learning how to break down complex problems into questions you can actually answer.',
     },
     {
         title: 'Network Technician',
@@ -337,7 +338,7 @@ export const MY_EXPERIENCE: IExperience[] = [
         startDate: 'July 2023',
         endDate: 'September 2023',
         description:
-            'Managed network infrastructure and ensured reliable connectivity across all departments.',
+            'Managed network infrastructure and ensured reliable connectivity across all departments. When the network goes down in a logistics company, nothing moves, so uptime was not optional.',
     },
     {
         title: 'IT Support Specialist',
@@ -345,7 +346,7 @@ export const MY_EXPERIENCE: IExperience[] = [
         startDate: 'July 2022',
         endDate: 'September 2022',
         description:
-            'Provided technical support and maintained IT systems for logistics operations.',
+            'Provided technical support and maintained IT systems for daily logistics operations. Learned that patience and a clear explanation often matter as much as technical knowledge, especially when someone just needs their system back up.',
     },
 ];
 
@@ -465,10 +466,11 @@ export const BANNER_STATS = {
 
 export const ABOUT_ME = {
     tagline:
-        'Engineering scalable solutions that balance technical excellence with intuitive design.',
+        'I build software that people actually enjoy using, one thoughtful detail at a time.',
+    currently: 'Open to new opportunities in software development and AI.',
     bio: [
-        'I am a dedicated Computer Engineering graduate from Istanbul Aydin University, combining a strong theoretical foundation with hands-on expertise in full-stack development and network infrastructure. My passion lies in engineering systems that are not just functional, but also robust, scalable, and maintainable.',
-        'With professional experience spanning Industry 4.0 research, network administration, and software engineering, I bring a holistic approach to building technology solutions. I excel at strategic problem-solving and technical leadership, having successfully delivered complex projects by fostering collaboration and maintaining rigorous quality standards.',
-        'Fluent in English, Dari, and conversational in Hindi, I thrive in diverse, cross-functional teams. My technical toolkit includes C, C++, Java, Python, and modern web frameworks, enabling me to tackle challenges across the entire development lifecycle.',
+        "I'm Tariq, a Computer Engineering graduate from Istanbul Aydin University. What started as curiosity about how things work under the hood turned into a genuine passion for building software that doesn't just function, but feels right to use.",
+        "My path hasn't been a straight line, and I think that's a strength. I've worked on Industry 4.0 research, kept networks running for a logistics company, and built web apps from scratch. Each role taught me something different, and together they shaped how I approach problems: practically, patiently, and with a healthy skepticism for \"we've always done it this way.\"",
+        "I speak English and Dari fluently and get by in Hindi, which comes in handy more often than you'd expect. Day to day, I work with C, C++, Java, Python, and modern web frameworks, but I'm more interested in the problem in front of me than the tool I use to solve it.",
     ],
 };

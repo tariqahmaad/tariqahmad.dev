@@ -68,7 +68,7 @@ const TimelineItem = ({ experience, index, isLast }: TimelineItemProps) => {
 
                 {/* Description */}
                 {experience.description && (
-                    <p className="text-body-sm text-muted-foreground leading-relaxed line-clamp-2">
+                    <p className="text-body-sm text-muted-foreground leading-relaxed">
                         {experience.description}
                     </p>
                 )}
