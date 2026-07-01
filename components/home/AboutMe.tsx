@@ -48,7 +48,7 @@ const AboutMe = () => {
                             {'// behind the code'}
                         </p>
                         <div className="mt-6 flex justify-center md:justify-end w-full">
-                            <div className="relative w-full max-w-[320px] sm:max-w-[350px] md:max-w-[380px] aspect-square group">
+                            <div className="slide-up-and-fade relative w-full max-w-[320px] sm:max-w-[350px] md:max-w-[380px] aspect-square group">
                                 {/* Neon halo on hover */}
                                 <div className="absolute -inset-2 bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-2xl" />
                                 <Image

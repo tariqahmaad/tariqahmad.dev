@@ -3,7 +3,7 @@ import { GitHubIcon, LinkedInIcon } from '@/components/shared/icons';
 import { type ComponentType } from 'react';
 
 export const GENERAL_INFO = {
-    email: 'tariq_muzamil@live.com',
+    email: 'me@tariqahmad.dev',
 
     emailSubject: "Let's collaborate on a project",
     emailBody: 'Hi Tariq, I am reaching out to you because...',
