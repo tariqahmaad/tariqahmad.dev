@@ -8,7 +8,7 @@ export default function StructuredData() {
         jobTitle: 'Computer Engineer',
         description:
             'Computer Engineering graduate from Istanbul Aydin University with expertise in full-stack development, networking, and AI.',
-        email: 'tariq_muzamil@live.com',
+        email: 'me@tariqahmad.dev',
         telephone: '+90 53 454 03345',
         alumniOf: {
             '@type': 'EducationalOrganization',

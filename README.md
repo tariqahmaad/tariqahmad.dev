@@ -47,7 +47,7 @@ This project is optimized for Vercel deployment. Simply connect your GitHub repo
 
 **Tariq Ahmad**
 - Computer Engineering Student at Istanbul Aydin University
-- Email: tariq_muzamil@live.com
+- Email: me@tariqahmad.dev
 - LinkedIn: [linkedin.com/in/tariq-ahmad-a43320264](https://www.linkedin.com/in/tariq-ahmad-a43320264/)
 - GitHub: [github.com/tariqahmaad](https://github.com/tariqahmaad)
 
