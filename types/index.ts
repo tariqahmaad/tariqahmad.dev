@@ -47,3 +47,12 @@ export interface IExperience {
     description?: string;
     highlighted?: boolean;
 }
+
+export interface ITestimonial {
+    name: string;
+    role: string;
+    avatar?: string;
+    quote: string;
+    rating?: 0 | 1 | 2 | 3 | 4 | 5;
+    linkedInUrl?: string;
+}

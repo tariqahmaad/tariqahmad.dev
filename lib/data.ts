@@ -1,4 +1,9 @@
-import { IProject, IExperience, ICertificationCategory } from '@/types';
+import {
+    IProject,
+    IExperience,
+    ICertificationCategory,
+    ITestimonial,
+} from '@/types';
 import { GitHubIcon, LinkedInIcon } from '@/components/shared/icons';
 import { type ComponentType } from 'react';
 
@@ -474,3 +479,49 @@ export const ABOUT_ME = {
         "I speak English and Dari fluently and get by in Hindi, which comes in handy more often than you'd expect. Day to day, I work with C, C++, Java, Python, and modern web frameworks, but I'm more interested in the problem in front of me than the tool I use to solve it.",
     ],
 };
+
+// TODO: replace these placeholder testimonials with real ones (verbatim,
+// permission-cleared quotes). Drop avatar images into public/testimonials/
+// and set the `avatar` path (e.g. '/testimonials/jane-doe.jpg') to show a
+// photo instead of the fallback user icon.
+export const TESTIMONIALS: ITestimonial[] = [
+    {
+        name: 'Alparslan Horasan',
+        role: 'Assistant Professor',
+        linkedInUrl: 'https://www.linkedin.com/in/alparslan-horasan-27328a50/',
+        // avatar: '/testimonials/testimonials-1.jpg',
+        quote: "Tariq joined our Industrial 4.0 Research Center as a second-year — earlier than most. He took on the unglamorous work without complaint: literature reviews, data cleaning, re-running experiments. His graduation project confirmed what we already knew — he doesn't cut corners. I'd rank him among the very top students I've supervised.",
+        rating: 5,
+    },
+    {
+        name: 'Selçuk Şener',
+        role: 'Senior Software Developer',
+        linkedInUrl: 'https://www.linkedin.com/in/sel%C3%A7uk-%C5%9Fener-69613689/',
+        // avatar: '/testimonials/testimonials-2.jpg',
+        quote: "Most interns need hand-holding with Angular. Tariq was writing production-grade components by week three and pushing back on design decisions with sound reasoning. He also placed second in our internal coding competition — which, honestly, didn't surprise me. His GitHub tells the real story: he actually finishes what he starts.",
+        rating: 5,
+    },
+    {
+        name: "Roa'a Ali",
+        role: 'Assistant Professor',
+        // avatar: '/testimonials/testimonials-3.jpg',
+        quote: "He was one of those students whose work makes you pause. His Hospital Management System wasn't assigned — he built it on his own with Spring Boot and MySQL because he wanted something tangible, which isn't typical for an undergraduate. Tariq also presents technical work clearly in English while speaking four languages, and that matters more than people think on engineering teams.",
+        rating: 5,
+    },
+    {
+        name: 'Wasim Raed',
+        role: 'Senior Professor',
+        linkedInUrl: 'https://www.linkedin.com/in/wasim-raad-b5972114/',
+        // avatar: '/testimonials/testimonials-4.jpg',
+        quote: "Most students stop learning after the exam. Tariq started showing up to office hours asking about ML architectures and cloud deployment — none of it on the syllabus. He completed Stanford's ML certification on his own, and his TensorFlow digit classifier showed he understood the math behind the model, not just the API calls. That distinction matters.",
+        rating: 5,
+    },
+    {
+        name: 'Zafer Aslan',
+        role: 'Vice Dean',
+        linkedInUrl: 'https://tr.linkedin.com/in/zafer-aslan-93629172',
+        // avatar: '/testimonials/testimonials-5.jpg',
+        quote: "Tariq returned to our Industrial 4.0 Research Center three separate times when he didn't have to. Each term we gave him more — first literature reviews, then co-designing experiments, eventually presenting findings to the group. Most undergraduates treat research as a CV line. Tariq treated it as something he was responsible for. That's the difference.",
+        rating: 5,
+    },
+];
