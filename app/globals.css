@@ -118,7 +118,8 @@
         .slide-up-and-fade,
         .experience-item,
         .certification-item,
-        .project-item {
+        .project-item,
+        .testimonial-item {
             opacity: 1 !important;
             transform: none !important;
         }

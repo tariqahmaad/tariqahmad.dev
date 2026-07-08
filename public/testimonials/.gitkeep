@@ -1,0 +1,3 @@
+# Place testimonial avatar images here (e.g. jane-doe.jpg).
+# Reference them in lib/data.ts as '/testimonials/<filename>'.
+# When omitted, the card falls back to the person's initials.

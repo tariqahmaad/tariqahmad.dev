@@ -10,6 +10,7 @@ import {
     Award,
     FolderGit2,
     Mail,
+    MessageSquareQuote,
 } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
 import { GENERAL_INFO, SOCIAL_LINKS } from '@/lib/data';
@@ -61,6 +62,13 @@ const MENU_LINKS = [
         prefix: './projects',
         sectionId: 'selected-projects',
     },
+    {
+        name: 'Testimonials',
+        url: '/#testimonials',
+        icon: MessageSquareQuote,
+        prefix: './reviews',
+        sectionId: 'testimonials',
+    },
 ] as const;
 
 const ANIMATION = {
@@ -75,8 +83,10 @@ type CornerPosition = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
 const CORNER_POSITIONS: Record<CornerPosition, string> = {
     'top-left': 'top-4 left-4 sm:top-6 sm:left-6 md:top-8 md:left-8',
     'top-right': 'top-4 right-4 sm:top-6 sm:right-6 md:top-8 md:right-8',
-    'bottom-left': 'bottom-4 left-4 sm:bottom-6 sm:left-6 md:bottom-8 md:left-8',
-    'bottom-right': 'bottom-4 right-4 sm:bottom-6 sm:right-6 md:bottom-8 md:right-8',
+    'bottom-left':
+        'bottom-4 left-4 sm:bottom-6 sm:left-6 md:bottom-8 md:left-8',
+    'bottom-right':
+        'bottom-4 right-4 sm:bottom-6 sm:right-6 md:bottom-8 md:right-8',
 };
 
 const CornerBracket = ({ position }: { position: CornerPosition }) => {
@@ -91,9 +101,15 @@ const CornerBracket = ({ position }: { position: CornerPosition }) => {
         : 'bg-gradient-to-t from-primary/40 to-transparent';
 
     return (
-        <div className={`absolute ${CORNER_POSITIONS[position]} w-10 h-10 sm:w-10 sm:h-10 md:w-12 md:h-12 pointer-events-none`}>
-            <div className={`absolute ${isTop ? 'top-0' : 'bottom-0'} ${isLeft ? 'left-0' : 'right-0'} w-full h-[1px] ${horizontalGradient}`} />
-            <div className={`absolute ${isTop ? 'top-0' : 'bottom-0'} ${isLeft ? 'left-0' : 'right-0'} h-full w-[1px] ${verticalGradient}`} />
+        <div
+            className={`absolute ${CORNER_POSITIONS[position]} w-10 h-10 sm:w-10 sm:h-10 md:w-12 md:h-12 pointer-events-none`}
+        >
+            <div
+                className={`absolute ${isTop ? 'top-0' : 'bottom-0'} ${isLeft ? 'left-0' : 'right-0'} w-full h-[1px] ${horizontalGradient}`}
+            />
+            <div
+                className={`absolute ${isTop ? 'top-0' : 'bottom-0'} ${isLeft ? 'left-0' : 'right-0'} h-full w-[1px] ${verticalGradient}`}
+            />
         </div>
     );
 };
@@ -112,7 +128,10 @@ const Navbar = () => {
     }, []);
 
     // Scroll detection for active section
-    const activeSection = useScrollDetection({ links: MENU_LINKS, offset: 100 });
+    const activeSection = useScrollDetection({
+        links: MENU_LINKS,
+        offset: 100,
+    });
 
     // Keyboard navigation
     const { focusedIndex, setFocusedIndex } = useMenuKeyboardNavigation({
@@ -131,7 +150,9 @@ const Navbar = () => {
                 if (focusedIndex < MENU_LINKS.length) {
                     buttonRefs.current[focusedIndex]?.focus();
                 } else {
-                    socialRefs.current[focusedIndex - MENU_LINKS.length]?.focus();
+                    socialRefs.current[
+                        focusedIndex - MENU_LINKS.length
+                    ]?.focus();
                 }
             }, 0);
         }
@@ -219,8 +240,8 @@ const Navbar = () => {
                     'px-5 sm:px-6 md:px-6 lg:px-8 xl:px-10',
                     'will-change-transform',
                     'pt-[max(2.5rem,env(safe-area-inset-top)+0.75rem)] sm:pt-[max(3.5rem,env(safe-area-inset-top)+1rem)]',
-                    'pb-[max(3rem,env(safe-area-inset-bottom)+0.75rem)] sm:pb-[max(3.5rem,env(safe-area-inset-bottom)+1rem)]',
-                    'overflow-y-auto overflow-x-hidden',
+                    'pb-[max(1rem,env(safe-area-inset-bottom)+0.5rem)] sm:pb-[max(1.25rem,env(safe-area-inset-bottom)+0.5rem)] md:pb-[max(1.25rem,env(safe-area-inset-bottom)+0.5rem)]',
+                    'overflow-y-auto overflow-x-hidden flex flex-col',
                     isMenuOpen ? 'animate-menu-enter' : 'translate-x-[120%]',
                 )}
                 aria-label="Main navigation"
@@ -255,10 +276,10 @@ const Navbar = () => {
                 <CornerBracket position="bottom-left" />
                 <CornerBracket position="bottom-right" />
 
-                <div className="relative z-10 w-full mx-auto mt-8 sm:mt-6 md:mt-12 lg:mt-16">
+                <div className="relative z-10 w-full mx-auto flex-1 flex flex-col mt-6 sm:mt-6 md:mt-12 lg:mt-16">
                     {/* Navigation Section */}
-                    <div className="mb-5 sm:mb-7 md:mb-8 lg:mb-8">
-                        <div className="flex items-center gap-2 mb-3 sm:mb-4 md:mb-4 lg:mb-5">
+                    <div className="mb-4 sm:mb-7 md:mb-8 lg:mb-8">
+                        <div className="flex items-center gap-2 mb-2.5 sm:mb-4 md:mb-4 lg:mb-5">
                             <span className="text-primary text-ui-sm md:text-ui-base lg:text-ui-lg font-mono">
                                 $
                             </span>
@@ -266,10 +287,11 @@ const Navbar = () => {
                                 Navigation
                             </p>
                             <span className="ml-auto text-[11px] xs:text-ui-sm sm:text-ui-sm font-mono text-muted-foreground/40">
-                                {String(MENU_LINKS.length).padStart(2, '0')} items
+                                {String(MENU_LINKS.length).padStart(2, '0')}{' '}
+                                items
                             </span>
                         </div>
-                        <ul className="space-y-1.5 sm:space-y-2 md:space-y-2.5 lg:space-y-2.5">
+                        <ul className="space-y-1 sm:space-y-2 md:space-y-2.5 lg:space-y-2.5">
                             {MENU_LINKS.map((link, idx) => {
                                 const Icon = link.icon;
                                 const isActive =
@@ -293,7 +315,9 @@ const Navbar = () => {
                                                 closeMenu();
 
                                                 if (link.url.startsWith('/#')) {
-                                                    scrollToSection(link.url.substring(2));
+                                                    scrollToSection(
+                                                        link.url.substring(2),
+                                                    );
                                                 } else {
                                                     router.push(link.url);
                                                 }
@@ -302,7 +326,7 @@ const Navbar = () => {
                                                 'group w-full flex items-center',
                                                 'gap-2.5 xs:gap-3 sm:gap-3 md:gap-3.5 lg:gap-4',
                                                 'px-3 xs:px-3.5 sm:px-3.5 md:px-4 lg:px-5',
-                                                'py-3 xs:py-3 sm:py-3 md:py-3.5 lg:py-4',
+                                                'py-2.5 xs:py-3 sm:py-3 md:py-3.5 lg:py-4',
                                                 'border border-white/5 transition-all duration-200 cursor-pointer',
                                                 'relative overflow-hidden rounded-sm',
                                                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50',
@@ -391,11 +415,11 @@ const Navbar = () => {
                     </div>
 
                     {/* Separator */}
-                    <div className="mb-5 sm:mb-6 md:mb-7 lg:mb-7 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
+                    <div className="mb-4 sm:mb-6 md:mb-7 lg:mb-7 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
 
                     {/* Social Links Section */}
-                    <div className="mb-5 sm:mb-6 md:mb-8 lg:mb-8">
-                        <div className="flex items-center gap-2 mb-3 sm:mb-4 md:mb-4 lg:mb-5">
+                    <div className="mb-4 sm:mb-6 md:mb-8 lg:mb-8">
+                        <div className="flex items-center gap-2 mb-2.5 sm:mb-4 md:mb-4 lg:mb-5">
                             <span className="text-primary text-ui-sm md:text-ui-base lg:text-ui-lg font-mono">
                                 $
                             </span>
@@ -418,7 +442,7 @@ const Navbar = () => {
                                         className={cn(
                                             'group cursor-pointer',
                                             'px-3 xs:px-3.5 sm:px-3.5 md:px-4 lg:px-5',
-                                            'py-3 xs:py-3 sm:py-3 md:py-3.5 lg:py-3.5',
+                                            'py-2.5 xs:py-3 sm:py-3 md:py-3.5 lg:py-3.5',
                                             'border border-white/5 hover:border-primary/40',
                                             'bg-foreground/[0.02] hover:bg-primary/[0.06]',
                                             'transition-all duration-200 rounded-sm',
@@ -463,7 +487,7 @@ const Navbar = () => {
                     {/* Get In Touch Section */}
                     <div
                         className={cn(
-                            'relative px-3 sm:px-4 md:px-5 lg:px-5 py-3 sm:py-4 md:py-5 lg:py-5 overflow-hidden group rounded-sm opacity-0',
+                            'mt-auto relative px-3 sm:px-4 md:px-5 lg:px-5 py-3 sm:py-4 md:py-5 lg:py-5 overflow-hidden group rounded-sm opacity-0',
                             'border border-white/5 hover:border-primary/20',
                             isMenuOpen && 'animate-item-enter',
                         )}
@@ -505,7 +529,9 @@ const Navbar = () => {
                                 href={`mailto:${GENERAL_INFO.email}`}
                                 className="group/email text-body-sm sm:text-body-base md:text-body-lg lg:text-body-lg font-mono tracking-wide text-foreground/90 hover:text-primary transition-colors duration-300 block break-all mb-2.5 sm:mb-3 md:mb-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 rounded"
                             >
-                                <span className="group-hover/email:text-primary/60 transition-colors">&gt; </span>
+                                <span className="group-hover/email:text-primary/60 transition-colors">
+                                    &gt;{' '}
+                                </span>
                                 {GENERAL_INFO.email}
                             </a>
                             <div className="flex items-center gap-2 sm:gap-2 text-[11px] xs:text-ui-sm sm:text-ui-sm md:text-ui-base lg:text-ui-base text-muted-foreground/80">
