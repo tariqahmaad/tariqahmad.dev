@@ -1,112 +1,110 @@
+import {
+    GENERAL_INFO,
+    MY_CERTIFICATIONS,
+    MY_STACK,
+    SOCIAL_LINKS,
+} from '@/lib/data';
+
+const SITE_URL = 'https://tariqahmad.dev';
+const PERSON_ID = `${SITE_URL}/#person`;
+
+const MONTHS = [
+    'january',
+    'february',
+    'march',
+    'april',
+    'may',
+    'june',
+    'july',
+    'august',
+    'september',
+    'october',
+    'november',
+    'december',
+];
+
+/** "March 2025" -> "2025-03"; undefined when the label is not parseable. */
+const toISODate = (value: string): string | undefined => {
+    const match = /^([A-Za-z]+)\s+(\d{4})$/.exec(value.trim());
+    if (!match) return undefined;
+    const month = MONTHS.indexOf(match[1].toLowerCase()) + 1;
+    if (month === 0) return undefined;
+    return `${match[2]}-${String(month).padStart(2, '0')}`;
+};
+
 export default function StructuredData() {
-    const personSchema = {
-        '@context': 'https://schema.org',
-        '@type': 'Person',
-        name: 'Tariq Ahmad',
-        url: 'https://tariqahmad.dev',
-        image: 'https://tariqahmad.dev/og-image.png',
-        jobTitle: 'Computer Engineer',
-        description:
-            'Computer Engineering graduate from Istanbul Aydin University with expertise in full-stack development, networking, and AI.',
-        email: 'me@tariqahmad.dev',
-        telephone: '+90 53 454 03345',
-        alumniOf: {
-            '@type': 'EducationalOrganization',
-            name: 'Istanbul Aydin University',
-            url: 'https://www.aydin.edu.tr/',
-        },
-        sameAs: [
-            'https://github.com/tariqahmaad',
-            'https://www.linkedin.com/in/tariq-ahmad-a43320264/',
-        ],
-        knowsAbout: [
-            'JavaScript',
-            'TypeScript',
-            'React',
-            'Next.js',
-            'Node.js',
-            'Python',
-            'Java',
-            'C#',
-            'C++',
-            'PHP',
-            'Django',
-            'Spring Boot',
-            'React Native',
-            'MySQL',
-            'PostgreSQL',
-            'MongoDB',
-            'AWS',
-            'Docker',
-            'Git',
-            'Full Stack Development',
-            'Web Development',
-            'Mobile Development',
-            'Machine Learning',
-            'Neural Networks',
-        ],
-        hasCredential: [
-            {
-                '@type': 'EducationalOccupationalCredential',
-                credentialCategory: 'Certification',
-                name: 'Cisco Certified Network Associate (CCNA)',
-                dateCreated: '2019-08',
-            },
-            {
-                '@type': 'EducationalOccupationalCredential',
-                credentialCategory: 'Certification',
-                name: 'Microsoft Certified Solution Expert (MCSE)',
-                dateCreated: '2019-07',
-            },
-            {
-                '@type': 'EducationalOccupationalCredential',
-                credentialCategory: 'Certification',
-                name: 'React Native - Meta Certification',
-                dateCreated: '2025-03',
-            },
-        ],
-    };
+    // Derived from lib/data.ts so the JSON-LD can never drift from the page.
+    const knowsAbout = Array.from(
+        new Set(Object.values(MY_STACK).flat().map((skill) => skill.name)),
+    ).sort();
 
-    const websiteSchema = {
-        '@context': 'https://schema.org',
-        '@type': 'WebSite',
-        name: 'Tariq Ahmad Portfolio',
-        url: 'https://tariqahmad.dev',
-        description:
-            'Personal portfolio website showcasing software development projects and skills.',
-        author: {
-            '@type': 'Person',
-            name: 'Tariq Ahmad',
-        },
-        inLanguage: 'en-US',
-    };
+    const hasCredential = MY_CERTIFICATIONS.flatMap((category) =>
+        category.certifications.map((certification) => {
+            const dateCreated = toISODate(certification.date);
+            return {
+                '@type': 'EducationalOccupationalCredential',
+                credentialCategory: 'Certification',
+                name: certification.title,
+                ...(dateCreated ? { dateCreated } : {}),
+                recognizedBy: {
+                    '@type': 'Organization',
+                    name: category.provider,
+                },
+            };
+        }),
+    );
 
-    const profilePageSchema = {
+    // One @graph instead of three independent @context blocks, so the
+    // WebSite/ProfilePage can reference the Person node by @id.
+    const graph = {
         '@context': 'https://schema.org',
-        '@type': 'ProfilePage',
-        dateCreated: '2024-01-01',
-        dateModified: '2026-04-09',
-        mainEntity: {
-            '@type': 'Person',
-            name: 'Tariq Ahmad',
-            url: 'https://tariqahmad.dev',
-        },
+        '@graph': [
+            {
+                '@type': 'Person',
+                '@id': PERSON_ID,
+                name: 'Tariq Ahmad',
+                url: SITE_URL,
+                image: `${SITE_URL}/og-image.png`,
+                jobTitle: 'Software Developer',
+                description:
+                    'Computer Engineering graduate from Istanbul Aydin University with expertise in full-stack development, networking, and AI.',
+                email: GENERAL_INFO.email,
+                // Telephone intentionally omitted from JSON-LD to reduce
+                // scraping; the number stays visible in the site UI.
+                alumniOf: {
+                    '@type': 'EducationalOrganization',
+                    name: 'Istanbul Aydin University',
+                    url: 'https://www.aydin.edu.tr/',
+                },
+                sameAs: SOCIAL_LINKS.map((link) => link.url),
+                knowsAbout,
+                hasCredential,
+            },
+            {
+                '@type': 'WebSite',
+                '@id': `${SITE_URL}/#website`,
+                name: 'Tariq Ahmad Portfolio',
+                url: SITE_URL,
+                description:
+                    'Personal portfolio website showcasing software development projects and skills.',
+                author: { '@id': PERSON_ID },
+                inLanguage: 'en-US',
+            },
+            {
+                '@type': 'ProfilePage',
+                '@id': `${SITE_URL}/#profilepage`,
+                dateCreated: '2024-01-01',
+                // Bump when the portfolio content changes.
+                dateModified: '2026-09-09',
+                mainEntity: { '@id': PERSON_ID },
+            },
+        ],
     };
 
     return (
-        <>
-            <script
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(personSchema) }}
-            />
-            <script
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
-            />
-            <script
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(profilePageSchema) }}
-            />
-        </>
+        <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(graph) }}
+        />
     );
 }

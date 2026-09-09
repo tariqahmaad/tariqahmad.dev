@@ -5,17 +5,26 @@ import { cn } from '@/lib/utils';
 interface DurationBarProps {
     startDate: string;
     endDate: string;
+    startISO?: string;
+    endISO?: string | null;
     isHighlighted?: boolean;
     className?: string;
+    /** Inclusive months of tenure — renders one tick per month. */
+    totalMonths: number;
 }
 
 const DurationBar = ({
     startDate,
     endDate,
+    startISO,
+    endISO,
     isHighlighted,
     className,
+    totalMonths,
 }: DurationBarProps) => {
-    const isPresent = endDate.toLowerCase() === 'present';
+    const isPresent = endISO === null || endDate.toLowerCase() === 'present';
+    const isLive = isHighlighted || isPresent;
+    const ticks = Math.max(1, Math.round(totalMonths));
 
     return (
         <div
@@ -25,24 +34,33 @@ const DurationBar = ({
             )}
         >
             {/* Start date — dimmer (the past) */}
-            <span className="text-body-sm font-medium text-muted-foreground whitespace-nowrap tabular-nums">
-                {startDate}
-            </span>
+            {startISO ? (
+                <time
+                    dateTime={startISO}
+                    className="text-body-sm font-medium text-muted-foreground whitespace-nowrap tabular-nums"
+                >
+                    {startDate}
+                </time>
+            ) : (
+                <span className="text-body-sm font-medium text-muted-foreground whitespace-nowrap tabular-nums">
+                    {startDate}
+                </span>
+            )}
 
-            {/* Segmented signal meter — fill width is animated by GSAP (0 → 100%) */}
+            {/* Month-tick meter — GSAP ignites ticks left-to-right */}
             <div
+                role="img"
+                aria-label={`Duration: ${ticks} month${ticks === 1 ? '' : 's'}`}
+                title={`${startDate} → ${endDate} · ${ticks} mo`}
                 className={cn(
-                    'duration-track relative flex-1 h-[7px] min-w-[44px] sm:min-w-[64px]',
-                    isHighlighted && 'duration-track--active'
+                    'duration-track duration-ticks relative flex flex-1 items-stretch gap-[3px] h-[10px] min-w-[44px] sm:min-w-[64px] p-[2px]',
+                    isHighlighted && 'duration-track--active',
+                    isLive && 'duration-ticks--live'
                 )}
             >
-                {/* Lit segments, revealed left-to-right */}
-                <div
-                    className={cn(
-                        'duration-bar-fill absolute inset-y-0 left-0',
-                        isHighlighted && 'duration-bar-fill--active'
-                    )}
-                />
+                {Array.from({ length: ticks }).map((_, i) => (
+                    <span key={i} className="duration-tick" />
+                ))}
             </div>
 
             {/* End date or Present indicator */}
@@ -62,6 +80,13 @@ const DurationBar = ({
                             )}
                         />
                     </>
+                ) : endISO ? (
+                    <time
+                        dateTime={endISO}
+                        className="text-body-sm font-medium text-foreground whitespace-nowrap tabular-nums"
+                    >
+                        {endDate}
+                    </time>
                 ) : (
                     <span className="text-body-sm font-medium text-foreground whitespace-nowrap tabular-nums">
                         {endDate}

@@ -1,81 +1,29 @@
 'use client';
 import SectionTitle from '@/components/shared/SectionTitle';
 import { PROJECTS } from '@/lib/data';
-import { cn, shouldSkipAnimation } from '@/lib/utils';
+import { shouldSkipAnimation } from '@/lib/utils';
 import { gsap, useGSAP } from '@/lib/gsap-setup';
 import { useScrollExitAnimation } from '@/hooks/useScrollExitAnimation';
-import Image from 'next/image';
-import React, { useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import ProjectCard from '@/components/projects/ProjectCard';
 
 const ProjectList = () => {
     const containerRef = useRef<HTMLDivElement>(null);
-    const projectListRef = useRef<HTMLDivElement>(null);
-    const imageContainer = useRef<HTMLDivElement>(null);
-    const imageRef = useRef<HTMLImageElement>(null);
+    // The exit hook below owns y/opacity on `containerRef`. The reveal used to
+    // animate the same properties on the same element, so the two tweens fought
+    // (and the `from` baseline was captured mid-scrub). Reveal the inner list.
+    const listRef = useRef<HTMLDivElement>(null);
+    // Slug of the card whose title is hovered — drives the dim-others effect.
     const [selectedProject, setSelectedProject] = useState<string | null>(null);
 
-    // update imageRef.current href based on the cursor hover position
-    // also update image position
     useGSAP(
         () => {
-            // show image on hover
-            if (window.innerWidth < 768) {
-                setSelectedProject(null);
-                return;
-            }
+            const list = listRef.current;
+            if (!list) return;
 
-            const handleMouseMove = (e: MouseEvent) => {
-                if (!containerRef.current) return;
-                if (!imageContainer.current) return;
-
-                if (window.innerWidth < 768) {
-                    setSelectedProject(null);
-                    return;
-                }
-
-                const containerRect =
-                    containerRef.current?.getBoundingClientRect();
-                const imageRect =
-                    imageContainer.current.getBoundingClientRect();
-                const offsetTop = e.clientY - containerRect.y;
-
-                // if cursor is outside the container, hide the image
-                if (
-                    containerRect.y > e.clientY ||
-                    containerRect.bottom < e.clientY ||
-                    containerRect.x > e.clientX ||
-                    containerRect.right < e.clientX
-                ) {
-                    return gsap.to(imageContainer.current, {
-                        duration: 0.3,
-                        opacity: 0,
-                    });
-                }
-
-                gsap.to(imageContainer.current, {
-                    y: offsetTop - imageRect.height / 2,
-                    duration: 1,
-                    opacity: 1,
-                });
-            };
-
-            window.addEventListener('mousemove', handleMouseMove);
-
-            return () => {
-                window.removeEventListener('mousemove', handleMouseMove);
-            };
-        },
-        { scope: containerRef },
-    );
-
-    useGSAP(
-        () => {
             if (shouldSkipAnimation()) {
                 // Set element to visible immediately
-                if (containerRef.current) {
-                    gsap.set(containerRef.current, { opacity: 1, y: 0 });
-                }
+                gsap.set(list, { clearProps: 'all' });
                 return;
             }
 
@@ -83,11 +31,13 @@ const ProjectList = () => {
                 scrollTrigger: {
                     trigger: containerRef.current,
                     start: 'top 85%',
-                    toggleActions: 'play none none reverse',
+                    // 'reverse' re-hides the cards on scroll-up, which reads as
+                    // flicker — see the note in Experiences.tsx.
+                    toggleActions: 'play none none none',
                 },
             });
 
-            tl.from(containerRef.current, {
+            tl.from(list, {
                 y: 100,
                 opacity: 0,
                 duration: 0.8,
@@ -99,65 +49,23 @@ const ProjectList = () => {
 
     useScrollExitAnimation({ containerRef });
 
-    const handleMouseEnter = (slug: string) => {
-        if (window.innerWidth < 768) {
-            setSelectedProject(null);
-            return;
-        }
-
-        setSelectedProject(slug);
-    };
-
-    const handleMouseLeave = () => {
-        setSelectedProject(null);
-    };
-
     return (
         <section className="py-section" id="selected-projects">
             <div className="container">
                 <SectionTitle title="SELECTED PROJECTS" />
 
                 <div className="relative" ref={containerRef}>
-                    {selectedProject !== null && (
-                        <div
-                            className="max-md:hidden absolute right-0 top-0 z-[1] pointer-events-none w-[200px] xl:w-[350px] aspect-[3/4] overflow-hidden opacity-0"
-                            ref={imageContainer}
-                        >
-                            {PROJECTS.map(
-                                (project) =>
-                                    project.thumbnail && (
-                                        <Image
-                                            src={project.thumbnail}
-                                            alt="Project"
-                                            width="400"
-                                            height="500"
-                                            className={cn(
-                                                'absolute inset-0 transition-all duration-500 w-full h-full object-cover',
-                                                {
-                                                    'opacity-0':
-                                                        project.slug !==
-                                                        selectedProject,
-                                                },
-                                            )}
-                                            ref={imageRef}
-                                            key={project.slug}
-                                        />
-                                    ),
-                            )}
-                        </div>
-                    )}
-
                     <div
+                        ref={listRef}
                         className="flex flex-col gap-8 xs:gap-10 md:gap-14"
-                        ref={projectListRef}
                     >
                         {PROJECTS.map((project, index) => (
                             <ProjectCard
                                 index={index}
                                 project={project}
                                 selectedProject={selectedProject}
-                                onMouseEnter={handleMouseEnter}
-                                onMouseLeave={handleMouseLeave}
+                                onMouseEnter={setSelectedProject}
+                                onMouseLeave={() => setSelectedProject(null)}
                                 key={project.slug}
                             />
                         ))}

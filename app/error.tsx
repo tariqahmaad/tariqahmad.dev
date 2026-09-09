@@ -22,7 +22,10 @@ export default function Error({
     }, [error]);
 
     return (
-        <div className="flex items-center justify-center min-h-screen bg-background text-foreground p-4">
+        <div
+            role="alert"
+            className="flex items-center justify-center min-h-screen bg-background text-foreground p-4"
+        >
             <div className="max-w-md w-full text-center space-y-6">
                 <div className="space-y-2">
                     <h1 className="text-4xl font-anton text-primary">
@@ -32,6 +35,11 @@ export default function Error({
                         An unexpected error occurred. Please try again or contact
                         support if the problem persists.
                     </p>
+                    {error.digest && (
+                        <p className="font-mono text-ui-sm text-muted-foreground/70">
+                            Reference: {error.digest}
+                        </p>
+                    )}
                 </div>
 
                 {process.env.NODE_ENV === 'development' && (
@@ -39,9 +47,9 @@ export default function Error({
                         <summary className="cursor-pointer text-sm font-mono text-primary mb-2">
                             Error Details
                         </summary>
+                        {/* `stack` already begins with the message. */}
                         <pre className="text-xs text-muted-foreground overflow-auto max-h-40">
-                            {error.message}
-                            {error.stack}
+                            {error.stack ?? error.message}
                         </pre>
                     </details>
                 )}

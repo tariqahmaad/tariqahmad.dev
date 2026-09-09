@@ -124,9 +124,21 @@ const TestimonialCard = ({ testimonial }: TestimonialCardProps) => {
                     />
                 </div>
                 <div className="min-w-0">
-                    <p className="font-anton uppercase text-body-sm truncate">
-                        {testimonial.name}
-                    </p>
+                    {testimonial.linkedInUrl ? (
+                        <a
+                            href={testimonial.linkedInUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label={`${testimonial.name} on LinkedIn`}
+                            className="font-anton uppercase text-body-sm truncate block w-fit max-w-full transition-colors hover:text-primary underline decoration-primary/40 underline-offset-4 decoration-1 hover:decoration-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 rounded-sm"
+                        >
+                            {testimonial.name}
+                        </a>
+                    ) : (
+                        <p className="font-anton uppercase text-body-sm truncate">
+                            {testimonial.name}
+                        </p>
+                    )}
                     <p className="font-mono text-ui-xs text-muted-foreground/70 tracking-wide truncate">
                         {testimonial.role}
                     </p>

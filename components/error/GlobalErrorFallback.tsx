@@ -22,7 +22,10 @@ export default function GlobalError({
     return (
         <html lang="en">
             <body className="bg-background text-foreground antialiased">
-                <div className="flex items-center justify-center min-h-screen p-4">
+                <div
+                    role="alert"
+                    className="flex items-center justify-center min-h-screen p-4"
+                >
                     <div className="max-w-md w-full text-center space-y-6">
                         <div className="space-y-2">
                             <h1 className="text-4xl font-anton text-primary">
@@ -39,22 +42,26 @@ export default function GlobalError({
                                 <summary className="cursor-pointer text-sm font-mono text-primary mb-2">
                                     Error Details
                                 </summary>
+                                {/* `stack` already begins with the message. */}
                                 <pre className="text-xs text-muted-foreground overflow-auto max-h-40">
-                                    {error.message}
-                                    {error.stack}
+                                    {error.stack ?? error.message}
                                 </pre>
                             </details>
                         )}
 
                         <div className="flex flex-col sm:flex-row gap-4 justify-center">
                             <button
+                                type="button"
                                 onClick={reset}
                                 className="inline-flex items-center justify-center gap-2 h-12 px-8 bg-primary text-primary-foreground hover:bg-primary-hover rounded-md transition-colors"
                             >
                                 Try Again
                             </button>
                             <button
-                                onClick={() => window.location.href = '/'}
+                                type="button"
+                                onClick={() => {
+                                    window.location.href = '/';
+                                }}
                                 className="inline-flex items-center justify-center gap-2 h-12 px-8 border border-primary text-primary hover:bg-primary/10 rounded-md transition-colors"
                             >
                                 Go Home

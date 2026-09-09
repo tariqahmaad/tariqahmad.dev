@@ -1,4 +1,12 @@
+import type { Metadata } from 'next';
 import Button from '@/components/shared/Button';
+
+// Without this the 404 inherited the layout's title and canonical URL, so it
+// was indexable and looked like a duplicate of the homepage.
+export const metadata: Metadata = {
+    title: '404 — Page not found',
+    robots: { index: false, follow: false },
+};
 
 export default function NotFound() {
     return (

@@ -1,55 +1,89 @@
 'use client';
 import { gsap, useGSAP } from '@/lib/gsap-setup';
-import { useRef } from 'react';
+import { useId, useRef } from 'react';
 
 interface ArrowAnimationProps {
     className?: string;
 }
 
 const ArrowAnimation = ({ className = '' }: ArrowAnimationProps) => {
+    // Two instances are mounted at once (Banner + ProjectDetails), so the id and
+    // every selector must be unique per instance.
+    const svgId = useId();
     const svgRef = useRef<SVGSVGElement>(null);
     const arrow1Ref = useRef<SVGPathElement>(null);
     const arrow2Ref = useRef<SVGPathElement>(null);
 
-    useGSAP(() => {
-        gsap.set('#banner-arrow-svg', { fill: 'transparent', autoAlpha: 0 });
-        gsap.set('.svg-arrow-1', {
-            strokeDasharray: arrow1Ref.current?.getTotalLength(),
-            strokeDashoffset: arrow1Ref.current?.getTotalLength(),
-        });
-        gsap.set('.svg-arrow-2', {
-            strokeDasharray: arrow2Ref.current?.getTotalLength(),
-            strokeDashoffset: arrow2Ref.current?.getTotalLength(),
-        });
+    useGSAP(
+        () => {
+            const svg = svgRef.current;
+            const arrow1 = arrow1Ref.current;
+            const arrow2 = arrow2Ref.current;
 
-        const tl = gsap.timeline({ repeat: -1 });
+            if (!svg || !arrow1 || !arrow2) return;
 
-        tl.to('#banner-arrow-svg', { autoAlpha: 1, duration: 0.1 });
-        tl.to('.svg-arrow', {
-            duration: 2,
-            delay: 1,
-            strokeDashoffset: 0,
-        });
-        tl.to('#banner-arrow-svg', {
-            duration: 0.5,
-            delay: 0.5,
-            fill: 'rgba(0, 255, 60, 0.06)',
-        });
-        tl.to('#banner-arrow-svg', {
-            duration: 0.8,
-            y: 300,
-            opacity: 0,
-        });
-        tl.set('#banner-arrow-svg', {
-            fill: 'transparent',
-            y: 0,
-            autoAlpha: 0,
-        });
-    });
+            // getTotalLength() is 0 until the SVG is laid out; the draw-in would be
+            // invisible, so fall back to the resting state instead of animating.
+            const length1 = arrow1.getTotalLength();
+            const length2 = arrow2.getTotalLength();
+
+            if (!length1 || !length2) {
+                gsap.set(svg, { fill: 'transparent', autoAlpha: 1 });
+                return;
+            }
+
+            // Endless looping is decorative only — reduced-motion users get the
+            // arrow in its final state with no timeline at all.
+            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                gsap.set(svg, { fill: 'transparent', autoAlpha: 1, y: 0 });
+                gsap.set([arrow1, arrow2], {
+                    strokeDasharray: 'none',
+                    strokeDashoffset: 0,
+                });
+                return;
+            }
+
+            gsap.set(svg, { fill: 'transparent', autoAlpha: 0 });
+            gsap.set(arrow1, {
+                strokeDasharray: length1,
+                strokeDashoffset: length1,
+            });
+            gsap.set(arrow2, {
+                strokeDasharray: length2,
+                strokeDashoffset: length2,
+            });
+
+            const tl = gsap.timeline({ repeat: -1 });
+
+            tl.to(svg, { autoAlpha: 1, duration: 0.1 });
+            tl.to([arrow1, arrow2], {
+                duration: 2,
+                delay: 1,
+                strokeDashoffset: 0,
+            });
+            tl.to(svg, {
+                duration: 0.5,
+                delay: 0.5,
+                fill: 'rgba(0, 255, 60, 0.06)',
+            });
+            tl.to(svg, {
+                duration: 0.8,
+                y: 300,
+                opacity: 0,
+            });
+            tl.set(svg, {
+                fill: 'transparent',
+                y: 0,
+                autoAlpha: 0,
+            });
+        },
+        { scope: svgRef },
+    );
 
     return (
         <svg
-            id="banner-arrow-svg"
+            id={svgId}
+            aria-hidden="true"
             width="376"
             height="111"
             viewBox="0 0 376 111"

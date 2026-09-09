@@ -16,6 +16,8 @@ pnpm-debug.log*
 /out/
 /build
 /dist
+# pnpm's content-addressable store, if it lands in the repo root
+/.pnpm-store/
 
 # ===================
 # Testing

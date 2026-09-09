@@ -42,7 +42,7 @@ const Footer = () => {
                                     key={link.name}
                                     href={link.url}
                                     target="_blank"
-                                    rel="noreferrer"
+                                    rel="noopener noreferrer"
                                     aria-label={`${link.name} (opens in new tab)`}
                                     className="group/social flex items-center gap-1.5 px-2.5 py-1.5 border border-white/5 rounded-sm transition-all duration-200 hover:border-primary/30 hover:bg-primary/[0.04]"
                                 >
@@ -56,7 +56,13 @@ const Footer = () => {
                         })}
                     </div>
 
-                    <p className="text-ui-sm text-muted-foreground/50 font-mono">
+                    {/* Rendered at build time on the server and re-evaluated in
+                        the browser, so suppress the (theoretical) New-Year
+                        hydration mismatch. */}
+                    <p
+                        suppressHydrationWarning
+                        className="text-ui-sm text-muted-foreground/50 font-mono"
+                    >
                         &copy; {new Date().getFullYear()} tariqahmad.dev
                     </p>
                 </div>

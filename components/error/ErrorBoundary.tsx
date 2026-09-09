@@ -9,11 +9,20 @@ interface ErrorBoundaryProps {
 interface ErrorBoundaryState {
     hasError: boolean;
     error: Error | null;
+    /** Bumped on reset so the subtree remounts instead of re-rendering into
+     *  the same deterministic throw. */
+    resetKey: number;
 }
 
 /**
- * Error Boundary component to catch and handle JavaScript errors in component tree
- * Provides a fallback UI when an error occurs
+ * Error Boundary component to catch and handle errors thrown while rendering
+ * the component tree below it.
+ *
+ * Scope note: React error boundaries only catch errors from rendering,
+ * lifecycle methods and constructors of descendants. They do NOT catch
+ * errors from event handlers, setTimeout/rAF callbacks, promises, GSAP
+ * callbacks, observers, or Server Components — those need their own
+ * try/catch or an error-reporting service.
  */
 export class ErrorBoundary extends React.Component<
     ErrorBoundaryProps,
@@ -21,10 +30,10 @@ export class ErrorBoundary extends React.Component<
 > {
     constructor(props: ErrorBoundaryProps) {
         super(props);
-        this.state = { hasError: false, error: null };
+        this.state = { hasError: false, error: null, resetKey: 0 };
     }
 
-    static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    static getDerivedStateFromError(error: Error): Partial<ErrorBoundaryState> {
         return { hasError: true, error };
     }
 
@@ -36,7 +45,11 @@ export class ErrorBoundary extends React.Component<
     }
 
     resetErrorBoundary = () => {
-        this.setState({ hasError: false, error: null });
+        this.setState((prev) => ({
+            hasError: false,
+            error: null,
+            resetKey: prev.resetKey + 1,
+        }));
     };
 
     render() {
@@ -47,7 +60,11 @@ export class ErrorBoundary extends React.Component<
             return <FallbackComponent error={this.state.error!} resetErrorBoundary={this.resetErrorBoundary} />;
         }
 
-        return this.props.children;
+        return (
+            <React.Fragment key={this.state.resetKey}>
+                {this.props.children}
+            </React.Fragment>
+        );
     }
 }
 
@@ -62,7 +79,10 @@ function DefaultErrorFallback({
     resetErrorBoundary: () => void;
 }): React.ReactNode {
     return (
-        <div className="flex items-center justify-center min-h-screen bg-background text-foreground p-4">
+        <div
+            role="alert"
+            className="flex items-center justify-center min-h-screen bg-background text-foreground p-4"
+        >
             <div className="max-w-md w-full text-center space-y-6">
                 <div className="space-y-2">
                     <h1 className="text-4xl font-anton text-primary">
@@ -79,13 +99,13 @@ function DefaultErrorFallback({
                             Error Details
                         </summary>
                         <pre className="text-xs text-muted-foreground overflow-auto max-h-40">
-                            {error.message}
-                            {error.stack}
+                            {error.stack ?? error.message}
                         </pre>
                     </details>
                 )}
 
                 <button
+                    type="button"
                     onClick={resetErrorBoundary}
                     className="inline-flex items-center justify-center gap-2 h-12 px-8 bg-primary text-primary-foreground hover:bg-primary-hover rounded-md transition-colors"
                 >

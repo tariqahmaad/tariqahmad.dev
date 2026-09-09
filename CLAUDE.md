@@ -18,14 +18,25 @@ pnpm dev
 # Production build
 pnpm build
 
+# Delete the .next cache (dev and build share it - see note below)
+pnpm clean
+
 # Run ESLint
 pnpm lint
+
+# Typecheck (tsc --noEmit)
+pnpm typecheck
 
 # Generate React components from SVG icons (uses SVGR)
 pnpm svgr:icons
 ```
 
 Development server runs at `http://localhost:3000`
+
+`next dev` and `next build` share `.next`, so switching between them while the
+other is running (or after an interrupted run) leaves a mixed cache and fails
+with errors like `Cannot find module './vendor-chunks/…'` or
+`Cannot find module for page: /_document`. Run `pnpm clean` and restart.
 
 ## Architecture
 
@@ -34,24 +45,30 @@ Development server runs at `http://localhost:3000`
 All portfolio content is centralized in `lib/data.ts`:
 - `GENERAL_INFO` - Contact information (email, phone, LinkedIn)
 - `SOCIAL_LINKS` - Social media profiles
-- `MY_STACK` - Technology stack organized by category (languages, frontend, backend, database, tools)
+- `MY_STACK` - Technology stack organized by category (languages, frontend, backend, database, tools), typed as `Record<string, ISkill[]>`
 - `PROJECTS` - Project details with HTML descriptions, tech stacks, links
-- `MY_EXPERIENCE` - Work history with highlighted flag for current roles
+- `MY_EXPERIENCE` - Work history with highlighted flag for featured roles
 - `MY_CERTIFICATIONS` - Certifications grouped by provider
+- `BANNER_ROLES` - Rotating hero role pairs (first/second line)
+- `BANNER_STATS` - CGPA / project count / certification count (derived from data)
+- `ABOUT_ME` - Tagline, availability line, bio paragraphs
+- `TESTIMONIALS` - Quotes with optional `avatar` and `rating`
 
-Types are defined in `types/index.ts` (`IProject`, `IExperience`).
+Types are defined in `types/index.ts` (`IProject`, `IExperience`, `ITestimonial`, `ISkill`, `ICertificationCategory`).
 
 ### Animation System
 
 Uses **GSAP** with ScrollTrigger for scroll-triggered animations:
 - Each major section (Banner, Skills, Experiences, Certifications) has its own animation setup
 - `useGSAP` hook from `@gsap/react` for proper cleanup
-- Scroll triggers use `start: 'top 80%'` pattern for consistent reveal timing
+- Scroll triggers: reveal animations use `start: 'top 90%'`; the shared exit
+  fade in `hooks/useScrollExitAnimation.ts` uses `start: 'bottom 50%'` /
+  `end: 'bottom 10%'` with `scrub: 1`
 
 **Lenis** provides smooth scrolling:
 - Initialized in `app/layout.tsx` via `ReactLenis` wrapper with `lerp: 0.1`, `duration: 1.4`
-- `LenisBridge` component exposes the instance globally for use in utility functions (`scrollToSection`)
-- Snap scrolling enabled via `ScrollSnap` component using `lenis-snap` plugin
+- `LenisBridge` component exposes the instance on `window.lenis` for use in utility functions (`scrollToSection`) and the scroll lock
+- Snap scrolling enabled via `ScrollSnap` component using the typed `lenis/snap` entry point (not a deep `dist/` import)
 
 ### Styling System
 
@@ -66,8 +83,11 @@ Uses **GSAP** with ScrollTrigger for scroll-triggered animations:
 - Container max-width: 1148px (`xl` and `2xl` breakpoints)
 
 **CSS Patterns:**
-- Custom cursor is hidden on desktop (`cursor: none`) when `prefers-reduced-motion` allows
-- Scrollbar is hidden via `::-webkit-scrollbar { display: none; }`
+- The native cursor is hidden only after `CustomCursor` mounts and adds
+  `html.has-custom-cursor` (so a JS failure never leaves desktop users with no
+  cursor), and only when `prefers-reduced-motion` allows
+- Scrollbar is hidden via `::-webkit-scrollbar { display: none; }` plus
+  `scrollbar-width: none` for Firefox
 - Extensive `prefers-reduced-motion` support - all animations respect user preference
 
 ### Icon System
@@ -75,7 +95,8 @@ Uses **GSAP** with ScrollTrigger for scroll-triggered animations:
 Two approaches for icons:
 1. **Lucide React** - For standard UI icons (`lucide-react` package)
 2. **Custom SVG Icons** - Stored in `components/shared/icons/`
-   - To add new icons: Place SVG files in `components/shared/icons/svgs/`, then run `pnpm svgr:icons` to generate React components
+   - To add new icons: create `components/shared/icons/svgs/` (it is not checked
+     in), place SVG files there, then run `pnpm svgr:icons` to generate React components
    - Custom icons use SVGR with `--no-dimensions --typescript` flags
 
 ### Custom Hooks
@@ -83,7 +104,9 @@ Two approaches for icons:
 Located in `hooks/`:
 - `useScrollExitAnimation` - GSAP exit animations on scroll
 - `useGlitchText` - Text glitch effect
-- `useScrollDetection` - Scroll direction/position detection
+- `useScrollDetection` - Active-section detection from scroll position
+- `useScrollDirection` - Down/up scroll state (dims the phone menu toggle)
+- `useMediaQuery` - Live CSS media-query subscription (SSR-safe)
 - `useScrollLock` - Lock body scroll (for modals/menus)
 - `useMenuKeyboardNavigation` - Keyboard navigation for menus
 
@@ -110,14 +133,14 @@ app/
   projects/[slug]/   # Dynamic project detail pages
 
 components/
-  home/              # Page section components (Banner, AboutMe, Skills, Experiences, Certifications, ProjectList, DurationBar, CvDownloadButton)
+  home/              # Page section components (Banner, AboutMe, Skills, Experiences, Certifications, ProjectList, Testimonials, DurationBar, CvDownloadButton, ConnectButton)
   layout/            # Layout components (Navbar, Footer, CustomCursor, Preloader, ParticleBackground, ScrollProgressIndicator, StickyEmail, LenisBridge, ScrollSnap, ScrollToTop, StructuredData)
   shared/            # Reusable components (Button, SectionTitle, TransitionLink, ArrowAnimation)
   shared/icons/      # Custom SVG icon components
   projects/          # Project detail components (ProjectCard, ProjectDetails)
-  error/             # Error handling components (ErrorBoundary, GlobalErrorFallback)
+  error/             # Error handling components (ErrorBoundary, GlobalErrorFallback — wired via app/global-error.tsx)
 
-hooks/               # Custom React hooks (useScrollExitAnimation, useGlitchText, useScrollDetection, useScrollLock, useMenuKeyboardNavigation)
+hooks/               # Custom React hooks (useScrollExitAnimation, useGlitchText, useScrollDetection, useScrollDirection, useMediaQuery, useScrollLock, useMenuKeyboardNavigation)
 
 lib/
   data.ts            # All portfolio content (edit this to update content)
@@ -125,13 +148,13 @@ lib/
   gsap-setup.ts      # GSAP + ScrollTrigger initialization
 
 types/
-  index.ts           # TypeScript interfaces (IProject, IExperience)
-  lenis-snap.d.ts    # Lenis snap type declarations
+  index.ts           # TypeScript interfaces (IProject, IExperience, ITestimonial, ISkill, ICertification*, Variant)
 
 public/
   logo/              # Technology stack icons (match names in MY_STACK)
-  projects/          # Project images (thumbnail/, long/, images/)
+  projects/          # Project images (currently empty — set `thumbnail` in data.ts to use)
   personal/          # Profile images
+  testimonials/      # Optional testimonial avatars (set `avatar` in data.ts to use)
 ```
 
 ### Path Aliases
@@ -144,8 +167,12 @@ import { IProject } from '@/types';
 
 ### ESLint Rules
 
-- Use actual apostrophes in JSX, not HTML entities: `I'm` not `I&apos;m`
-- This is configured in `.eslintrc.json` to prevent escaped entities
+- Config is just `{ "extends": "next/core-web-vitals" }` — there are no custom
+  rules, and `react/no-unescaped-entities` is **not** enabled. The house style is
+  still to write real apostrophes in JSX (`I'm`, not `I&apos;m`), but it is not
+  enforced by lint.
+- There is no test runner and no CI workflow; `pnpm lint`, `pnpm typecheck` and
+  `pnpm build` are the only gates.
 
 ## Content Updates
 
@@ -184,9 +211,15 @@ All animations respect `prefers-reduced-motion`:
 
 ### Custom Cursor
 
-- Only active on desktop (`min-width: 768px`)
-- Native cursor hidden via `cursor: none !important`
-- Custom cursor element follows mouse position with smooth interpolation
+- Only active on desktop (`min-width: 768px`), and the breakpoint/reduced-motion
+  media queries are subscribed to (not read once), so resizing across 768px
+  enables/disables it live
+- The native cursor is hidden via `html.has-custom-cursor * { cursor: none !important }` —
+  the class is added only after the cursor is actually initialized, so a JS
+  failure never leaves desktop users without a cursor
+- Follow motion uses `gsap.quickTo` (one tween, retargeted per frame) and the
+  element is centred with `xPercent/yPercent: -50` so GSAP does not clobber the
+  centering
 - Respects `prefers-reduced-motion` - falls back to native cursor
 
 ### Performance Optimizations

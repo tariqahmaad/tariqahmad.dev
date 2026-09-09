@@ -22,6 +22,16 @@ export const useScrollExitAnimation = ({
 }: UseScrollExitAnimationOptions) => {
     useGSAP(
         () => {
+            // Scrubbed exit fades would hide content for reduced-motion users
+            // (and fight the `opacity: 1 !important` CSS fallback), so skip.
+            if (
+                typeof window !== 'undefined' &&
+                window.matchMedia('(prefers-reduced-motion: reduce)').matches
+            ) {
+                gsap.set(containerRef.current, { y: 0, opacity: 1 });
+                return;
+            }
+
             const tl = gsap.timeline({
                 scrollTrigger: {
                     trigger: containerRef.current,

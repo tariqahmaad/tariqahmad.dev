@@ -1,10 +1,8 @@
 import type { Config } from 'tailwindcss';
-import tailwindAnimate from 'tailwindcss-animate';
 
 export default {
     darkMode: ['class'],
     content: [
-        './pages/**/*.{js,ts,jsx,tsx,mdx}',
         './components/**/*.{js,ts,jsx,tsx,mdx}',
         './app/**/*.{js,ts,jsx,tsx,mdx}',
         './lib/**/*.{js,ts,jsx,tsx}',
@@ -28,6 +26,10 @@ export default {
                 primary: {
                     DEFAULT: 'hsl(var(--primary))',
                     foreground: 'hsl(var(--primary-foreground))',
+                    // Referenced by the error fallbacks (app/error.tsx,
+                    // ErrorBoundary, GlobalErrorFallback). Without this key the
+                    // class was silently purged and the hover state did nothing.
+                    hover: 'hsl(var(--primary) / 0.85)',
                 },
                 secondary: {
                     DEFAULT: 'hsl(var(--secondary))',
@@ -60,9 +62,11 @@ export default {
                 // Typography System - Mobile First, Progressive Enhancement
                 // Display Sizes (Hero Titles)
                 'display-sm': [
-                    '4rem',
+                    '3rem',
                     { lineHeight: '1', letterSpacing: '-0.02em' },
-                ], // 64px - bigger for mobile impact
+                ], // 48px — must stay below display-md: `text-display-sm
+                // sm:text-display-md` (app/not-found.tsx) shrank on larger
+                // screens while sm was 64px > md's 56px.
                 'display-md': [
                     '3.5rem',
                     { lineHeight: '1', letterSpacing: '-0.02em' },
@@ -133,15 +137,14 @@ export default {
                     '2xl': '1148px',
                 },
             },
-            transitionDuration: {
-                '7000': '7s',
-            },
             transitionTimingFunction: {
                 menu: 'cubic-bezier(0.65, 0, 0.35, 1)',
                 slide: 'cubic-bezier(0.77, 0, 0.175, 1)',
-                'menu-spring': 'cubic-bezier(0.68, -0.6, 0.32, 1.6)',
-                'menu-in': 'cubic-bezier(0.4, 0, 0.2, 1)',
-                'menu-slide': 'cubic-bezier(0.65, 0, 0.35, 1)',
+                // Menu panel / rows: a decelerating curve on the way in and a
+                // quicker accelerating one on the way out. Tuned for phones,
+                // where the panel covers the full viewport width.
+                'menu-out': 'cubic-bezier(0.22, 1, 0.36, 1)',
+                'menu-close': 'cubic-bezier(0.4, 0, 0.6, 1)',
             },
             keyframes: {
                 scan: {
@@ -210,17 +213,19 @@ export default {
                     '45%': { transform: 'scaleY(1)', opacity: '0.6' },
                     '100%': { transform: 'scaleY(1)', opacity: '0.6' },
                 },
-                'menu-enter': {
-                    '0%': { transform: 'translateX(100%)', opacity: '0' },
-                    '100%': { transform: 'translateX(0)', opacity: '1' },
-                },
-                'menu-exit': {
-                    '0%': { transform: 'translateX(0)', opacity: '1' },
-                    '100%': { transform: 'translateX(100%)', opacity: '0' },
-                },
-                'item-enter': {
-                    '0%': { transform: 'translateY(20px)', opacity: '0' },
-                    '100%': { transform: 'translateY(0)', opacity: '1' },
+                // CV button hover: arrow drops into the tray and fades,
+                // then resets — loops while hovered.
+                'download-drop': {
+                    '0%': { transform: 'translateY(-5px)', opacity: '0' },
+                    '30%': { transform: 'translateY(0)', opacity: '1' },
+                    '70%': {
+                        transform: 'translateY(5px)',
+                        opacity: '1',
+                    },
+                    '100%': {
+                        transform: 'translateY(10px)',
+                        opacity: '0',
+                    },
                 },
             },
             animation: {
@@ -233,18 +238,15 @@ export default {
                     'draw-drop 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite',
                 'check-pop': 'check-pop 0.4s ease-out forwards',
                 'tray-pulse': 'tray-pulse 2.5s linear infinite',
-                'menu-enter':
-                    'menu-enter 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards',
-                'menu-exit':
-                    'menu-exit 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards',
-                'item-enter': 'item-enter 0.4s ease-out forwards',
+                'download-drop':
+                    'download-drop 1.1s cubic-bezier(0.4, 0, 0.2, 1) infinite',
             },
             screens: {
                 xs: '420px',
             },
         },
     },
-    plugins: [tailwindAnimate],
+    plugins: [],
     safelist: [
         // Background position classes for gradient reveal animations
         'bg-left',
