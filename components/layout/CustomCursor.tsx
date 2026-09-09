@@ -12,6 +12,19 @@ const CLICK_SCALE_FACTOR = 0.5;
 const MOVE_DURATION = 0.35;
 const HOVER_DURATION = 0.4;
 const CLICK_DURATION = 0.15;
+const HIDE_DURATION = 0.15;
+
+// Media queries the cursor must agree with. These mirror the CSS gate in
+// app/globals.css (min-width: 768px + prefers-reduced-motion: no-preference)
+// so the native cursor is never hidden without a live custom cursor.
+const DESKTOP_QUERY = '(min-width: 768px)';
+const MOTION_QUERY = '(prefers-reduced-motion: no-preference)';
+
+// Marker class that unlocks `cursor: none` in globals.css. It is added only
+// once the custom cursor has actually initialized, so disabled JS, a
+// hydration failure or an earlier thrown error can never leave desktop users
+// with no cursor at all.
+const CURSOR_ACTIVE_CLASS = 'has-custom-cursor';
 
 // Mask gradient constants
 const MASK_INNER_STOP = 45;
@@ -38,15 +51,51 @@ const CustomCursor = () => {
     const pathname = usePathname();
 
     // Shared cursor state accessible from both useEffect and useGSAP
-    const cursorStateRef = useRef({ isHovering: false, currentScale: 1 });
+    const cursorStateRef = useRef({
+        isHovering: false,
+        currentScale: 1,
+        isVisible: false,
+        // True while the cursor has not been placed yet: stay hidden so it
+        // cannot flash at a stale origin until the first pointer move.
+        hiddenUntilMove: false,
+    });
+
+    // Last known pointer position, used to re-seat the cursor on route change
+    const pointerRef = useRef<{ x: number; y: number } | null>(null);
+
+    // quickTo setters, created once per activation and reused for every frame
+    const followRef = useRef<{ x: gsap.QuickToFunc; y: gsap.QuickToFunc } | null>(null);
 
     // Reset cursor on route changes
     useEffect(() => {
-        // Reset visual state
-        gsap.set(spotlightRef.current, {
-            scale: 1,
-            opacity: 1,
-        });
+        const spotlight = spotlightRef.current;
+        const pointer = pointerRef.current;
+
+        if (spotlight) {
+            if (pointer) {
+                // GSAP owns the transform, so re-seat position and visibility
+                // together — otherwise the cursor flashes at its stale route
+                // position. Re-target the follow tweens too, or they would
+                // snap back to their pre-navigation destination.
+                followRef.current?.x(pointer.x);
+                followRef.current?.y(pointer.y);
+                gsap.set(spotlight, {
+                    x: pointer.x,
+                    y: pointer.y,
+                    scale: 1,
+                    opacity: 1,
+                });
+                cursorStateRef.current.isVisible = true;
+            } else {
+                // No pointer data yet: keep it hidden until the next move.
+                cursorStateRef.current.hiddenUntilMove = true;
+                cursorStateRef.current.isVisible = false;
+                gsap.set(spotlight, {
+                    scale: 1,
+                    opacity: 0,
+                });
+            }
+        }
         if (ringRef.current) {
             updateRingMask(ringRef.current, MASK_DEFAULT_OUTER_STOP);
         }
@@ -56,52 +105,82 @@ const CustomCursor = () => {
     }, [pathname]);
 
     useGSAP((context, contextSafe) => {
-        // Skip on mobile or if user prefers reduced motion
-        if (window.innerWidth < 768) return;
-        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        // Enable/disable state follows these two queries live, so resizing
+        // across 768px (or toggling reduced motion) never leaves the page with
+        // no cursor or with a dead custom one.
+        const desktopQuery = window.matchMedia(DESKTOP_QUERY);
+        const motionQuery = window.matchMedia(MOTION_QUERY);
 
-        // Read/write isHovering and currentScale from cursorStateRef.current
-        // to stay in sync with the pathname-reset useEffect
-        let isOverHiddenElement = false;
+        let isActive = false;
+        // Coalesce rapid mousemove events through rAF so elementFromPoint and
+        // quickTo run at most once per frame.
+        let pendingMove: { x: number; y: number } | null = null;
+        let moveRaf = 0;
 
-        const handleMouseMove = (e: MouseEvent) => {
-            const hoveredElement = document.elementFromPoint(e.clientX, e.clientY) as HTMLElement | null;
+        const flushMove = () => {
+            moveRaf = 0;
+            if (!pendingMove) return;
+            const { x, y } = pendingMove;
+            pendingMove = null;
+
+            const hoveredElement = document.elementFromPoint(x, y) as HTMLElement | null;
             const shouldHideCursor = Boolean(hoveredElement?.closest('[data-cursor-hide]'));
 
-            if (shouldHideCursor !== isOverHiddenElement) {
-                isOverHiddenElement = shouldHideCursor;
+            if (cursorStateRef.current.hiddenUntilMove) {
+                // First move after (re)activation: snap instead of sweeping in
+                // from the stale origin.
+                cursorStateRef.current.hiddenUntilMove = false;
+                gsap.set(spotlightRef.current, { x, y });
+            }
+
+            const shouldBeVisible = !shouldHideCursor;
+            if (shouldBeVisible !== cursorStateRef.current.isVisible) {
+                cursorStateRef.current.isVisible = shouldBeVisible;
                 gsap.to(spotlightRef.current, {
-                    opacity: shouldHideCursor ? 0 : 1,
-                    duration: 0.15,
+                    opacity: shouldBeVisible ? 1 : 0,
+                    duration: HIDE_DURATION,
                     overwrite: 'auto',
                 });
             }
 
-            gsap.to(spotlightRef.current, {
-                x: e.clientX,
-                y: e.clientY,
-                duration: MOVE_DURATION,
-                ease: 'power3.out',
-                overwrite: 'auto',
-            });
+            // Reuse the same tweens instead of spawning a new one per frame
+            followRef.current?.x(x);
+            followRef.current?.y(y);
+        };
+
+        const handleMouseMove = (e: MouseEvent) => {
+            pointerRef.current = { x: e.clientX, y: e.clientY };
+            pendingMove = pointerRef.current;
+            if (!moveRaf) moveRaf = requestAnimationFrame(flushMove);
         };
 
         const handleMouseEnter = () => {
-            gsap.to(spotlightRef.current, { opacity: 1, duration: HOVER_DURATION });
+            // The first mousemove reveals the cursor; until then keep it hidden
+            // so entering the window cannot flash it at a stale position.
+            if (cursorStateRef.current.hiddenUntilMove) return;
+            cursorStateRef.current.isVisible = true;
+            gsap.to(spotlightRef.current, {
+                opacity: 1,
+                duration: HOVER_DURATION,
+                overwrite: 'auto',
+            });
         };
 
         const handleMouseLeave = () => {
             cursorStateRef.current.isHovering = false;
             cursorStateRef.current.currentScale = 1;
+            cursorStateRef.current.isVisible = false;
             gsap.set(spotlightRef.current, { scale: 1, opacity: 0 });
         };
 
         const handleMouseDown = () => {
+            // overwrite: 'auto' (not true) so the scale tween only cancels
+            // conflicting scale tweens, never the x/y follow tween.
             gsap.to(spotlightRef.current, {
                 scale: cursorStateRef.current.currentScale * CLICK_SCALE_FACTOR,
                 duration: CLICK_DURATION,
                 ease: 'power2.out',
-                overwrite: true,
+                overwrite: 'auto',
             });
             gsap.to(ringRef.current, {
                 duration: CLICK_DURATION,
@@ -120,7 +199,7 @@ const CustomCursor = () => {
                 scale: cursorStateRef.current.currentScale,
                 duration: CLICK_DURATION,
                 ease: 'power2.out',
-                overwrite: true,
+                overwrite: 'auto',
             });
             gsap.to(ringRef.current, {
                 duration: CLICK_DURATION,
@@ -137,13 +216,8 @@ const CustomCursor = () => {
         const handleMouseOver = (e: MouseEvent) => {
             const target = e.target as HTMLElement;
 
-            const shouldHideCursor = target.closest('[data-cursor-hide]');
-            if (shouldHideCursor) {
-                isOverHiddenElement = true;
-                gsap.to(spotlightRef.current, { opacity: 0, duration: 0.2 });
-                return;
-            }
-
+            // [data-cursor-hide] is handled solely by flushMove's per-frame hit
+            // test, so no competing opacity tweens are created here.
             if (isInteractiveElement(target) && !cursorStateRef.current.isHovering) {
                 cursorStateRef.current.isHovering = true;
                 cursorStateRef.current.currentScale = HOVER_SCALE;
@@ -158,13 +232,6 @@ const CustomCursor = () => {
         const handleMouseOut = (e: MouseEvent) => {
             const target = e.target as HTMLElement;
             const relatedTarget = e.relatedTarget as HTMLElement;
-
-            const wasHidden = target.closest('[data-cursor-hide]');
-            const isEnteringHidden = relatedTarget?.closest('[data-cursor-hide]');
-            if (wasHidden && !isEnteringHidden) {
-                isOverHiddenElement = false;
-                gsap.to(spotlightRef.current, { opacity: 1, duration: 0.2 });
-            }
 
             if (isInteractiveElement(target) && !isInteractiveElement(relatedTarget)) {
                 cursorStateRef.current.isHovering = false;
@@ -186,16 +253,69 @@ const CustomCursor = () => {
         const safeMouseOver = contextSafe?.(handleMouseOver) ?? handleMouseOver;
         const safeMouseOut = contextSafe?.(handleMouseOut) ?? handleMouseOut;
 
-        // Attach event listeners
-        window.addEventListener('mousemove', safeMouseMove);
-        document.body.addEventListener('mouseenter', safeMouseEnter);
-        document.body.addEventListener('mouseleave', safeMouseLeave);
-        document.addEventListener('mousedown', safeMouseDown);
-        document.addEventListener('mouseup', safeMouseUp);
-        document.addEventListener('mouseover', safeMouseOver);
-        document.addEventListener('mouseout', safeMouseOut);
+        const activate = () => {
+            const spotlight = spotlightRef.current;
+            if (isActive || !spotlight) return;
+            isActive = true;
 
-        return () => {
+            // GSAP writes the inline transform, which overwrites the Tailwind
+            // -translate-x-1/2 -translate-y-1/2 centering classes, so centering
+            // has to come from xPercent/yPercent instead.
+            gsap.set(spotlight, {
+                xPercent: -50,
+                yPercent: -50,
+            });
+
+            const pointer = pointerRef.current;
+            if (pointer) {
+                gsap.set(spotlight, {
+                    x: pointer.x,
+                    y: pointer.y,
+                    scale: 1,
+                    opacity: 1,
+                });
+                cursorStateRef.current.isVisible = true;
+                cursorStateRef.current.hiddenUntilMove = false;
+            }
+
+            // Created once and reused for every frame of the follow
+            followRef.current = {
+                x: gsap.quickTo(spotlight, 'x', {
+                    duration: MOVE_DURATION,
+                    ease: 'power3.out',
+                }),
+                y: gsap.quickTo(spotlight, 'y', {
+                    duration: MOVE_DURATION,
+                    ease: 'power3.out',
+                }),
+            };
+
+            // Only now hide the native cursor: globals.css gates on this class
+            document.documentElement.classList.add(CURSOR_ACTIVE_CLASS);
+
+            window.addEventListener('mousemove', safeMouseMove);
+            document.body.addEventListener('mouseenter', safeMouseEnter);
+            document.body.addEventListener('mouseleave', safeMouseLeave);
+            document.addEventListener('mousedown', safeMouseDown);
+            document.addEventListener('mouseup', safeMouseUp);
+            document.addEventListener('mouseover', safeMouseOver);
+            document.addEventListener('mouseout', safeMouseOut);
+        };
+
+        const deactivate = () => {
+            if (!isActive) return;
+            isActive = false;
+
+            if (moveRaf) {
+                cancelAnimationFrame(moveRaf);
+                moveRaf = 0;
+            }
+            pendingMove = null;
+            followRef.current = null;
+
+            // Hand the native cursor back before hiding the custom one
+            document.documentElement.classList.remove(CURSOR_ACTIVE_CLASS);
+
             window.removeEventListener('mousemove', safeMouseMove);
             document.body.removeEventListener('mouseenter', safeMouseEnter);
             document.body.removeEventListener('mouseleave', safeMouseLeave);
@@ -203,13 +323,37 @@ const CustomCursor = () => {
             document.removeEventListener('mouseup', safeMouseUp);
             document.removeEventListener('mouseover', safeMouseOver);
             document.removeEventListener('mouseout', safeMouseOut);
+
+            cursorStateRef.current.isHovering = false;
+            cursorStateRef.current.currentScale = 1;
+            cursorStateRef.current.isVisible = false;
+            cursorStateRef.current.hiddenUntilMove = true;
+            gsap.set(spotlightRef.current, { scale: 1, opacity: 0 });
+        };
+
+        const syncActiveState = () => {
+            if (desktopQuery.matches && motionQuery.matches) {
+                activate();
+            } else {
+                deactivate();
+            }
+        };
+
+        syncActiveState();
+        desktopQuery.addEventListener('change', syncActiveState);
+        motionQuery.addEventListener('change', syncActiveState);
+
+        return () => {
+            desktopQuery.removeEventListener('change', syncActiveState);
+            motionQuery.removeEventListener('change', syncActiveState);
+            deactivate();
         };
     });
 
     return (
         <div
             ref={spotlightRef}
-            className="hidden md:block fixed top-0 left-0 opacity-0 z-[9999] pointer-events-none -translate-x-1/2 -translate-y-1/2"
+            className="hidden md:block fixed top-0 left-0 opacity-0 z-[9999] pointer-events-none"
             style={{ mixBlendMode: 'difference', willChange: 'transform' }}
         >
             <div

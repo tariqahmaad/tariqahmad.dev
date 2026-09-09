@@ -1,8 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useGlitchText, AnimationPhase } from '@/hooks/useGlitchText';
 import { Check } from 'lucide-react';
+
+const MAGNET_RANGE_PX = 5;
 
 const CvDownloadButton = () => {
     const [isHovered, setIsHovered] = useState(false);
@@ -10,8 +12,18 @@ const CvDownloadButton = () => {
     const [downloadStatus, setDownloadStatus] = useState<'idle' | 'success'>(
         'idle',
     );
+    const btnRef = useRef<HTMLAnchorElement>(null);
+    const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
+
+    useEffect(() => {
+        const ids = timeoutsRef.current;
+        return () => ids.forEach(clearTimeout);
+    }, []);
 
     const { displayText, opacity } = useGlitchText('CV DOWNLOAD', phase, 0);
+    const labelText = downloadStatus === 'success' ? 'DOWNLOADED' : displayText;
+    // Hero-style RGB ghosts, ignited on hover (idle only).
+    const textActive = isHovered && downloadStatus === 'idle';
 
     const handleMouseEnter = () => {
         setIsHovered(true);
@@ -21,30 +33,53 @@ const CvDownloadButton = () => {
     const handleMouseLeave = () => {
         setIsHovered(false);
         setPhase('stable');
+        // Release the magnetic pull; the CSS transition trails it home.
+        if (btnRef.current) btnRef.current.style.transform = '';
+    };
+
+    // Magnetic pull: the whole button trails the cursor a few px.
+    // Fine pointers only — touch and reduced-motion stay put.
+    const handleMagnetMove = (e: React.MouseEvent) => {
+        const el = btnRef.current;
+        if (!el) return;
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+            return;
+        if (window.matchMedia('(pointer: coarse)').matches) return;
+
+        const rect = el.getBoundingClientRect();
+        const x = (e.clientX - (rect.left + rect.width / 2)) / (rect.width / 2);
+        const y = (e.clientY - (rect.top + rect.height / 2)) / (rect.height / 2);
+        el.style.transform = `translate(${(x * MAGNET_RANGE_PX).toFixed(1)}px, ${(y * MAGNET_RANGE_PX).toFixed(1)}px)`;
     };
 
     const handleClick = () => {
         if (downloadStatus === 'success') return;
 
         // Delay the status change to allow download to start first
-        setTimeout(() => {
-            setDownloadStatus('success');
-
-            // Reset after 3 seconds
+        timeoutsRef.current.push(
             setTimeout(() => {
-                setDownloadStatus('idle');
-            }, 3000);
-        }, 100);
+                setDownloadStatus('success');
+
+                // Reset after 3 seconds
+                timeoutsRef.current.push(
+                    setTimeout(() => {
+                        setDownloadStatus('idle');
+                    }, 3000),
+                );
+            }, 100),
+        );
     };
 
     return (
         <a
+            ref={btnRef}
             href="https://cv.tariqahmad.dev/share/SrQUaAO1?download=1"
             target="_blank"
             rel="noopener noreferrer"
             onClick={handleClick}
-            className="group relative flex flex-row md:flex-col items-center justify-center gap-3 md:gap-2 px-6 md:px-3 py-3 border border-transparent bg-primary/[0.05] shadow-[0_0_15px_rgba(0,255,0,0.1)] backdrop-blur-[2px] hover:bg-primary/[0.1] hover:border-primary/50 hover:shadow-[0_0_30px_rgba(0,255,0,0.3)] active:scale-95 transition-all duration-300 ease-out rounded-tl-lg rounded-br-lg rounded-tr-none rounded-bl-none overflow-hidden w-full max-w-[300px] md:max-w-none md:w-[110px] h-14 md:h-auto md:aspect-square"
+            className="beam group relative flex flex-row md:flex-col items-center justify-center gap-3 md:gap-2 px-6 md:px-3 py-3 border border-transparent bg-primary/[0.05] shadow-[0_0_15px_rgba(0,255,0,0.1)] backdrop-blur-[2px] hover:bg-primary/[0.1] hover:border-primary/50 hover:shadow-[0_0_30px_rgba(0,255,0,0.3)] active:brightness-125 transition-all duration-300 ease-out rounded-tl-lg rounded-br-lg rounded-tr-none rounded-bl-none overflow-hidden w-full max-w-[300px] md:max-w-none md:w-[110px] h-14 md:h-auto md:aspect-square will-change-transform"
             onMouseEnter={handleMouseEnter}
+            onMouseMove={handleMagnetMove}
             onMouseLeave={handleMouseLeave}
         >
             {/* Ambient Glow */}
@@ -54,7 +89,7 @@ const CvDownloadButton = () => {
             {/* Scan Line */}
             <div className="absolute top-0 -left-full w-1/2 h-full bg-gradient-to-r from-transparent via-primary/40 to-transparent skew-x-[-20deg] group-hover:left-[150%] transition-all duration-700 ease-in-out" />
 
-            {/* Corner Arrows - Top right and bottom left for clean professional look */}
+            {/* Corner Arrows - draw themselves on hover */}
             <svg
                 className="absolute top-0 right-0 w-5 h-5 opacity-60 group-hover:opacity-100 transition-opacity duration-300"
                 viewBox="0 0 20 20"
@@ -66,7 +101,8 @@ const CvDownloadButton = () => {
                     strokeWidth="2"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    className="text-primary drop-shadow-[0_0_6px_rgba(0,255,0,0.6)]"
+                    pathLength={1}
+                    className="text-primary drop-shadow-[0_0_6px_rgba(0,255,0,0.6)] [stroke-dasharray:1] [stroke-dashoffset:0.4] group-hover:[stroke-dashoffset:0] transition-[stroke-dashoffset] duration-500 ease-out"
                 />
             </svg>
             <svg
@@ -80,7 +116,8 @@ const CvDownloadButton = () => {
                     strokeWidth="2"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    className="text-primary drop-shadow-[0_0_6px_rgba(0,255,0,0.6)]"
+                    pathLength={1}
+                    className="text-primary drop-shadow-[0_0_6px_rgba(0,255,0,0.6)] [stroke-dasharray:1] [stroke-dashoffset:0.4] group-hover:[stroke-dashoffset:0] transition-[stroke-dashoffset] duration-500 ease-out delay-100"
                 />
             </svg>
 
@@ -92,7 +129,7 @@ const CvDownloadButton = () => {
                         {/* Main Icon */}
                         <svg
                             viewBox="0 0 24 24"
-                            className="w-full h-full text-primary relative z-10 drop-shadow-[0_0_8px_rgba(0,255,0,0.5)]"
+                            className="w-full h-full text-primary relative z-10 drop-shadow-[0_0_8px_rgba(0,255,0,0.5)] transition-transform duration-300 group-hover:scale-110 group-hover:drop-shadow-[0_0_14px_rgba(0,255,0,0.8)]"
                             fill="none"
                             stroke="currentColor"
                             strokeWidth="2.5"
@@ -105,11 +142,8 @@ const CvDownloadButton = () => {
                                 className="animate-tray-pulse"
                             />
 
-                            {/* Bouncing Arrow */}
-                            <g
-                                className="animate-bounce"
-                                style={{ animationDuration: '1.5s' }}
-                            >
+                            {/* Hover ignition: arrow drops into the tray on loop */}
+                            <g className="group-hover:animate-download-drop">
                                 <path d="M12 3v12" />
                                 <polyline points="7 10 12 15 17 10" />
                             </g>
@@ -131,7 +165,8 @@ const CvDownloadButton = () => {
 
             {/* Text */}
             <span
-                className="font-mono text-sm xs:text-base md:text-[10px] font-bold tracking-wider text-muted-foreground/90 group-hover:text-primary transition-colors duration-300 relative z-10 text-center"
+                data-text={labelText}
+                className={`font-mono text-sm xs:text-base md:text-[10px] font-bold tracking-wider text-muted-foreground/90 group-hover:text-primary transition-colors duration-300 relative z-10 text-center glitch-text glitch-primary ${textActive ? 'glitch-active' : ''}`}
                 style={{
                     opacity: opacity,
                     textShadow: isHovered
@@ -139,10 +174,12 @@ const CvDownloadButton = () => {
                         : 'none',
                 }}
             >
-                {downloadStatus === 'success' ? 'DOWNLOADED' : displayText}
+                {labelText}
             </span>
         </a>
     );
 };
 
-export default CvDownloadButton;
+// Memoized: Banner re-renders ~40x/s while the hero glitch effect runs, and
+// this component owns its own state and animation.
+export default React.memo(CvDownloadButton);

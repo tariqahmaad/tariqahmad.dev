@@ -1,6 +1,8 @@
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/all';
+// Import the plugin entry directly instead of the `gsap/all` barrel, which
+// pulls ~25 plugins (ScrollSmoother, Draggable, …) into the client bundle.
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 // Register only actual GSAP plugins (not hooks)
 gsap.registerPlugin(ScrollTrigger);

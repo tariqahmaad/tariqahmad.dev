@@ -2,10 +2,15 @@
 import { gsap, useGSAP } from '@/lib/gsap-setup';
 import { useRef, useState, useEffect, memo } from 'react';
 
+const PARTICLE_COUNT = 40;
+const MOBILE_PARTICLE_COUNT = 16;
+// Extra distance past the viewport edges so a cycle wraps fully off-screen.
+const PARTICLE_TRAVEL_MARGIN = 60;
+
 const ParticleBackground = memo(function ParticleBackground() {
     const containerRef = useRef<HTMLDivElement>(null);
     const particlesRef = useRef<(HTMLDivElement | null)[]>([]);
-    const [particleCount, setParticleCount] = useState(64);
+    const [particleCount, setParticleCount] = useState(PARTICLE_COUNT);
     const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
 
     // Check for reduced motion preference
@@ -31,7 +36,7 @@ const ParticleBackground = memo(function ParticleBackground() {
         }
 
         const updateParticleCount = () => {
-            setParticleCount(window.innerWidth < 768 ? 20 : 64);
+            setParticleCount(window.innerWidth < 768 ? MOBILE_PARTICLE_COUNT : PARTICLE_COUNT);
         };
 
         updateParticleCount();
@@ -39,38 +44,44 @@ const ParticleBackground = memo(function ParticleBackground() {
         return () => window.removeEventListener('resize', updateParticleCount);
     }, [prefersReducedMotion]);
 
-    // Reset refs array when particle count changes to prevent accumulation
-    useEffect(() => {
-        particlesRef.current = [];
-    }, [particleCount]);
+    useGSAP(
+        () => {
+            if (prefersReducedMotion || particleCount === 0) return;
 
-    useGSAP(() => {
-        if (prefersReducedMotion || particleCount === 0) return;
+            // One read for the whole batch instead of one per particle.
+            const { innerWidth, innerHeight } = window;
+            const travel = innerHeight + PARTICLE_TRAVEL_MARGIN;
 
-        const animations = particlesRef.current.map((particle) => {
-            if (!particle) return;
+            const animations = particlesRef.current.map((particle) => {
+                if (!particle) return;
 
-            gsap.set(particle, {
-                width: Math.random() * 3 + 1,
-                height: Math.random() * 3 + 1,
-                opacity: Math.random(),
-                left: Math.random() * window.innerWidth,
-                top: Math.random() * (window.innerHeight + 1),
+                // Start above the viewport and travel past the bottom edge, so the
+                // repeat wraps off-screen instead of teleporting back into view.
+                const startY = -Math.random() * travel;
+
+                gsap.set(particle, {
+                    width: Math.random() * 3 + 1,
+                    height: Math.random() * 3 + 1,
+                    opacity: Math.random(),
+                    x: Math.random() * innerWidth,
+                    y: startY,
+                });
+
+                return gsap.to(particle, {
+                    y: startY + travel,
+                    duration: Math.random() * 10 + 10,
+                    opacity: 0,
+                    repeat: -1,
+                    ease: 'none',
+                });
             });
 
-            return gsap.to(particle, {
-                y: window.innerHeight,
-                duration: Math.random() * 10 + 10,
-                opacity: 0,
-                repeat: -1,
-                ease: 'none',
-            });
-        });
-
-        return () => {
-            animations.forEach((animation) => animation?.kill());
-        };
-    }, [particleCount, prefersReducedMotion]);
+            return () => {
+                animations.forEach((animation) => animation?.kill());
+            };
+        },
+        { dependencies: [particleCount, prefersReducedMotion], revertOnUpdate: true },
+    );
 
     if (prefersReducedMotion) {
         return null;
@@ -79,6 +90,7 @@ const ParticleBackground = memo(function ParticleBackground() {
     return (
         <div
             ref={containerRef}
+            aria-hidden="true"
             className="fixed inset-0 z-0 pointer-events-none"
         >
             {[...Array(particleCount)].map((_, i) => (

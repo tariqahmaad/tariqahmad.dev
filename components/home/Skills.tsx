@@ -73,8 +73,14 @@ const Skills = () => {
                 <SectionTitle title="My Stack" />
 
                 <div className="space-y-8 xs:space-y-12 md:space-y-20">
+                    {/* `sm:gap-[25px]` replaces the old global
+                        `.grid { gap: 25px }` override, which was removed
+                        because it silently restyled every grid. */}
                     {Object.entries(MY_STACK).map(([key, value]) => (
-                        <div className="grid sm:grid-cols-12 stack-category" key={key}>
+                        <div
+                            className="grid sm:grid-cols-12 sm:gap-[25px] stack-category"
+                            key={key}
+                        >
                             <div className="sm:col-span-5 mb-4 xs:mb-6 sm:mb-0">
                                 <p className={`category-title ${gradientTextClass} text-heading-sm sm:text-heading-md md:text-heading-lg font-anton leading-none uppercase`}>
                                     {key}
@@ -84,14 +90,15 @@ const Skills = () => {
                                 {value.map((item) => (
                                     <div
                                         className="category-item group/item flex gap-2 xs:gap-3 md:gap-4 items-center leading-none"
-                                        key={item.name}
+                                        key={`${key}-${item.name}`}
                                     >
                                         <div className="relative flex items-center justify-center h-10 w-10 xs:h-12 xs:w-12 md:h-14 md:w-14 border border-foreground/10 bg-background-light/40 transition-colors duration-300 group-hover/item:border-primary/50">
                                             <Image
                                                 src={item.icon}
                                                 alt={item.name}
-                                                width="56"
-                                                height="56"
+                                                width={56}
+                                                height={56}
+                                                sizes="56px"
                                                 className="h-7 w-7 xs:h-9 xs:w-9 md:h-11 md:w-11 object-contain transition-transform duration-300 group-hover/item:scale-110"
                                             />
                                             <span aria-hidden className="pointer-events-none absolute top-0 left-0 w-2.5 h-2.5 border-t border-l border-primary/60 opacity-0 group-hover/item:opacity-100 transition-opacity duration-300" />

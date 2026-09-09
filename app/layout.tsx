@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Anton, Roboto_Flex } from 'next/font/google';
 import { ReactLenis } from 'lenis/react';
 
@@ -31,9 +31,21 @@ const robotoFlex = Roboto_Flex({
     variable: '--font-roboto-flex',
 });
 
+export const viewport: Viewport = {
+    themeColor: '#050505',
+    colorScheme: 'dark',
+};
+
 export const metadata: Metadata = {
     metadataBase: new URL('https://tariqahmad.dev'),
-    title: 'Tariq Ahmad - Software Developer | Computer Engineering Graduate',
+    // NOTE: `alternates.canonical` deliberately lives on app/page.tsx, not
+    // here. A root-level canonical is inherited by every route that does not
+    // override it, which made /404 and error pages declare themselves
+    // duplicates of the homepage.
+    title: {
+        default: 'Tariq Ahmad - Software Developer | Computer Engineering Graduate',
+        template: '%s | Tariq Ahmad',
+    },
     description:
         'Computer Engineering graduate and full-stack developer specializing in web development, networking, and AI. Building software that people actually enjoy using.',
     keywords: [
@@ -107,10 +119,25 @@ export default function RootLayout({
         <html lang="en">
             <head>
                 <StructuredData />
+                {/* The preloader and the page-transition wipe are both
+                    server-rendered full-screen overlays that only GSAP
+                    removes. Without JS they would cover the page forever, so
+                    this hides them when scripting is unavailable. */}
+                <noscript>
+                    <style>{`.preloader-shell,.page-transition{display:none!important}`}</style>
+                </noscript>
             </head>
             <body
                 className={`${antonFont.variable} ${robotoFlex.variable} antialiased`}
             >
+                {/* First focusable element on the page — the nav is a
+                    full-screen overlay, so keyboard users need this escape. */}
+                <a
+                    href="#main"
+                    className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[10000] focus:rounded-md focus:bg-primary focus:px-5 focus:py-3 focus:font-mono focus:text-ui-sm focus:text-primary-foreground"
+                >
+                    Skip to content
+                </a>
                 <ErrorBoundary>
                     <ReactLenis
                         root
@@ -121,7 +148,7 @@ export default function RootLayout({
                     >
                         <LenisBridge />
                         <Navbar />
-                        <main>{children}</main>
+                        <main id="main">{children}</main>
                         <Footer />
 
                         <CustomCursor />

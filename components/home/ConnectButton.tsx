@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { LinkedInIcon } from '@/components/shared/icons';
 import { GENERAL_INFO } from '@/lib/data';
 
@@ -75,4 +76,6 @@ const ConnectButton = () => {
     );
 };
 
-export default ConnectButton;
+// Memoized: Banner re-renders ~40x/s while the hero glitch effect runs, and
+// this subtree takes no props.
+export default memo(ConnectButton);

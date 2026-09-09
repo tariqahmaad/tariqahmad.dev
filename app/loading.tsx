@@ -8,7 +8,7 @@ export default function Loading() {
                     <div className="absolute inset-0 border-2 border-primary/20 rounded-full"></div>
                     <div className="absolute inset-0 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
                 </div>
-                <p className="text-muted-foreground font-anton text-lg">Loading...</p>
+                <p className="text-primary/80 font-mono text-sm tracking-[0.3em]">{'>'} LOADING...</p>
             </div>
         </div>
     );

@@ -5,7 +5,9 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: '*',
       allow: '/',
-      disallow: ['/api/', '/_next/'],
+      // Never disallow /_next/: Googlebot needs the JS/CSS chunks to render
+      // this fully client-animated site. Blocking them degrades indexing.
+      disallow: ['/api/'],
     },
     sitemap: 'https://tariqahmad.dev/sitemap.xml',
   }

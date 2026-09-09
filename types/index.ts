@@ -44,8 +44,17 @@ export interface IExperience {
     company: string;
     startDate: string;
     endDate: string;
+    /** Machine-readable tenure bounds (YYYY-MM). `endISO: null` = ongoing. */
+    startISO: string;
+    endISO: string | null;
     description?: string;
     highlighted?: boolean;
+    employmentType?: 'Research' | 'Internship' | 'Full-time' | 'Contract';
+    location?: string;
+    /** Skill chips shown in the expanded panel (click scrolls to My Stack). */
+    skills?: string[];
+    /** Achievement bullets shown in the expanded panel. */
+    highlights?: string[];
 }
 
 export interface ITestimonial {

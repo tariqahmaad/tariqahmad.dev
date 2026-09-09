@@ -1,5 +1,37 @@
 import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
+import { extendTailwindMerge } from "tailwind-merge"
+
+// tailwind-merge cannot tell our custom `text-<size>` scale (display-*, heading-*,
+// body-*, ui-*) apart from a text colour, so it treats them as one class group and
+// silently drops one — e.g. cn('text-body-lg', 'text-primary-foreground') kept only
+// the colour. Registering the scale makes the two groups distinct again.
+const twMerge = extendTailwindMerge({
+    extend: {
+        classGroups: {
+            'font-size': [
+                {
+                    text: [
+                        'display-sm',
+                        'display-md',
+                        'display-lg',
+                        'display-xl',
+                        'heading-sm',
+                        'heading-md',
+                        'heading-lg',
+                        'body-sm',
+                        'body-base',
+                        'body-lg',
+                        'body-xl',
+                        'ui-xs',
+                        'ui-sm',
+                        'ui-base',
+                        'ui-lg',
+                    ],
+                },
+            ],
+        },
+    },
+});
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -15,6 +47,8 @@ export const gradientTextBaseClass =
 
 // Returns true when animations should be skipped (reduced-motion preference or very small screen)
 export function shouldSkipAnimation(): boolean {
+    // Guarded so it is safe if ever called during render / on the server.
+    if (typeof window === 'undefined') return true;
     return (
         window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
         window.innerWidth < 400

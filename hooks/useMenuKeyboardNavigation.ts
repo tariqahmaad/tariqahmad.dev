@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 
 interface UseMenuKeyboardNavigationOptions {
     isOpen: boolean;
@@ -8,7 +8,9 @@ interface UseMenuKeyboardNavigationOptions {
 
 /**
  * Hook to handle keyboard navigation within the menu
- * Supports Tab, Shift+Tab, and Escape keys
+ * Escape closes the menu; ArrowUp/ArrowDown/Home/End move the roving focus
+ * index. Tab is deliberately left to the browser so every focusable element in
+ * the panel stays reachable (the panel itself is `inert` while closed).
  */
 export const useMenuKeyboardNavigation = ({
     isOpen,
@@ -18,23 +20,40 @@ export const useMenuKeyboardNavigation = ({
     const [focusedIndex, setFocusedIndex] = useState<number>(-1);
 
     useEffect(() => {
-        if (!isOpen) return;
+        if (!isOpen) {
+            // Reset so reopening never starts from a stale index (which would
+            // make the consumer focus an undefined ref).
+            setFocusedIndex(-1);
+            return;
+        }
 
         const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') {
-                onClose();
-            } else if (e.key === 'Tab') {
-                e.preventDefault();
-                setFocusedIndex((prev) => {
-                    const next = e.shiftKey
-                        ? prev <= 0
-                            ? itemCount - 1
-                            : prev - 1
-                        : prev >= itemCount - 1
-                          ? 0
-                          : prev + 1;
-                    return next;
-                });
+            switch (e.key) {
+                case 'Escape':
+                    onClose();
+                    break;
+                case 'ArrowDown':
+                    e.preventDefault();
+                    setFocusedIndex((prev) =>
+                        prev >= itemCount - 1 ? 0 : prev + 1,
+                    );
+                    break;
+                case 'ArrowUp':
+                    e.preventDefault();
+                    setFocusedIndex((prev) =>
+                        prev <= 0 ? itemCount - 1 : prev - 1,
+                    );
+                    break;
+                case 'Home':
+                    e.preventDefault();
+                    setFocusedIndex(0);
+                    break;
+                case 'End':
+                    e.preventDefault();
+                    setFocusedIndex(itemCount - 1);
+                    break;
+                default:
+                    break;
             }
         };
 

@@ -27,8 +27,11 @@ const SectionTitle = ({ icon, title, className, classNames }: Props) => {
             ) : (
                 <SectionFlower
                     width={25}
+                    aria-hidden="true"
                     className={cn(
-                        'animate-spin duration-7000',
+                        // `duration-7000` set transition-duration, not
+                        // animation-duration, so the spin stayed at 1s.
+                        'animate-spin [animation-duration:7s]',
                         classNames?.icon,
                     )}
                 />

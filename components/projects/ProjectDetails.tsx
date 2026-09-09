@@ -13,10 +13,23 @@ interface Props {
 
 const ProjectDetails = ({ project }: Props) => {
     const containerRef = useRef<HTMLDivElement>(null);
+    const infoRef = useRef<HTMLDivElement>(null);
+
+    const isCvBuilder = project.slug === 'cv-builder';
 
     useGSAP(
         () => {
             if (!containerRef.current) return;
+
+            // The heading is visible by default (no literal opacity-0), so reduced
+            // motion just gets the final state instead of a delayed reveal.
+            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                gsap.set('.fade-in-later', {
+                    autoAlpha: 1,
+                    y: 0,
+                });
+                return;
+            }
 
             gsap.set('.fade-in-later', {
                 autoAlpha: 0,
@@ -38,22 +51,32 @@ const ProjectDetails = ({ project }: Props) => {
     // blur info div and make it smaller on scroll
     useGSAP(
         () => {
-            if (window.innerWidth < 992) return;
+            const info = infoRef.current;
 
-            gsap.to('#info', {
-                filter: 'blur(3px)',
-                autoAlpha: 0,
-                scale: 0.9,
-                // position: 'sticky',
-                scrollTrigger: {
-                    trigger: '#info',
-                    start: 'bottom bottom',
-                    end: 'bottom top',
-                    pin: true,
-                    pinSpacing: false,
-                    scrub: 0.5,
-                },
+            if (!info) return;
+
+            // matchMedia replaces the one-shot window.innerWidth read at mount, so
+            // the effect is (un)built when the breakpoint is actually crossed.
+            const mm = gsap.matchMedia();
+
+            mm.add('(min-width: 992px)', () => {
+                gsap.to(info, {
+                    filter: 'blur(3px)',
+                    autoAlpha: 0,
+                    scale: 0.9,
+                    // position: 'sticky',
+                    scrollTrigger: {
+                        trigger: info,
+                        start: 'bottom bottom',
+                        end: 'bottom top',
+                        pin: true,
+                        pinSpacing: false,
+                        scrub: 0.5,
+                    },
+                });
             });
+
+            return () => mm.revert();
         },
         { scope: containerRef },
     );
@@ -95,10 +118,11 @@ const ProjectDetails = ({ project }: Props) => {
                 <div
                     className="top-0 min-h-[calc(100svh-100px)] flex"
                     id="info"
+                    ref={infoRef}
                 >
                     <div className="relative w-full">
                         <div className="flex items-start gap-6 mx-auto mb-10 max-w-[635px]">
-                            <h1 className="fade-in-later opacity-0 text-4xl md:text-[60px] leading-none font-anton overflow-hidden">
+                            <h1 className="fade-in-later text-4xl md:text-[60px] leading-none font-anton overflow-hidden">
                                 <span className="inline-block">
                                     {project.title}
                                 </span>
@@ -122,14 +146,14 @@ const ProjectDetails = ({ project }: Props) => {
                                     {project.techStack.join(', ')}
                                 </div>
                             </div>
-                            {project.slug !== 'cv-builder' && (project.sourceCode || project.liveUrl) && (
+                            {!isCvBuilder && (project.sourceCode || project.liveUrl) && (
                                 <div className="fade-in-later">
                                     <p className="text-muted-foreground font-anton mb-3">
                                         Project Links
                                     </p>
 
                                     <div className="flex gap-4">
-                                        {project.sourceCode && project.slug !== 'cv-builder' && (
+                                        {project.sourceCode && !isCvBuilder && (
                                             <a
                                                 href={project.sourceCode}
                                                 target="_blank"
@@ -141,7 +165,7 @@ const ProjectDetails = ({ project }: Props) => {
                                                 <span className="relative z-[1] font-mono uppercase tracking-wider text-xs">View Source</span>
                                             </a>
                                         )}
-                                        {project.liveUrl && project.slug !== 'cv-builder' && (
+                                        {project.liveUrl && !isCvBuilder && (
                                             <a
                                                 href={project.liveUrl}
                                                 target="_blank"
@@ -161,7 +185,7 @@ const ProjectDetails = ({ project }: Props) => {
                                     Description
                                 </p>
 
-                                <div className="text-lg prose-xl markdown-text">
+                                <div className="text-lg markdown-text">
                                     {parse(project.description)}
                                 </div>
                             </div>
@@ -201,9 +225,11 @@ const ProjectDetails = ({ project }: Props) => {
                                 <a
                                     href={image}
                                     target="_blank"
-                                    className="absolute top-4 right-4 bg-background/70 text-foreground size-12 inline-flex justify-center items-center transition-all opacity-0 hover:bg-primary hover:text-primary-foreground group-hover:opacity-100"
+                                    rel="noopener noreferrer"
+                                    aria-label={`Open ${project.title} screenshot in a new tab`}
+                                    className="absolute top-4 right-4 bg-background/70 text-foreground size-12 inline-flex justify-center items-center transition-all opacity-0 hover:bg-primary hover:text-primary-foreground group-hover:opacity-100 focus-visible:opacity-100"
                                 >
-                                    <ExternalLink />
+                                    <ExternalLink aria-hidden="true" />
                                 </a>
                             </div>
                         ))}

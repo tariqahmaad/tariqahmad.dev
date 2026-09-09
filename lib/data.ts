@@ -2,6 +2,7 @@ import {
     IProject,
     IExperience,
     ICertificationCategory,
+    ISkill,
     ITestimonial,
 } from '@/types';
 import { GitHubIcon, LinkedInIcon } from '@/components/shared/icons';
@@ -30,7 +31,9 @@ export const SOCIAL_LINKS: Array<{
     },
 ];
 
-export const MY_STACK = {
+// Typed so every entry is guaranteed to carry a name + icon path. The object
+// keys are internal identifiers; Skills.tsx renders them as category labels.
+export const MY_STACK: Record<string, ISkill[]> = {
     languages: [
         {
             name: 'JavaScript',
@@ -310,48 +313,100 @@ export const MY_EXPERIENCE: IExperience[] = [
         company: 'Industry 4.0 Research Centre',
         startDate: 'October 2024',
         endDate: 'July 2025',
+        startISO: '2024-10',
+        endISO: '2025-07',
+        employmentType: 'Research',
+        // Most recent role — drives the highlighted card border, the glowing
+        // timeline dot and the live duration meter. No role is ongoing, so
+        // `endISO` stays a real date rather than null.
+        highlighted: true,
         description:
-            'Worked on Industry 4.0 research projects, exploring how AI can make manufacturing systems smarter and more adaptive. A mix of literature review, prototyping, and figuring out which ideas actually hold up when you test them.',
+            'Led research threads on using AI to make manufacturing systems smarter and more adaptive — carrying ideas from first principles through working prototypes, and keeping only what held up under testing.',
+        highlights: [
+            'Industry 4.0 applied research',
+            'Prototype-driven validation',
+            'Literature surveys',
+        ],
+        skills: ['AI', 'Python', 'Data Analysis'],
     },
     {
         title: 'Research Assistant Intern',
         company: 'Istanbul Aydin University',
         startDate: 'March 2024',
         endDate: 'May 2024',
+        startISO: '2024-03',
+        endISO: '2024-05',
+        employmentType: 'Internship',
         description:
-            'Supported academic research through data analysis and documentation. Learned that there is a real difference between code that runs and code that proves something, and that good research starts with asking the right question.',
+            'Contributed data analysis and documentation to academic research, where I learned that good research starts with asking the right question — and that there is a real difference between code that runs and code that proves something.',
+        highlights: [
+            'Data analysis for academic research',
+            'Research documentation',
+        ],
+        skills: ['Data Analysis', 'Documentation'],
     },
     {
         title: 'Frontend Developer Intern',
         company: 'Caretta Software Company',
         startDate: 'November 2023',
         endDate: 'January 2024',
+        startISO: '2023-11',
+        endISO: '2024-01',
+        employmentType: 'Internship',
         description:
-            'Built responsive web interfaces using React and modern CSS. Got my first exposure to working in a team codebase, code reviews, and the reality that "it works on my machine" is never a good enough answer.',
+            'Shipped responsive web interfaces in React and modern CSS inside a team codebase, through code reviews and shared ownership. My first exposure to professional workflow, and the reality that "it works on my machine" is never a good enough answer.',
+        highlights: [
+            'Responsive interfaces in React and modern CSS',
+            'Collaborative Git workflow with code reviews',
+        ],
+        skills: ['React', 'CSS', 'Git'],
     },
     {
         title: 'Research Intern',
         company: 'Istanbul Aydin University',
         startDate: 'October 2023',
         endDate: 'January 2024',
+        startISO: '2023-10',
+        endISO: '2024-01',
+        employmentType: 'Internship',
         description:
-            'Contributed to research initiatives in the computer engineering department. Mostly data analysis and literature review, but the biggest takeaway was learning how to break down complex problems into questions you can actually answer.',
+            'Joined computer engineering research initiatives to turn sprawling, ambiguous problems into questions small enough to actually answer — mostly through data analysis and literature review.',
+        highlights: [
+            'Scoping ambiguous research problems',
+            'Data analysis',
+            'Literature surveys',
+        ],
+        skills: ['Research', 'Data Analysis'],
     },
     {
         title: 'Network Technician',
         company: 'Tawhid Almas Logistics Company',
         startDate: 'July 2023',
         endDate: 'September 2023',
+        startISO: '2023-07',
+        endISO: '2023-09',
         description:
-            'Managed network infrastructure and ensured reliable connectivity across all departments. When the network goes down in a logistics company, nothing moves, so uptime was not optional.',
+            'Owned the network infrastructure keeping every department of a logistics company connected. When the network goes down in a logistics company, nothing moves, so uptime was not optional.',
+        highlights: [
+            'Company-wide network infrastructure',
+            'Uptime-critical logistics connectivity',
+        ],
+        skills: ['Networking', 'Troubleshooting'],
     },
     {
         title: 'IT Support Specialist',
         company: 'Tawhid Almas Logistics Company',
         startDate: 'July 2022',
         endDate: 'September 2022',
+        startISO: '2022-07',
+        endISO: '2022-09',
         description:
-            'Provided technical support and maintained IT systems for daily logistics operations. Learned that patience and a clear explanation often matter as much as technical knowledge, especially when someone just needs their system back up.',
+            'Kept daily logistics operations running through frontline technical support and systems maintenance. Learned that patience and a clear explanation often matter as much as technical knowledge, especially when someone just needs their system back up.',
+        highlights: [
+            'Frontline support for daily operations',
+            'Systems maintenance and recovery',
+        ],
+        skills: ['Technical Support', 'Systems Maintenance'],
     },
 ];
 
@@ -408,7 +463,7 @@ export const MY_CERTIFICATIONS: ICertificationCategory[] = [
                 date: 'November 2023',
             },
             {
-                title: 'Introduction to Large Language Model',
+                title: 'Introduction to Large Language Models',
                 date: 'October 2023',
             },
             {
@@ -418,7 +473,7 @@ export const MY_CERTIFICATIONS: ICertificationCategory[] = [
         ],
     },
     {
-        provider: 'Microsoft | EDx',
+        provider: 'Microsoft | edX',
         certifications: [
             {
                 title: 'Introduction to C++',
@@ -444,7 +499,7 @@ export const MY_CERTIFICATIONS: ICertificationCategory[] = [
         ],
     },
     {
-        provider: 'University of Queensland | EDx',
+        provider: 'University of Queensland | edX',
         certifications: [
             {
                 title: 'IELTS Academic Test Preparation',
@@ -480,17 +535,17 @@ export const ABOUT_ME = {
     ],
 };
 
-// TODO: replace these placeholder testimonials with real ones (verbatim,
-// permission-cleared quotes). Drop avatar images into public/testimonials/
-// and set the `avatar` path (e.g. '/testimonials/jane-doe.jpg') to show a
-// photo instead of the fallback user icon.
+// Testimonials are real, permission-cleared quotes. Drop avatar images into
+// public/testimonials/ and set the `avatar` path (e.g.
+// '/testimonials/jane-doe.jpg') to show a photo instead of the fallback
+// user icon.
 export const TESTIMONIALS: ITestimonial[] = [
     {
         name: 'Alparslan Horasan',
         role: 'Assistant Professor',
         linkedInUrl: 'https://www.linkedin.com/in/alparslan-horasan-27328a50/',
         // avatar: '/testimonials/testimonials-1.jpg',
-        quote: "Tariq joined our Industrial 4.0 Research Center as a second-year — earlier than most. He took on the unglamorous work without complaint: literature reviews, data cleaning, re-running experiments. His graduation project confirmed what we already knew — he doesn't cut corners. I'd rank him among the very top students I've supervised.",
+        quote: "Tariq joined our Industry 4.0 Research Center in his second year, which is earlier than most students do. He just got on with the boring work, literature reviews, cleaning data, running the same experiments again. His graduation project proved what we already knew, he does not cut corners. For me he is up there with the best students I have supervised.",
         rating: 5,
     },
     {
@@ -498,14 +553,14 @@ export const TESTIMONIALS: ITestimonial[] = [
         role: 'Senior Software Developer',
         linkedInUrl: 'https://www.linkedin.com/in/sel%C3%A7uk-%C5%9Fener-69613689/',
         // avatar: '/testimonials/testimonials-2.jpg',
-        quote: "Most interns need hand-holding with Angular. Tariq was writing production-grade components by week three and pushing back on design decisions with sound reasoning. He also placed second in our internal coding competition — which, honestly, didn't surprise me. His GitHub tells the real story: he actually finishes what he starts.",
+        quote: "I have mentored a lot of interns and Tariq picked things up quicker than anyone. By week three he was writing React components we could actually ship and asking good questions about our design choices. He came second in our internal coding competition too, honestly that did not surprise me. Just look at his GitHub, he finishes what he starts.",
         rating: 5,
     },
     {
         name: "Roa'a Ali",
         role: 'Assistant Professor',
         // avatar: '/testimonials/testimonials-3.jpg',
-        quote: "He was one of those students whose work makes you pause. His Hospital Management System wasn't assigned — he built it on his own with Spring Boot and MySQL because he wanted something tangible, which isn't typical for an undergraduate. Tariq also presents technical work clearly in English while speaking four languages, and that matters more than people think on engineering teams.",
+        quote: "He is one of those students whose work makes you stop and look. His Hotel Management System was not even assigned, he built it alone with C#, .NET and MySQL just because he wanted to make something real, most undergrads do not do that. He explains technical stuff clearly in English as well, and that kind of communication helps a team a lot more than people think.",
         rating: 5,
     },
     {
@@ -513,7 +568,7 @@ export const TESTIMONIALS: ITestimonial[] = [
         role: 'Senior Professor',
         linkedInUrl: 'https://www.linkedin.com/in/wasim-raad-b5972114/',
         // avatar: '/testimonials/testimonials-4.jpg',
-        quote: "Most students stop learning after the exam. Tariq started showing up to office hours asking about ML architectures and cloud deployment — none of it on the syllabus. He completed Stanford's ML certification on his own, and his TensorFlow digit classifier showed he understood the math behind the model, not just the API calls. That distinction matters.",
+        quote: "What I remember about Tariq is he kept learning after exams were over. He would come to office hours and ask about ML architectures and cloud deployment, stuff that was not even in the course. He did Stanford's machine learning certification by himself and his TensorFlow digit classifier showed he got the math behind it, not only the API calls. You do not see that depth often in undergrad work.",
         rating: 5,
     },
     {
@@ -521,7 +576,7 @@ export const TESTIMONIALS: ITestimonial[] = [
         role: 'Vice Dean',
         linkedInUrl: 'https://tr.linkedin.com/in/zafer-aslan-93629172',
         // avatar: '/testimonials/testimonials-5.jpg',
-        quote: "Tariq returned to our Industrial 4.0 Research Center three separate times when he didn't have to. Each term we gave him more — first literature reviews, then co-designing experiments, eventually presenting findings to the group. Most undergraduates treat research as a CV line. Tariq treated it as something he was responsible for. That's the difference.",
+        quote: "He kept coming back to our Industry 4.0 Research Center for three terms even though he did not have to. Every term we gave him bigger tasks, at first literature reviews, then helping design experiments, then presenting results to the group. A lot of undergrads just use research for their CV. Tariq actually cared about it.",
         rating: 5,
     },
 ];

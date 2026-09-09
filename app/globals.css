@@ -4,6 +4,8 @@
 
 @layer base {
     :root {
+        /* Dark page: keep native form controls and scrollbars dark too */
+        color-scheme: dark;
         --background: 0 0% 2%;
         --background-light: 0 0% 8%;
         --foreground: 0 0% 98%;
@@ -44,6 +46,9 @@
     }
     html {
         @apply overflow-x-hidden;
+        /* Firefox / legacy Edge: match the WebKit scrollbar hiding above */
+        scrollbar-width: none;
+        -ms-overflow-style: none;
     }
 
     /* Disable smooth scroll snapping for users who prefer reduced motion */
@@ -54,7 +59,11 @@
     }
 
     body {
-        @apply bg-background text-foreground font-roboto-flex overflow-x-hidden;
+        /* overflow-x: clip instead of hidden so <body> is not a scroll
+           container, which would break the Navbar's position: sticky */
+        @apply bg-background text-foreground font-roboto-flex overflow-x-clip;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
     }
 
     /* Focus visible styles for keyboard navigation */
@@ -68,10 +77,12 @@
         outline-offset: 2px;
     }
 
-    /* Hide cursor only on desktop where custom cursor is shown, and respect prefers-reduced-motion */
+    /* Hide cursor only on desktop where custom cursor is shown, and respect prefers-reduced-motion.
+       Gated on `html.has-custom-cursor`, which CustomCursor.tsx adds only once the custom cursor is
+       live: if JS is disabled or hydration fails, the native cursor stays visible. */
     @media (min-width: 768px) {
         @media (prefers-reduced-motion: no-preference) {
-            * {
+            html.has-custom-cursor * {
                 cursor: none !important;
             }
         }
@@ -79,10 +90,6 @@
 }
 
 @layer components {
-    .grid {
-        @apply gap-[25px];
-    }
-
     /* Responsive menu grid pattern - larger cells on mobile, denser on desktop */
     .bg-menu-grid {
         background-image:
@@ -101,6 +108,43 @@
         @apply pl-5 mt-2 list-disc;
     }
 
+    /* Preloader name line.
+       The letters rise from below, so only the bottom edge needs a fade. But
+       `mask-clip` defaults to `border-box`, and the spec is explicit that the
+       element's painted content "must be restricted to this area" - so the
+       mask clips the AHMAD drop-shadow at every edge of the box. The padding
+       is therefore the glow's room on all four sides (48px > the 40px flare)
+       and the negative margin keeps the layout identical.
+
+       Bottom geometry: opaque down to `1em + 2rem`, fading over the last
+       `1rem`, which clears the 25px resting glow and the 40px flare. Letters
+       must start below the whole box (`1em + 3rem`), hence translate-y-[200%]. */
+    .name-mask {
+        padding: 3rem;
+        margin: -3rem;
+        -webkit-mask-image: linear-gradient(
+            to bottom,
+            #000 calc(100% - 1rem),
+            transparent 100%
+        );
+        mask-image: linear-gradient(
+            to bottom,
+            #000 calc(100% - 1rem),
+            transparent 100%
+        );
+    }
+
+    /* Accent glow on the AHMAD half. Exposed as custom properties so GSAP can
+       flare each letter as it lands and settle it back to rest. */
+    .name-glow {
+        --name-glow-size: 25px;
+        --name-glow-alpha: 0.5;
+        filter: drop-shadow(
+            0 0 var(--name-glow-size)
+                hsl(var(--primary) / var(--name-glow-alpha))
+        );
+    }
+
     /* Performance optimizations for animations */
     @media (prefers-reduced-motion: reduce) {
         *,
@@ -109,6 +153,9 @@
             animation-duration: 0.01ms !important;
             animation-iteration-count: 1 !important;
             transition-duration: 0.01ms !important;
+            /* Stagger delays (e.g. the menu's row cascade) must not hold
+               content back when motion is suppressed. */
+            transition-delay: 0ms !important;
         }
 
         /* CRITICAL: Ensure all content is visible when animations are disabled */
@@ -116,7 +163,6 @@
         .category-title,
         .category-item,
         .slide-up-and-fade,
-        .experience-item,
         .certification-item,
         .project-item,
         .testimonial-item {
@@ -161,7 +207,10 @@
         }
     }
 
-    /* Glitch text effect - RGB split with clip-path slicing */
+    /* Glitch text effect - RGB split with clip-path slicing.
+       Ghost layers are always mounted but transparent; `.glitch-active`
+       crossfades them in and (re)starts the slice animations, so the RGB
+       split fades rather than popping at phase boundaries. */
     .glitch-text {
         position: relative;
     }
@@ -174,21 +223,103 @@
         left: 0;
         width: 100%;
         height: 100%;
-        opacity: 0.8;
+        /* Always-on chromatic fringe: faint RGB edges even at rest, so the
+           hero never looks plain. The active state shoves both ghosts
+           further out and starts the slice loops. */
+        opacity: 0.22;
+        transition: opacity 0.2s ease-out, left 0.2s ease-out;
+        animation: none;
+        pointer-events: none;
     }
 
     .glitch-text[data-text]::before {
-        left: 3px;
-        text-shadow: -3px 0 hsl(var(--primary));
-        animation: glitch-anim 0.8s infinite linear alternate-reverse;
+        left: 2px;
     }
 
     .glitch-text[data-text]::after {
-        left: -3px;
-        text-shadow:
-            -3px 0 hsl(var(--secondary)),
-            3px 2px hsl(var(--primary));
-        animation: glitch-anim2 0.6s infinite linear alternate-reverse;
+        left: -2px;
+    }
+
+    .glitch-text.glitch-active[data-text]::before {
+        left: 6px;
+        opacity: 0.9;
+        animation: glitch-anim 0.55s infinite linear alternate-reverse;
+    }
+
+    .glitch-text.glitch-active[data-text]::after {
+        left: -6px;
+        opacity: 0.9;
+        animation: glitch-anim2 0.45s infinite linear alternate-reverse;
+    }
+
+    /* Surge: rare violent windows upgrade the shake — wider split, harder
+       jitter, hotter glow. Triple-class selectors so these always beat the
+       base .glitch-active rules above regardless of source order. */
+    .glitch-text.glitch-active.glitch-surge[data-text]::before {
+        left: 11px;
+        opacity: 1;
+    }
+
+    .glitch-text.glitch-active.glitch-surge[data-text]::after {
+        left: -11px;
+        opacity: 1;
+    }
+
+    .glitch-text.glitch-active.glitch-surge {
+        animation: glitch-surge-shake 0.22s infinite steps(2);
+    }
+
+    @keyframes glitch-surge-shake {
+        0% {
+            transform: translate(0) skewX(0deg);
+        }
+        25% {
+            transform: translate(-4px, 2px) skewX(-2deg);
+        }
+        50% {
+            transform: translate(4px, -2px) skewX(1deg);
+        }
+        75% {
+            transform: translate(-3px, -2px) skewX(2deg);
+        }
+        100% {
+            transform: translate(3px, 2px) skewX(-1deg);
+        }
+    }
+
+    .glitch-text.glitch-primary.glitch-active.glitch-surge {
+        text-shadow: 0 0 18px hsl(var(--primary) / 0.8), 0 0 60px hsl(var(--primary) / 0.35);
+    }
+
+    .glitch-text.glitch-secondary.glitch-active.glitch-surge {
+        text-shadow: 0 0 18px hsl(var(--secondary) / 0.8), 0 0 60px hsl(var(--secondary) / 0.35);
+    }
+
+    /* Harsh positional jitter on the main glyph while active. Stepped
+       timing keeps it digital rather than smooth — part of the signature. */
+    .glitch-text.glitch-active {
+        animation: glitch-jitter 0.3s infinite steps(2);
+    }
+
+    @keyframes glitch-jitter {
+        0% {
+            transform: translate(0);
+        }
+        20% {
+            transform: translate(-2px, 1px) skewX(-1deg);
+        }
+        40% {
+            transform: translate(2px, -1px);
+        }
+        60% {
+            transform: translate(-1px, -1px) skewX(1deg);
+        }
+        80% {
+            transform: translate(1px, 1px);
+        }
+        100% {
+            transform: translate(0);
+        }
     }
 
     /* Variants for primary/secondary colors */
@@ -208,15 +339,21 @@
         text-shadow: 3px 0 hsl(var(--primary)), -2px 0 hsl(0 100% 50%);
     }
 
-    /* Subtle glow on the main glyph while glitching. The RGB split itself
-       is carried by the ::before/::after layers above, so the main text only
-       needs a soft halo — no inline shadow/transform required. */
-    .glitch-text.glitch-primary {
-        text-shadow: 0 0 12px hsl(var(--primary) / 0.45);
+    /* Subtle glow on the main glyph while glitching, gated behind
+       `.glitch-active` like the ghosts so it fades in/out with them. The
+       RGB split itself is carried by the ::before/::after layers above, so
+       the main text only needs a soft halo. */
+    .glitch-text.glitch-primary,
+    .glitch-text.glitch-secondary {
+        transition: text-shadow 0.25s ease-out;
     }
 
-    .glitch-text.glitch-secondary {
-        text-shadow: 0 0 12px hsl(var(--secondary) / 0.45);
+    .glitch-text.glitch-primary.glitch-active {
+        text-shadow: 0 0 14px hsl(var(--primary) / 0.65), 0 0 42px hsl(var(--primary) / 0.25);
+    }
+
+    .glitch-text.glitch-secondary.glitch-active {
+        text-shadow: 0 0 14px hsl(var(--secondary) / 0.65), 0 0 42px hsl(var(--secondary) / 0.25);
     }
 
     /* Reduced motion: the JS scramble is already disabled, so also drop the
@@ -226,6 +363,15 @@
         .glitch-text[data-text]::before,
         .glitch-text[data-text]::after {
             text-shadow: none !important;
+        }
+
+        .glitch-text.glitch-active {
+            animation: none !important;
+        }
+
+        /* CV beam ring - static arc would look broken frozen, hide it */
+        .beam::before {
+            display: none !important;
         }
 
         .glitch-text[data-text]::before,
@@ -328,69 +474,6 @@
         }
     }
 
-    @keyframes glitch-skew {
-        0% {
-            transform: skew(0deg);
-        }
-        20% {
-            transform: skew(0deg);
-        }
-        21% {
-            transform: skew(1deg);
-        }
-        22% {
-            transform: skew(-1deg);
-        }
-        23% {
-            transform: skew(0deg);
-        }
-        100% {
-            transform: skew(0deg);
-        }
-    }
-
-    @keyframes download-bounce {
-        0%,
-        100% {
-            transform: translateY(-3px);
-            opacity: 0.6;
-        }
-        50% {
-            transform: translateY(2px);
-            opacity: 1;
-        }
-    }
-
-    @keyframes download-line {
-        0% {
-            transform: translateY(-4px);
-            opacity: 0;
-        }
-        30% {
-            opacity: 1;
-        }
-        100% {
-            transform: translateY(4px);
-            opacity: 0;
-        }
-    }
-
-    @keyframes pulse-dot {
-        0%, 100% {
-            opacity: 1;
-            transform: scale(1);
-        }
-        50% {
-            opacity: 0.6;
-            transform: scale(1.2);
-        }
-    }
-
-    /* Pulse dot for current roles */
-    .pulse-dot {
-        animation: pulse-dot 2s ease-in-out infinite;
-    }
-
     /* Timeline pulse animation */
     .timeline-dot {
         transition: border-color 0.4s ease, box-shadow 0.4s ease;
@@ -445,20 +528,8 @@
         }
     }
 
-    /* Grid background pattern */
-    .experience-grid-bg {
-        background-image:
-            linear-gradient(rgba(0, 255, 0, 0.03) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(0, 255, 0, 0.03) 1px, transparent 1px);
-        background-size: 40px 40px;
-    }
-
     /* Reduced motion support */
     @media (prefers-reduced-motion: reduce) {
-        .pulse-dot {
-            animation: none;
-        }
-
         .timeline-dot {
             transition: none;
             border-color: hsl(var(--primary)) !important;
@@ -484,15 +555,15 @@
             display: none;
         }
 
-        /* Duration bar reduced motion */
-        .duration-bar-fill {
-            width: 100% !important;
-            animation: none !important;
+        /* Duration ticks reduced motion: all lit, no sweep */
+        .duration-tick {
+            opacity: 1 !important;
+            background-color: hsl(var(--primary)) !important;
             box-shadow: none !important;
         }
 
-        .duration-bar-fill::after {
-            box-shadow: none !important;
+        .duration-ticks--live::after {
+            display: none !important;
         }
 
         .experience-card-highlighted {
@@ -505,76 +576,59 @@
             animation: none;
         }
 
-        /* Footer email underline - always visible */
-        .group:hover .footer-email-underline {
-            transform: scaleX(1) !important;
-        }
-
         /* ProjectCard corner brackets - always fully drawn (no clip reveal) */
         .bracket-arm {
             clip-path: none !important;
         }
     }
 
-    /* ── Duration bar — segmented signal meter ───────────────────────────
-       A discrete-block meter (equalizer / terminal-loader vibe) instead of a
-       soft gradient pill. GSAP animates .duration-bar-fill width 0 → 100%,
-       revealing lit segments over the always-visible dim slots. Both layers
-       share the same repeating-gradient phase so the lit blocks land exactly
-       on top of the dim ones. */
+    /* ── Duration meter — month ticks ────────────────────────────────────
+       One tick per month of tenure (3 ticks vs 10 ticks reads instantly),
+       so the bar finally encodes duration instead of decorating it. GSAP
+       ignites ticks left-to-right with stagger (Experiences.tsx); live
+       roles get a slow sheen sweep across the meter. */
 
     .duration-track {
         /* Hairline "gauge housing" with sharp, terminal-style corners */
         border: 1px solid hsl(var(--foreground) / 0.07);
         border-radius: 1px;
         background-color: hsl(var(--foreground) / 0.04);
-        /* Dim, primed segment slots — faint primary so they read as "will energize" */
-        background-image: repeating-linear-gradient(
-            90deg,
-            hsl(var(--primary) / 0.16) 0,
-            hsl(var(--primary) / 0.16) 4px,
-            transparent 4px,
-            transparent 7px
-        );
     }
 
-    /* Lit segments — width animated 0 → 100% by GSAP (Experiences.tsx) */
-    .duration-bar-fill {
-        background-image: repeating-linear-gradient(
-            90deg,
-            hsl(var(--primary)) 0,
-            hsl(var(--primary)) 4px,
-            transparent 4px,
-            transparent 7px
-        );
-        box-shadow: 0 0 6px hsl(var(--primary) / 0.35);
+    /* Dim, primed slots — faint primary so they read as "will energize" */
+    .duration-tick {
+        flex: 1 1 0%;
+        min-width: 3px;
+        border-radius: 1px;
+        background-color: hsl(var(--primary) / 0.16);
     }
 
-    /* Scanning needle riding the fill's leading edge */
-    .duration-bar-fill::after {
+    /* Live sheen sweep for highlighted / present roles */
+    .duration-ticks--live {
+        overflow: hidden;
+    }
+
+    .duration-ticks--live::after {
         content: '';
         position: absolute;
-        top: -3px;
-        bottom: -3px;
-        right: 0;
-        width: 2px;
-        background: hsl(var(--primary));
-        box-shadow:
-            0 0 6px hsl(var(--primary)),
-            0 0 14px hsl(var(--primary) / 0.6);
+        inset: 0;
+        background: linear-gradient(
+            100deg,
+            transparent 20%,
+            hsl(var(--primary) / 0.35) 50%,
+            transparent 80%
+        );
+        transform: translateX(-100%);
+        animation: tick-sweep 1.8s ease-in-out infinite;
+        pointer-events: none;
     }
 
-    /* Current role — breathing glow */
-    .duration-bar-fill--active {
-        animation: duration-pulse 1.8s ease-in-out infinite;
-    }
-
-    @keyframes duration-pulse {
-        0%, 100% {
-            box-shadow: 0 0 6px hsl(var(--primary) / 0.35);
+    @keyframes tick-sweep {
+        0% {
+            transform: translateX(-100%);
         }
-        50% {
-            box-shadow: 0 0 11px hsl(var(--primary) / 0.7);
+        60%, 100% {
+            transform: translateX(100%);
         }
     }
 
@@ -610,6 +664,51 @@
         }
     }
 
+    /* ── CV button "power-up" beam ─────────────────────────────────────
+       Rotating conic-gradient ring that ignites on hover. Painted as an
+       inner 1.5px ring (mask-composite) at inset 0 so the button's
+       overflow-hidden never clips it. Needs @property for angle
+       interpolation; without it the beam degrades to a static arc. */
+    @property --beam-angle {
+        syntax: '<angle>';
+        initial-value: 0deg;
+        inherits: false;
+    }
+
+    .beam::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        padding: 1.5px;
+        background: conic-gradient(
+            from var(--beam-angle),
+            transparent 0deg,
+            transparent 290deg,
+            hsl(var(--primary)) 340deg,
+            transparent 360deg
+        );
+        -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+        -webkit-mask-composite: xor;
+        mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+        mask-composite: exclude;
+        opacity: 0;
+        transition: opacity 0.35s ease-out;
+        pointer-events: none;
+        z-index: 20;
+    }
+
+    .beam:hover::before {
+        opacity: 1;
+        animation: beam-spin 1.4s linear infinite;
+    }
+
+    @keyframes beam-spin {
+        to {
+            --beam-angle: 360deg;
+        }
+    }
+
     /* Subtle pulse animation for highlighted duration bars */
     .animate-pulse-subtle {
         animation: pulse-subtle 1.5s ease-in-out infinite;
@@ -635,6 +734,51 @@
     .experience-card-highlighted:hover {
         border-color: hsl(var(--primary) / 0.4);
         box-shadow: 0 0 30px hsl(var(--primary) / 0.15);
+    }
+
+    /* Highlighted duration track housing (was referenced but undefined) */
+    .duration-track--active {
+        border-color: hsl(var(--primary) / 0.35);
+        box-shadow: 0 0 12px hsl(var(--primary) / 0.15);
+    }
+
+    /* Card spotlight following the cursor (position fed via --mx/--my).
+       Filter-free radial glow; hidden on touch and reduced motion below. */
+    .experience-card::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        background: radial-gradient(
+            240px circle at var(--mx, 50%) var(--my, 30%),
+            hsl(var(--primary) / 0.09),
+            transparent 70%
+        );
+        opacity: 0;
+        transition: opacity 0.3s ease-out;
+        pointer-events: none;
+    }
+
+    .experience-card:hover::before {
+        opacity: 1;
+    }
+
+    /* Dot cross-highlight. Filter (not box-shadow) so it survives GSAP's
+       inline glow once the dot is activated. */
+    .timeline-dot-hover {
+        filter: drop-shadow(0 0 6px hsl(var(--primary) / 0.9));
+    }
+
+    @media (hover: none) {
+        .experience-card::before {
+            display: none;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .experience-card::before {
+            display: none;
+        }
     }
 
 }
