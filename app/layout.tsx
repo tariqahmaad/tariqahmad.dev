@@ -25,7 +25,6 @@ const antonFont = Anton({
 });
 
 const robotoFlex = Roboto_Flex({
-    weight: ['100', '400', '500', '600', '700', '800'],
     style: 'normal',
     subsets: ['latin'],
     variable: '--font-roboto-flex',

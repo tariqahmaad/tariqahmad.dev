@@ -171,8 +171,10 @@ import { IProject } from '@/types';
   rules, and `react/no-unescaped-entities` is **not** enabled. The house style is
   still to write real apostrophes in JSX (`I'm`, not `I&apos;m`), but it is not
   enforced by lint.
-- There is no test runner and no CI workflow; `pnpm lint`, `pnpm typecheck` and
-  `pnpm build` are the only gates.
+- There is no test runner. `pnpm lint`, `pnpm typecheck` and `pnpm build` are the
+  only gates, and `.github/workflows/ci.yml` runs exactly those three on every
+  push to `main` and every pull request (with `pnpm install --frozen-lockfile`,
+  the same lockfile check Vercel performs on deploy).
 
 ## Content Updates
 

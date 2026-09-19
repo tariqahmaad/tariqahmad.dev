@@ -23,7 +23,13 @@ const DurationBar = ({
     totalMonths,
 }: DurationBarProps) => {
     const isPresent = endISO === null || endDate.toLowerCase() === 'present';
-    const isLive = isHighlighted || isPresent;
+    // `isHighlighted` deliberately does NOT feed `isLive`. The
+    // `.duration-ticks--live` sheen sweeps the meter like a running gauge, so
+    // pairing it with the featured-but-finished role implied that role was
+    // still ongoing — the same implication the (correctly `isPresent`-gated)
+    // "Present" pill and dot exist to avoid. The featured role keeps its own
+    // treatment via `.duration-track--active` below.
+    const isLive = isPresent;
     const ticks = Math.max(1, Math.round(totalMonths));
 
     return (

@@ -16,6 +16,12 @@ const monthIndex = (iso: string): number => {
     return y * 12 + (m - 1);
 };
 
+// NOTE: `new Date()` is read during render, so if an entry is ever ongoing
+// (`endISO: null`) its tenure is counted from whichever month the server and
+// the client each happen to be in — different month counts (and a hydration
+// mismatch) across a month boundary. Every entry has a real `endISO` today;
+// before adding one, pin "now" to a value both renders agree on (e.g. a
+// server-provided month) rather than widening this helper.
 const currentMonthIndex = (): number => {
     const d = new Date();
     return d.getFullYear() * 12 + d.getMonth();
@@ -114,13 +120,21 @@ const TimelineItem = ({
                     {/* Second ring - delayed, larger radius */}
                     <span className="timeline-pulse-ring-2 absolute -inset-2 rounded-full border border-primary/50 opacity-0 pointer-events-none" />
                 </div>
-                {/* Line with animated fill */}
+                {/* Line with animated fill. Every role except the very last one
+                    in the whole timeline draws a rail — including the role that
+                    ends the LEFT column, whose rail runs alongside its card.
+                    Only the final role (bottom of the right column at `lg`, the
+                    last row when the columns collapse) stops there, so no line
+                    hangs below that dot. Kept mounted rather than conditionally
+                    rendered because GSAP pairs `.timeline-line-fill` with items
+                    by index. */}
                 {!isLast && (
                     <div className="relative w-0.5 flex-1 bg-border mt-2 overflow-hidden rounded-full">
                         <div className="timeline-line-fill absolute inset-x-0 top-0 h-0 bg-gradient-to-b from-primary via-primary/50 to-primary/20 rounded-full" />
                     </div>
                 )}
-                {/* Spacer so last item's timeline column matches siblings */}
+                {/* Spacer so the final dot still reserves the rail's width
+                    without drawing anything beneath it */}
                 {isLast && <div className="w-0.5 flex-1 mt-2" />}
             </div>
 
@@ -168,9 +182,15 @@ const TimelineItem = ({
                     </p>
                 )}
 
-                {/* Expandable details */}
+                {/* Expandable details. The grid-rows collapse only hides the
+                    panel visually, so a collapsed panel stayed tabbable and
+                    announced (WCAG 2.4.7). `inert` takes the chips out of the
+                    tab order and the a11y tree while keeping the height
+                    transition that conditional rendering would destroy. */}
                 {hasDetails && (
                     <div
+                        inert={!expanded}
+                        aria-hidden={!expanded}
                         className={cn(
                             'grid transition-[grid-template-rows,opacity] duration-300 ease-out',
                             expanded
@@ -269,6 +289,9 @@ const Experiences = () => {
     // only ever grows its own column), one continuous list on mobile.
     // Global indexes keep expanded/hover state and animation order stable.
     const mid = Math.ceil(MY_EXPERIENCE.length / 2);
+    // Only the globally-last role ends the rail. The role that closes the left
+    // column deliberately keeps its line: it runs alongside that card, so the
+    // column reads as a continuing timeline rather than stopping short.
     const renderItem = (experience: IExperience, index: number) => (
         <TimelineItem
             key={`${experience.title}-${index}`}
@@ -327,18 +350,56 @@ const Experiences = () => {
         ScrollTrigger.refresh();
     };
 
-    // Mount: measure at rest, then re-pass after reveal/fonts settle.
+    // First pass deferred until the section nears the viewport, so the
+    // measure-and-refresh cycle never runs inside the page-load window.
     useEffect(() => {
         const run = () => equalizeRef.current();
-        run();
-        const f = setTimeout(run, 1000);
-        window.addEventListener('resize', run);
-        if (document.fonts) {
-            document.fonts.ready.then(run).catch(() => {});
+        const start = () => {
+            run();
+            const f = setTimeout(run, 1000);
+            // Coalesced to one pass per frame: a pass writes min-heights (forcing a
+            // layout read/write) and then runs a full ScrollTrigger refresh, which
+            // is far too heavy to repeat for every resize event a window drag
+            // emits. rAF ids start at 1, so a non-zero id means one is pending.
+            let frame = 0;
+            const onResize = () => {
+                if (frame) return;
+                frame = requestAnimationFrame(() => {
+                    frame = 0;
+                    run();
+                });
+            };
+            window.addEventListener('resize', onResize);
+            if (document.fonts) {
+                document.fonts.ready.then(run).catch(() => {});
+            }
+            return () => {
+                clearTimeout(f);
+                if (frame) cancelAnimationFrame(frame);
+                window.removeEventListener('resize', onResize);
+            };
+        };
+
+        const container = containerRef.current;
+        if (!container || typeof IntersectionObserver === 'undefined') {
+            return start();
         }
+
+        let cleanup: (() => void) | undefined;
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (entries.some((entry) => entry.isIntersecting)) {
+                    observer.disconnect();
+                    cleanup = start();
+                }
+            },
+            { rootMargin: '400px 0px' },
+        );
+        observer.observe(container);
+
         return () => {
-            clearTimeout(f);
-            window.removeEventListener('resize', run);
+            observer.disconnect();
+            cleanup?.();
         };
     }, []);
 
@@ -373,7 +434,6 @@ const Experiences = () => {
             }
 
             const items = gsap.utils.toArray<HTMLElement>('.timeline-item');
-            const isDesktop = window.matchMedia('(min-width: 1024px)').matches;
 
             items.forEach((item, index) => {
                 // Reveal once and stay revealed. A reversible ('... reverse')
@@ -507,7 +567,14 @@ const Experiences = () => {
                 }
             };
 
-            if (isDesktop) {
+            // The layout is live — the row equalizer re-reads this same query on
+            // every pass — so the animation topology has to be rebuilt when
+            // 1024px is genuinely crossed. A one-shot mount read kept the
+            // desktop master timeline (one trigger on the container) driving all
+            // six dots after the grid had already re-flowed into one column.
+            const mm = gsap.matchMedia();
+
+            mm.add('(min-width: 1024px)', () => {
                 // Desktop: column-by-column order with grid-flow-col
                 // First half = left column, Second half = right column
                 const halfLength = Math.ceil(dots.length / 2);
@@ -534,7 +601,9 @@ const Experiences = () => {
 
                     addPulseAnimation(masterTimeline, dot, lineFill, ticks);
                 });
-            } else {
+            });
+
+            mm.add('(max-width: 1023px)', () => {
                 // Mobile: keep one-by-one item triggers.
                 dots.forEach((dot, i) => {
                     const lineFill = lineFills[i] as HTMLElement | undefined;
@@ -549,7 +618,7 @@ const Experiences = () => {
 
                     addPulseAnimation(tl, dot, lineFill, ticks);
                 });
-            }
+            });
 
             // Continuous breathing glow on the highlighted (current) role
             const currentDots = gsap.utils.toArray<HTMLElement>(
@@ -570,6 +639,11 @@ const Experiences = () => {
                     },
                 });
             });
+
+            // useGSAP already reverts its own context (and collects the
+            // matchMedia context with it), but reverting it explicitly is the
+            // house form — see components/projects/ProjectDetails.tsx.
+            return () => mm.revert();
         },
         { scope: containerRef },
     );

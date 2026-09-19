@@ -110,20 +110,33 @@ const Banner = () => {
     // move the content a little up on scroll
     useGSAP(
         () => {
-            const tl = gsap.timeline({
-                scrollTrigger: {
-                    trigger: containerRef.current,
-                    start: 'bottom 50%',
-                    end: 'bottom 10%',
-                    scrub: 1,
-                },
+            // `gsap.matchMedia` rather than a one-shot `matchMedia().matches`
+            // read, so the scrub is genuinely built and torn down as the
+            // preference changes. globals.css pins `.slide-up-and-fade` to its
+            // final state under reduced motion, but that CSS only neutralises
+            // transforms CSS knows about — a Scrubbed GSAP tween writes inline
+            // styles every frame and would otherwise ignore the preference
+            // entirely.
+            const mm = gsap.matchMedia();
+
+            mm.add('(prefers-reduced-motion: no-preference)', () => {
+                const tl = gsap.timeline({
+                    scrollTrigger: {
+                        trigger: containerRef.current,
+                        start: 'bottom 50%',
+                        end: 'bottom 10%',
+                        scrub: 1,
+                    },
+                });
+
+                tl.fromTo(
+                    '.slide-up-and-fade',
+                    { y: 0 },
+                    { y: -150, opacity: 0, stagger: 0.05 },
+                );
             });
 
-            tl.fromTo(
-                '.slide-up-and-fade',
-                { y: 0 },
-                { y: -150, opacity: 0, stagger: 0.05 },
-            );
+            return () => mm.revert();
         },
         { scope: containerRef },
     );

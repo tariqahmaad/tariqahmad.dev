@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
 
 // Tech-focused glitch characters
 export const GLITCH_CHARS = '01█▓▒░<>{}[]|/\\';
@@ -10,11 +11,7 @@ export interface GlitchTextValue {
     opacity: number;
 }
 
-// Reduced-motion users get an instant text swap with no scramble.
-const prefersReducedMotion = (): boolean =>
-    typeof window !== 'undefined' &&
-    typeof window.matchMedia === 'function' &&
-    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)';
 
 const randomGlitchChar = (): string =>
     GLITCH_CHARS[Math.floor(Math.random() * GLITCH_CHARS.length)];
@@ -33,6 +30,10 @@ export const useGlitchText = (
         opacity: 1,
     });
     const frameRef = useRef<number | null>(null);
+    // Subscribed, not read once: `phase` stays 'stable' for ~5s at a time, so a
+    // one-shot read would let a scramble keep running after the visitor turns
+    // reduced motion on.
+    const reducedMotion = useMediaQuery(REDUCED_MOTION_QUERY);
 
     useEffect(() => {
         // Stable phase, empty input, or reduced motion: show the resolved
@@ -41,7 +42,7 @@ export const useGlitchText = (
             typeof targetText !== 'string' ||
             !targetText ||
             phase === 'stable' ||
-            prefersReducedMotion()
+            reducedMotion
         ) {
             setValue({ displayText: targetText ?? '', opacity: 1 });
             return;
@@ -128,7 +129,7 @@ export const useGlitchText = (
                 frameRef.current = null;
             }
         };
-    }, [targetText, phase, delay]);
+    }, [targetText, phase, delay, reducedMotion]);
 
     return value;
 };
@@ -214,6 +215,9 @@ export const useLookalikeFlicker = (
         active: false,
         surge: false,
     });
+    // Subscribed for the same reason as `useGlitchText`: the flicker runs
+    // continuously through the long stable phase.
+    const reducedMotion = useMediaQuery(REDUCED_MOTION_QUERY);
 
     useEffect(() => {
         // Disabled, empty, or reduced motion: resolved word, no timers.
@@ -221,7 +225,7 @@ export const useLookalikeFlicker = (
             typeof targetText !== 'string' ||
             !targetText ||
             !enabled ||
-            prefersReducedMotion()
+            reducedMotion
         ) {
             setValue({ text: targetText ?? '', active: false, surge: false });
             return;
@@ -324,7 +328,7 @@ export const useLookalikeFlicker = (
             ids.forEach(clearTimeout);
             setValue({ text: targetText, active: false, surge: false });
         };
-    }, [targetText, enabled, seedDelay]);
+    }, [targetText, enabled, seedDelay, reducedMotion]);
 
     return value;
 };

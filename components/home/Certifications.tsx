@@ -25,7 +25,9 @@ const Certifications = () => {
                 scrollTrigger: {
                     trigger: containerRef.current,
                     start: 'top 85%',
-                    toggleActions: 'play none none reverse',
+                    // 'reverse' re-hides the entries on scroll-up while the
+                    // section is still on screen — see Experiences.tsx.
+                    toggleActions: 'play none none none',
                 },
             });
 
@@ -61,7 +63,7 @@ const Certifications = () => {
     const foregroundGradientClass = `${gradientTextBaseClass} from-primary to-foreground leading-tight`;
 
     return (
-        <section className="py-section select-none" id="certifications">
+        <section className="py-section" id="certifications">
             <div className="container" ref={containerRef}>
                 <SectionTitle title="Certifications" />
 
@@ -83,7 +85,7 @@ const Certifications = () => {
                                     )}
                                 >
                                     <div className="mb-4 xs:mb-6">
-                                        <p className="text-heading-sm sm:text-heading-md md:text-heading-lg font-anton uppercase break-words">
+                                        <h3 className="text-heading-sm sm:text-heading-md md:text-heading-lg font-anton uppercase break-words">
                                             <span
                                                 className={`${foregroundGradientClass} ${isCategoryHovered ? 'bg-left' : 'bg-right'}`}
                                                 onMouseEnter={() =>
@@ -95,7 +97,7 @@ const Certifications = () => {
                                             >
                                                 {category.provider}
                                             </span>
-                                        </p>
+                                        </h3>
                                     </div>
                                     <div className="grid gap-6 xs:gap-4">
                                         {category.certifications.map(

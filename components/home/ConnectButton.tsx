@@ -13,12 +13,17 @@ import { GENERAL_INFO } from '@/lib/data';
 // shadow / clip-path — the button never changes size, so there's no shake.
 const ConnectButton = () => {
     return (
+        // The transition list deliberately omits `transform`. Banner scrubs this
+        // element's `y` on scroll, and a 300ms transform transition restarted on
+        // every one of those frames, so the CTA visibly lagged and smeared
+        // behind the rest of the hero. `active:translate-y-px` now snaps, which
+        // is what a press state should do anyway.
         <a
             href={GENERAL_INFO.linkedIn}
             target="_blank"
             rel="noopener noreferrer"
-            aria-label="Connect with Tariq Ahmad on LinkedIn (opens in a new tab)"
-            className="banner-button slide-up-and-fade group relative mt-9 inline-flex h-12 items-center gap-3 overflow-hidden rounded-tl-[12px] rounded-br-[12px] rounded-tr-none rounded-bl-none bg-primary px-6 text-primary-foreground shadow-[0_0_18px_rgba(0,255,0,0.22)] transition-[box-shadow,transform] duration-300 ease-out hover:shadow-[0_0_34px_rgba(0,255,0,0.5)] active:translate-y-px sm:gap-4 sm:px-7"
+            aria-label="Let’s Connect — LinkedIn profile (opens in a new tab)"
+            className="banner-button slide-up-and-fade group relative mt-9 inline-flex h-12 items-center gap-3 overflow-hidden rounded-tl-[12px] rounded-br-[12px] rounded-tr-none rounded-bl-none bg-primary px-6 text-primary-foreground shadow-[0_0_18px_rgba(0,255,0,0.22)] transition-[box-shadow] duration-300 ease-out hover:shadow-[0_0_34px_rgba(0,255,0,0.5)] active:translate-y-px sm:gap-4 sm:px-7"
         >
             {/* Diagonal scan-line sweep on hover (translate only — no resize) */}
             <span

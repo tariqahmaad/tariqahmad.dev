@@ -36,7 +36,9 @@ const Skills = () => {
                     scrollTrigger: {
                         trigger: category,
                         start: 'top 95%', // Trigger earlier for quicker reveal
-                        toggleActions: 'play none none reverse',
+                        // 'reverse' re-hides the chips on scroll-up, which reads
+                        // as flicker — see the note in Experiences.tsx.
+                        toggleActions: 'play none none none',
                     },
                 });
 
@@ -82,20 +84,25 @@ const Skills = () => {
                             key={key}
                         >
                             <div className="sm:col-span-5 mb-4 xs:mb-6 sm:mb-0">
-                                <p className={`category-title ${gradientTextClass} text-heading-sm sm:text-heading-md md:text-heading-lg font-anton leading-none uppercase`}>
+                                <h3 className={`category-title ${gradientTextClass} text-heading-sm sm:text-heading-md md:text-heading-lg font-anton leading-none uppercase`}>
                                     {key}
-                                </p>
+                                </h3>
                             </div>
-                            <div className="sm:col-span-7 flex gap-x-4 xs:gap-x-6 md:gap-x-8 xl:gap-x-11 gap-y-4 xs:gap-y-6 md:gap-y-9 flex-wrap">
+                            {/* A list, not divs: the chips are one group of peers per
+                                category, so assistive tech should announce how many
+                                there are. `ul`/`li` are preflight-reset, so the flex
+                                layout and spacing are unchanged. */}
+                            <ul className="sm:col-span-7 flex gap-x-4 xs:gap-x-6 md:gap-x-8 xl:gap-x-11 gap-y-4 xs:gap-y-6 md:gap-y-9 flex-wrap">
                                 {value.map((item) => (
-                                    <div
+                                    <li
                                         className="category-item group/item flex gap-2 xs:gap-3 md:gap-4 items-center leading-none"
                                         key={`${key}-${item.name}`}
                                     >
                                         <div className="relative flex items-center justify-center h-10 w-10 xs:h-12 xs:w-12 md:h-14 md:w-14 border border-foreground/10 bg-background-light/40 transition-colors duration-300 group-hover/item:border-primary/50">
+                                            {/* Decorative: the name is announced by the text beside it. */}
                                             <Image
                                                 src={item.icon}
-                                                alt={item.name}
+                                                alt=""
                                                 width={56}
                                                 height={56}
                                                 sizes="56px"
@@ -106,9 +113,9 @@ const Skills = () => {
                                         <span className="text-body-base sm:text-body-lg md:text-body-xl text-foreground/90 font-mono lowercase tracking-wide transition-colors duration-300 group-hover/item:text-primary">
                                             {item.name}
                                         </span>
-                                    </div>
+                                    </li>
                                 ))}
-                            </div>
+                            </ul>
                         </div>
                     ))}
                 </div>
