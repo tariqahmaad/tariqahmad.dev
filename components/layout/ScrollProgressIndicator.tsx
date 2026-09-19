@@ -4,15 +4,22 @@ import React, { useEffect, useRef } from 'react';
 const ScrollProgressIndicator = () => {
     const scrollBarRef = useRef<HTMLDivElement>(null);
     const frameRef = useRef<number | null>(null);
+    // Cached `scrollHeight - clientHeight`: reading it per frame forced a
+    // style/layout invalidation for the whole document on every scroll frame.
+    const scrollableHeightRef = useRef(0);
 
     useEffect(() => {
+        const measureScrollableHeight = () => {
+            const { scrollHeight, clientHeight } = document.documentElement;
+            scrollableHeightRef.current = scrollHeight - clientHeight;
+        };
+
         const updateProgress = () => {
             frameRef.current = null;
 
             if (!scrollBarRef.current) return;
 
-            const { scrollHeight, clientHeight } = document.documentElement;
-            const scrollableHeight = scrollHeight - clientHeight;
+            const scrollableHeight = scrollableHeightRef.current;
             const scrollY = window.scrollY;
 
             // A page shorter than the viewport has no scrollable height: dividing
@@ -32,10 +39,21 @@ const ScrollProgressIndicator = () => {
             frameRef.current = requestAnimationFrame(updateProgress);
         };
 
+        // Measured before the first paint of the bar so a restored scroll
+        // position does not render a zero progress frame.
+        measureScrollableHeight();
         updateProgress();
+
+        // A page that grows (reveal animations, images, fonts) changes the
+        // scrollable height without a `resize` event, so the cached value is
+        // invalidated from the document boxes themselves.
+        const resizeObserver = new ResizeObserver(measureScrollableHeight);
+        resizeObserver.observe(document.documentElement);
+        resizeObserver.observe(document.body);
 
         window.addEventListener('scroll', handleScroll, { passive: true });
         return () => {
+            resizeObserver.disconnect();
             window.removeEventListener('scroll', handleScroll);
             if (frameRef.current !== null) cancelAnimationFrame(frameRef.current);
         };

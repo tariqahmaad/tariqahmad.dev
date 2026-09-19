@@ -7,6 +7,14 @@ export const generateStaticParams = async () => {
     return PROJECTS.map((project) => ({ slug: project.slug }));
 };
 
+// `dynamicParams` defaults to true, which lets an unknown slug fall through to
+// an on-demand render. That render trips Next's static-to-dynamic guard and
+// returns a 500 ("Page changed from static to dynamic at runtime") before
+// `notFound()` is ever reached — so a stale link or a typo'd URL produced a
+// server error instead of a 404. The project list is fully known at build
+// time, so refusing unknown params outright is both correct and cheaper.
+export const dynamicParams = false;
+
 export const generateMetadata = async ({
     params,
 }: {

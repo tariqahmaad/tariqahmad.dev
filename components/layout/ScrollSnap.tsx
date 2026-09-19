@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 import { useLenis } from 'lenis/react';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
 // The package ships a typed public entry point (`lenis/snap`) — prefer it over
 // the private `lenis/dist/lenis-snap.mjs` deep import.
 import Snap from 'lenis/snap';
@@ -11,28 +12,29 @@ import Snap from 'lenis/snap';
 const easeOutExpoSmooth = (t: number): number =>
     t === 1 ? 1 : 1 - Math.pow(2, -12 * t);
 
+const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)';
+
 export default function ScrollSnap() {
     const lenis = useLenis();
     const pathname = usePathname();
     const snapRef = useRef<Snap | null>(null);
+    // Subscribed, not read once: a user who turns reduced motion on mid-session
+    // must lose the snapping, and gets it back if they turn it off again.
+    const prefersReducedMotion = useMediaQuery(REDUCED_MOTION_QUERY);
 
     // `pathname` is a dependency on purpose: the snap points are DOM nodes, so
     // after a client-side navigation the previous section elements are detached
     // and Snap recomputes every point to the current scroll offset, which makes
     // the page rubber-band. Re-registering per route keeps the list valid.
     useEffect(() => {
-        if (!lenis) return;
+        if (!lenis || prefersReducedMotion) return;
 
-        const prefersReducedMotion = window.matchMedia(
-            '(prefers-reduced-motion: reduce)'
-        ).matches;
-
-        if (prefersReducedMotion) return;
-
-        // Lazy snap configuration - only snaps when very close to a section
+        // Lazy snap configuration - only snaps when very close to a section.
+        // No `lerp`: lenis/snap forwards `lerp`, `duration` and `easing` to
+        // `lenis.scrollTo`, and Lenis takes the duration/easing branch whenever
+        // both are set, so a `lerp` here would be a dead option.
         const snap = new Snap(lenis, {
             type: 'proximity',
-            lerp: 0.05,
             duration: 1.5,
             easing: easeOutExpoSmooth,
             distanceThreshold: '10%', // Only snap when within 10% of viewport
@@ -51,7 +53,7 @@ export default function ScrollSnap() {
             snap.destroy();
             snapRef.current = null;
         };
-    }, [lenis, pathname]);
+    }, [lenis, pathname, prefersReducedMotion]);
 
     return null;
 }

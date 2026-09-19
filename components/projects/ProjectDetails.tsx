@@ -84,21 +84,28 @@ const ProjectDetails = ({ project }: Props) => {
     // parallax effect on images
     useGSAP(
         () => {
-            gsap.utils
-                .toArray<HTMLDivElement>('#images > div')
-                .forEach((imageDiv, i) => {
-                    gsap.to(imageDiv, {
-                        backgroundPosition: `center 0%`,
-                        ease: 'none',
-                        scrollTrigger: {
-                            trigger: imageDiv,
-                            start: () => (i ? 'top bottom' : 'top 50%'),
-                            end: 'bottom top',
-                            scrub: true,
-                            // invalidateOnRefresh: true, // to make it responsive
-                        },
-                    });
+            if (!containerRef.current) return;
+
+            // `useGSAP`'s `scope` only rewrites selector strings handed to gsap
+            // methods — it does not apply to `gsap.utils.toArray`, which was
+            // scanning the whole document. Query from the container explicitly.
+            const imageDivs = gsap.utils.toArray<HTMLDivElement>(
+                containerRef.current.querySelectorAll('#images > div'),
+            );
+
+            imageDivs.forEach((imageDiv, i) => {
+                gsap.to(imageDiv, {
+                    backgroundPosition: `center 0%`,
+                    ease: 'none',
+                    scrollTrigger: {
+                        trigger: imageDiv,
+                        start: () => (i ? 'top bottom' : 'top 50%'),
+                        end: 'bottom top',
+                        scrub: true,
+                        // invalidateOnRefresh: true, // to make it responsive
+                    },
                 });
+            });
         },
         { scope: containerRef },
     );

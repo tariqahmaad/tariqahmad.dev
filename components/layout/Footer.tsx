@@ -61,7 +61,7 @@ const Footer = () => {
                         hydration mismatch. */}
                     <p
                         suppressHydrationWarning
-                        className="text-ui-sm text-muted-foreground/50 font-mono"
+                        className="text-ui-sm text-muted-foreground/65 font-mono"
                     >
                         &copy; {new Date().getFullYear()} tariqahmad.dev
                     </p>

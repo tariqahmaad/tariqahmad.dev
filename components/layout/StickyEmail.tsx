@@ -36,12 +36,18 @@ const StickyEmail = () => {
         if (!marqueeRef.current || prefersReducedMotion) return;
 
         const marquee = marqueeRef.current;
-        let animation: gsap.core.Tween | null = null;
+        // `document.fonts.ready` is not cancellable, so this flag is what stops a
+        // late resolution from building a *new* infinite tween after the cleanup
+        // already killed the previous one - such a tween would tick forever on a
+        // detached node.
+        let cancelled = false;
 
         // Re-measure on resize/font-swap: the loop distance was previously
         // measured once, so a later layout change desynced the marquee and left
         // a visible gap at the wrap point.
         const build = () => {
+            if (cancelled) return;
+
             const firstItem = marquee.children[0] as HTMLElement | undefined;
             const secondSetFirstItem = marquee.children[
                 ORIGINAL_ITEM_COUNT
@@ -55,9 +61,12 @@ const StickyEmail = () => {
 
             if (totalDistance <= 0) return;
 
-            animation?.kill();
+            // The ref is the single owner of the live tween: `build()` can run
+            // again (resize, font swap) or after unmount, and only what the ref
+            // points at is guaranteed to be killed.
+            animationRef.current?.kill();
             gsap.set(marquee, { y: 0 });
-            animation = gsap.fromTo(
+            const animation = gsap.fromTo(
                 marquee,
                 { y: 0 },
                 {
@@ -74,12 +83,28 @@ const StickyEmail = () => {
 
         build();
 
-        window.addEventListener('resize', build);
+        // One rebuild per frame: `build()` reads layout and replaces a tween, so
+        // running it for every resize event forces repeated synchronous layout.
+        let resizeRaf = 0;
+        const handleResize = () => {
+            if (resizeRaf) return;
+            resizeRaf = requestAnimationFrame(() => {
+                resizeRaf = 0;
+                build();
+            });
+        };
+
+        window.addEventListener('resize', handleResize);
         document.fonts?.ready.then(build).catch(() => {});
 
         return () => {
-            window.removeEventListener('resize', build);
-            animation?.kill();
+            cancelled = true;
+            window.removeEventListener('resize', handleResize);
+            if (resizeRaf) {
+                cancelAnimationFrame(resizeRaf);
+                resizeRaf = 0;
+            }
+            animationRef.current?.kill();
             animationRef.current = null;
             gsap.set(marquee, { y: 0 });
         };
@@ -120,7 +145,6 @@ const StickyEmail = () => {
 
     return (
         <div
-            data-menu-inert
             className="max-xl:hidden fixed top-0 bottom-0 left-0 overflow-hidden
                        before:pointer-events-none after:pointer-events-none
                        before:absolute before:inset-x-0 before:top-0 before:h-32 before:z-10

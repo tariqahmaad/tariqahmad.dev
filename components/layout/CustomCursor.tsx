@@ -32,10 +32,15 @@ const MASK_DEFAULT_OUTER_STOP = 70;
 const MASK_CLICK_OUTER_STOP = 46;
 const MASK_TRANSITION_RANGE = 24;
 
-// Helper: Check if element is interactive (or nested inside one)
-function isInteractiveElement(element: HTMLElement | null): boolean {
-    if (!element) return false;
-    return element.matches(INTERACTIVE_SELECTORS) || element.closest(INTERACTIVE_SELECTORS) !== null;
+// Helper: nearest interactive ancestor of `element` (or `element` itself).
+// Returning the ancestor instead of a boolean lets the hover probe cache it -
+// every descendant of an interactive ancestor is interactive too, so the
+// `closest()` walk only has to run when the pointer leaves that subtree.
+function interactiveAncestorOf(element: Element | null): Element | null {
+    if (!element) return null;
+    return element.matches(INTERACTIVE_SELECTORS)
+        ? element
+        : element.closest(INTERACTIVE_SELECTORS);
 }
 
 // Helper: Update ring mask gradient
@@ -52,6 +57,9 @@ const CustomCursor = () => {
 
     // Shared cursor state accessible from both useEffect and useGSAP
     const cursorStateRef = useRef({
+        // Mirrors the useGSAP closure's `isActive` so the route-change effect can
+        // tell whether the cursor is live without re-deriving the media queries.
+        isActive: false,
         isHovering: false,
         currentScale: 1,
         isVisible: false,
@@ -69,6 +77,13 @@ const CustomCursor = () => {
     // Reset cursor on route changes
     useEffect(() => {
         const spotlight = spotlightRef.current;
+
+        // Only re-seat a cursor that is actually live. Writing here regardless
+        // of `isActive` used to strand the disc: `deactivate()` (reduced motion,
+        // or a window narrower than 768px) detaches the mousemove listener, so
+        // nothing was left that could fade out the `opacity: 1` written below.
+        if (!cursorStateRef.current.isActive) return;
+
         const pointer = pointerRef.current;
 
         if (spotlight) {
@@ -112,9 +127,15 @@ const CustomCursor = () => {
         const motionQuery = window.matchMedia(MOTION_QUERY);
 
         let isActive = false;
-        // Coalesce rapid mousemove events through rAF so elementFromPoint and
+        // Coalesce rapid mousemove events through rAF so the visibility check and
         // quickTo run at most once per frame.
         let pendingMove: { x: number; y: number } | null = null;
+        // Topmost element under the pointer, taken from the mousemove event
+        // itself: the browser dispatches a mousemove to that element, so
+        // `event.target` already *is* the hit test result. Calling
+        // `document.elementFromPoint` on top of it repeated the browser's own hit
+        // test on every frame of pointer motion.
+        let hoveredElement: Element | null = null;
         let moveRaf = 0;
 
         const flushMove = () => {
@@ -123,8 +144,9 @@ const CustomCursor = () => {
             const { x, y } = pendingMove;
             pendingMove = null;
 
-            const hoveredElement = document.elementFromPoint(x, y) as HTMLElement | null;
-            const shouldHideCursor = Boolean(hoveredElement?.closest('[data-cursor-hide]'));
+            const shouldHideCursor = Boolean(
+                hoveredElement?.closest('[data-cursor-hide]'),
+            );
 
             if (cursorStateRef.current.hiddenUntilMove) {
                 // First move after (re)activation: snap instead of sweeping in
@@ -150,6 +172,9 @@ const CustomCursor = () => {
 
         const handleMouseMove = (e: MouseEvent) => {
             pointerRef.current = { x: e.clientX, y: e.clientY };
+            // `instanceof Element`, not `HTMLElement`: SVG children are valid
+            // targets and `data-cursor-hide` sits on a button that wraps one.
+            hoveredElement = e.target instanceof Element ? e.target : null;
             pendingMove = pointerRef.current;
             if (!moveRaf) moveRaf = requestAnimationFrame(flushMove);
         };
@@ -213,35 +238,84 @@ const CustomCursor = () => {
             });
         };
 
-        const handleMouseOver = (e: MouseEvent) => {
-            const target = e.target as HTMLElement;
+        // Enter/leave transitions fire a mouseover/mouseout pair for every
+        // element boundary the pointer crosses - far more often than the hover
+        // state can change, and each pair used to run up to four
+        // `matches()`/`closest()` walks. Only the newest event of a frame
+        // matters (the hover state follows where the pointer is now, not the
+        // path it took), so they are collapsed into a single rAF pass.
+        let hoverRaf = 0;
+        // `null` is a meaningful value ("pointer left the document"), hence the
+        // separate flag rather than using null for "nothing pending".
+        let pendingHoverElement: Element | null = null;
+        let hasPendingHover = false;
+        // Interactive ancestor the pointer was last inside. Re-validated with a
+        // single-node `matches()`: while it still matches, every descendant of
+        // it is interactive, so transitions inside one component (a card, a nav
+        // item) skip the ancestor walk entirely.
+        let interactiveAncestor: Element | null = null;
 
+        const resolveHover = (element: Element | null): boolean => {
+            if (!element) return false;
+
+            const cached = interactiveAncestor;
+            // `matches()` on the cached node is a single-element test, cheaper
+            // than walking the tree: while it still matches, every descendant of
+            // it is interactive too.
+            if (
+                cached !== null &&
+                cached.matches(INTERACTIVE_SELECTORS) &&
+                cached.contains(element)
+            ) {
+                return true;
+            }
+
+            interactiveAncestor = interactiveAncestorOf(element);
+            return interactiveAncestor !== null;
+        };
+
+        const flushHover = () => {
+            hoverRaf = 0;
+            if (!hasPendingHover) return;
+            hasPendingHover = false;
+
+            const shouldHover = resolveHover(pendingHoverElement);
+            pendingHoverElement = null;
+
+            if (shouldHover === cursorStateRef.current.isHovering) return;
+
+            cursorStateRef.current.isHovering = shouldHover;
+            cursorStateRef.current.currentScale = shouldHover ? HOVER_SCALE : 1;
+            // Same target scale, ease and duration the enter/leave handlers used,
+            // so the hover state itself is unchanged - only its timing moves to
+            // the frame boundary.
+            gsap.to(spotlightRef.current, {
+                scale: cursorStateRef.current.currentScale,
+                duration: HOVER_DURATION,
+                ease: 'power3.out',
+            });
+        };
+
+        const queueHover = (element: Element | null) => {
+            pendingHoverElement = element;
+            hasPendingHover = true;
+            if (!hoverRaf) hoverRaf = requestAnimationFrame(flushHover);
+        };
+
+        const handleMouseOver = (e: MouseEvent) => {
+            // The element being entered is where the pointer is now, so it wins
+            // over anything queued earlier in the same frame.
             // [data-cursor-hide] is handled solely by flushMove's per-frame hit
             // test, so no competing opacity tweens are created here.
-            if (isInteractiveElement(target) && !cursorStateRef.current.isHovering) {
-                cursorStateRef.current.isHovering = true;
-                cursorStateRef.current.currentScale = HOVER_SCALE;
-                gsap.to(spotlightRef.current, {
-                    scale: HOVER_SCALE,
-                    duration: HOVER_DURATION,
-                    ease: 'power3.out',
-                });
-            }
+            queueHover(e.target instanceof Element ? e.target : null);
         };
 
         const handleMouseOut = (e: MouseEvent) => {
-            const target = e.target as HTMLElement;
-            const relatedTarget = e.relatedTarget as HTMLElement;
-
-            if (isInteractiveElement(target) && !isInteractiveElement(relatedTarget)) {
-                cursorStateRef.current.isHovering = false;
-                cursorStateRef.current.currentScale = 1;
-                gsap.to(spotlightRef.current, {
-                    scale: 1,
-                    duration: HOVER_DURATION,
-                    ease: 'power3.out',
-                });
-            }
+            // `relatedTarget` is where the pointer is heading (null when it
+            // leaves the window), which is the state the next frame renders.
+            queueHover(
+                e.relatedTarget instanceof Element ? e.relatedTarget : null,
+            );
         };
 
         // Wrap handlers with contextSafe for proper GSAP cleanup
@@ -257,6 +331,7 @@ const CustomCursor = () => {
             const spotlight = spotlightRef.current;
             if (isActive || !spotlight) return;
             isActive = true;
+            cursorStateRef.current.isActive = true;
 
             // GSAP writes the inline transform, which overwrites the Tailwind
             // -translate-x-1/2 -translate-y-1/2 centering classes, so centering
@@ -305,12 +380,19 @@ const CustomCursor = () => {
         const deactivate = () => {
             if (!isActive) return;
             isActive = false;
+            cursorStateRef.current.isActive = false;
 
             if (moveRaf) {
                 cancelAnimationFrame(moveRaf);
                 moveRaf = 0;
             }
+            if (hoverRaf) {
+                cancelAnimationFrame(hoverRaf);
+                hoverRaf = 0;
+            }
             pendingMove = null;
+            pendingHoverElement = null;
+            hasPendingHover = false;
             followRef.current = null;
 
             // Hand the native cursor back before hiding the custom one
@@ -328,6 +410,12 @@ const CustomCursor = () => {
             cursorStateRef.current.currentScale = 1;
             cursorStateRef.current.isVisible = false;
             cursorStateRef.current.hiddenUntilMove = true;
+            // The route-change effect now only re-seats the cursor while it is
+            // active, so the ring is reset here as well: a click mask left
+            // mid-tween must not survive into the next activation.
+            if (ringRef.current) {
+                updateRingMask(ringRef.current, MASK_DEFAULT_OUTER_STOP);
+            }
             gsap.set(spotlightRef.current, { scale: 1, opacity: 0 });
         };
 

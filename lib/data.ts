@@ -169,7 +169,6 @@ export const PROJECTS: IProject[] = [
             <li>Responsive and fast</li>
             
         </ul>`,
-        role: ``,
         liveUrl: 'https://cv.tariqahmad.dev/',
     },
     {
@@ -187,7 +186,6 @@ export const PROJECTS: IProject[] = [
             <li>Works on both mobile and desktop</li>
             <li>Clean, distraction-free interface</li>
         </ul>`,
-        role: ``,
         sourceCode: 'https://github.com/tariqahmaad/quizlet',
         liveUrl: 'https://tariqahmaad.github.io/quizlet/index.html',
     },
@@ -249,7 +247,6 @@ export const PROJECTS: IProject[] = [
             <li>Interactive navigation and content display</li>
             <li>Clean, modern design</li>
         </ul>`,
-        role: ``,
         sourceCode: 'https://github.com/tariqahmaad/Presentation',
         liveUrl: 'https://tariqahmaad.github.io/Presentation/index.html',
     },
@@ -268,7 +265,6 @@ export const PROJECTS: IProject[] = [
             <li>Responsive design that works across browsers</li>
             <li>Got real feedback from users and iterated on it</li>
         </ul>`,
-        role: ``,
         sourceCode:
             'https://github.com/tariqahmaad/Note-Taking-Web-Application',
     },
@@ -286,7 +282,6 @@ export const PROJECTS: IProject[] = [
             <li>Achieved over 95% accuracy on test data</li>
             <li>Backpropagation and gradient descent optimization</li>
         </ul>`,
-        role: ``,
     },
     {
         title: 'Hotel Management System',
@@ -303,7 +298,6 @@ export const PROJECTS: IProject[] = [
             <li>Created check-in/check-out workflows</li>
             <li>Worked with Windows Forms and .NET for the first time</li>
         </ul>`,
-        role: ``,
     },
 ];
 
@@ -421,20 +415,20 @@ export const MY_CERTIFICATIONS: ICertificationCategory[] = [
         ],
     },
     {
-        provider: 'IDP Education',
-        certifications: [
-            {
-                title: 'IELTS - Overall Band: 6.0',
-                date: 'February 2025',
-            },
-        ],
-    },
-    {
         provider: 'Meta | Coursera',
         certifications: [
             {
                 title: 'React Native',
                 date: 'March 2025',
+            },
+        ],
+    },
+    {
+        provider: 'IDP Education',
+        certifications: [
+            {
+                title: 'IELTS - Overall Band: 6.0',
+                date: 'February 2025',
             },
         ],
     },

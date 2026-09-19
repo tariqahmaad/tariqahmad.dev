@@ -3,6 +3,7 @@
 import { gsap, useGSAP } from '@/lib/gsap-setup';
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { ArrowUp, ChevronsUp } from 'lucide-react';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
 
 const SCROLL_THRESHOLD = 400;
 const SCROLL_TOLERANCE = 5;
@@ -20,11 +21,21 @@ const ScrollToTop = () => {
     const [clickSuccess, setClickSuccess] = useState(false);
 
     const lastScrollYRef = useRef(0);
+    // Cached `scrollHeight - clientHeight`: reading it per frame forced a
+    // style/layout invalidation for the whole document on every scroll frame.
+    const scrollableHeightRef = useRef(0);
     const frameRef = useRef<number | null>(null);
     const clickTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    const prefersReducedMotion = typeof window !== 'undefined' &&
-        window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    // Subscribed, not read once during render: `useMediaQuery` returns false
+    // through SSR and the first client render (so the markup matches) and then
+    // follows the preference live. A one-time render read both missed a later
+    // change and left the GSAP effect skipping its show/hide branch forever,
+    // stranding the button at the `opacity: 0; translate(0, 100px)` a previous
+    // animated run had written.
+    const prefersReducedMotion = useMediaQuery(
+        '(prefers-reduced-motion: reduce)',
+    );
 
     // Logical visibility lives in CSS (Tailwind utilities, so it is already in the
     // server-rendered stylesheet) instead of being owned by GSAP. The visibility
@@ -43,8 +54,7 @@ const ScrollToTop = () => {
         lastScrollYRef.current = currentScrollY;
 
         if (progressRingRef.current) {
-            const { scrollHeight, clientHeight } = document.documentElement;
-            const scrollableHeight = scrollHeight - clientHeight;
+            const scrollableHeight = scrollableHeightRef.current;
             // Guard the divide: a non-scrollable page would otherwise yield NaN.
             const progress = scrollableHeight > 0
                 ? Math.min(currentScrollY / scrollableHeight, 1)
@@ -57,7 +67,47 @@ const ScrollToTop = () => {
 
         const isScrollingDown = scrollDelta > 0;
         const pastThreshold = currentScrollY > SCROLL_THRESHOLD;
-        setIsVisible(pastThreshold && !isScrollingDown);
+        const nextVisible = pastThreshold && !isScrollingDown;
+
+        // The button hides itself with `visibility: hidden` + `aria-hidden`, so
+        // focus must not still be on it when that commit lands: browsers flag
+        // aria-hidden on a focused element and then dump focus to <body> anyway.
+        // Blurring here - before the state flip, not in an effect after the
+        // commit - closes even the one frame where focus would sit on a hidden
+        // element. Focus lands on the document body, which is where the reader
+        // is after the page was scrolled back to the top.
+        if (!nextVisible) {
+            const active = document.activeElement;
+            if (
+                active instanceof HTMLElement &&
+                containerRef.current?.contains(active)
+            ) {
+                active.blur();
+            }
+        }
+
+        setIsVisible(nextVisible);
+    }, []);
+
+    // Keep the cached scrollable height in step with the document. A
+    // ResizeObserver is the only signal that fires for content-driven growth
+    // (reveal animations, images, fonts) as well as viewport resizes, which the
+    // `resize` event alone does not cover.
+    useEffect(() => {
+        const measureScrollableHeight = () => {
+            const { scrollHeight, clientHeight } = document.documentElement;
+            scrollableHeightRef.current = scrollHeight - clientHeight;
+        };
+
+        measureScrollableHeight();
+
+        // Both are observed: the root box covers content growth, body covers the
+        // margin/overflow cases the root box does not reflect.
+        const resizeObserver = new ResizeObserver(measureScrollableHeight);
+        resizeObserver.observe(document.documentElement);
+        resizeObserver.observe(document.body);
+
+        return () => resizeObserver.disconnect();
     }, []);
 
     // Coalesce scroll events into a single layout read + style write per frame.
@@ -87,7 +137,24 @@ const ScrollToTop = () => {
 
     useGSAP(
         () => {
-            if (prefersReducedMotion || !containerRef.current) return;
+            if (!containerRef.current) return;
+
+            // Reduced motion: CSS owns the visuals here, so drop whatever inline
+            // opacity/transform a previous animated run wrote. Without this the
+            // button stays at `opacity: 0; translate(0, 100px)` - it never
+            // animates back in and the preference change hides it permanently.
+            if (prefersReducedMotion) {
+                [
+                    containerRef.current,
+                    glowRef.current,
+                    iconRef.current,
+                ].forEach((node) => {
+                    if (node) {
+                        gsap.set(node, { clearProps: 'opacity,transform' });
+                    }
+                });
+                return;
+            }
 
             // Visibility is owned by `hiddenClasses` above, so GSAP only animates
             // the transition. That keeps the button visible for reduced-motion
@@ -117,16 +184,32 @@ const ScrollToTop = () => {
                     }
                 );
             } else {
-                gsap.to(containerRef.current, {
-                    y: 100,
-                    opacity: 0,
-                    scale: 0.8,
-                    duration: 0.3,
-                    ease: 'power2.in',
-                });
+                // The start values are stated explicitly because
+                // `revertOnUpdate` has already restored the node to the values
+                // the entrance tween began from: a plain `to()` would tween
+                // towards where the node already sits and the slide-out would
+                // not be seen at all.
+                gsap.fromTo(
+                    containerRef.current,
+                    { y: 0, opacity: 1, scale: 1 },
+                    {
+                        y: 100,
+                        opacity: 0,
+                        scale: 0.8,
+                        duration: 0.3,
+                        ease: 'power2.in',
+                    }
+                );
             }
         },
-        [isVisible],
+        {
+            // Without this, cleanup only ran on unmount: every visibility flip
+            // stacked another tween on the same y/opacity/scale with no
+            // `overwrite`, so a quick flip snapped the button back to
+            // `{ y: 100, opacity: 0 }` mid-flight.
+            dependencies: [isVisible, prefersReducedMotion],
+            revertOnUpdate: true,
+        },
     );
 
     const handleMouseEnter = () => {
@@ -231,7 +314,6 @@ const ScrollToTop = () => {
             onMouseLeave={handleMouseLeave}
             className={`fixed bottom-8 right-[2%] z-50 group ${isVisible ? '' : hiddenClasses}`}
             aria-label="Scroll to top"
-            role="button"
             aria-hidden={!isVisible}
             data-visible={isVisible ? 'true' : 'false'}
             tabIndex={isVisible ? 0 : -1}
@@ -330,6 +412,15 @@ const ScrollToTop = () => {
             </div>
 
             <style jsx>{`
+                /* A modal overlay inerts the page while it is open - the site
+                   menu sets inert on everything outside itself. This button
+                   sits at z-50, i.e. above that overlay, so without this rule it
+                   would keep looking clickable while being unreachable.
+                   (No backticks in this block: it is a template literal.) */
+                button[inert] {
+                    visibility: hidden;
+                }
+
                 @keyframes breathe {
                     0%, 100% { opacity: 0.2; transform: scale(1.5); }
                     50% { opacity: 0.4; transform: scale(1.7); }

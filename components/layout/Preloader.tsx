@@ -1,6 +1,6 @@
 'use client';
 import { gsap, useGSAP } from '@/lib/gsap-setup';
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 const SEEN_KEY = 'tariq-preloader-seen';
 const SLAT_COUNT = 10;
@@ -70,6 +70,24 @@ const Preloader = () => {
     const preloaderRef = useRef<HTMLDivElement>(null);
     const counterRef = useRef<HTMLSpanElement>(null);
     const railRef = useRef<HTMLDivElement>(null);
+    // The shell elements this run actually inerted, so the release clears
+    // exactly what the preloader set - and never an `inert` the open menu panel
+    // owns on the same elements.
+    const inertedShellRef = useRef<HTMLElement[]>([]);
+
+    // Safety net for the inert shell below: the show releases it when its
+    // timeline completes, but a killed or thrown animation never gets there and
+    // an unmount mid-show would leave the page permanently unreachable. Unmount
+    // therefore always clears whatever is still marked.
+    useEffect(() => {
+        return () => {
+            inertedShellRef.current.forEach((element) => {
+                element.removeAttribute('inert');
+                element.removeAttribute('aria-busy');
+            });
+            inertedShellRef.current = [];
+        };
+    }, []);
 
     useGSAP(
         () => {
@@ -131,12 +149,36 @@ const Preloader = () => {
                 ).matches;
 
             // Reduced-motion (and explicit opt-out) skip the show: the slats
-            // start opaque and would otherwise block paint.
+            // start opaque and would otherwise block paint. Nothing is inerted
+            // on this path either - the page is live immediately.
             if (reduced || force === 'off') {
                 gsap.set(el, { autoAlpha: 0 });
                 markSeen();
                 return;
             }
+
+            // While the opaque slat wall covers the page, the page behind it
+            // must not be reachable: Tab and assistive tech would otherwise walk
+            // into content nobody can see. Same house pattern as the open menu
+            // panel in Navbar (`inert` on `main`/`footer`), plus `aria-busy` so
+            // the covered shell reads as still loading rather than as empty.
+            const markShellBusy = () => {
+                inertedShellRef.current = Array.from(
+                    document.querySelectorAll<HTMLElement>('main, footer'),
+                );
+                inertedShellRef.current.forEach((element) => {
+                    element.setAttribute('inert', '');
+                    element.setAttribute('aria-busy', 'true');
+                });
+            };
+
+            const releaseShell = () => {
+                inertedShellRef.current.forEach((element) => {
+                    element.removeAttribute('inert');
+                    element.removeAttribute('aria-busy');
+                });
+                inertedShellRef.current = [];
+            };
 
             const bootHudIn = (tl: gsap.core.Timeline, at: number | string) =>
                 tl.fromTo(
@@ -156,6 +198,7 @@ const Preloader = () => {
 
                 const encore = gsap.timeline({
                     defaults: { ease: 'power1.inOut' },
+                    onComplete: releaseShell,
                 });
                 bootHudIn(encore, 0);
                 encore
@@ -163,38 +206,41 @@ const Preloader = () => {
                         encoreCount,
                         {
                             v: 100,
-                            duration: 0.6,
+                            duration: 0.45,
                             ease: 'none',
                             onUpdate: () => setReadout(encoreCount.v),
                         },
-                        0.1,
+                        0.05,
                     )
                     .to(
                         '.name-text span',
                         {
                             y: 0,
-                            duration: 0.4,
-                            stagger: 0.04,
+                            duration: 0.3,
+                            stagger: 0.03,
                             onComplete: land,
                         },
-                        0.1,
+                        0.05,
                     )
                     .to(
                         '.preloader-item',
-                        { y: '100%', duration: 0.5, stagger: 0.08 },
-                        '+=0.35',
+                        { y: '100%', duration: 0.35, stagger: 0.03 },
+                        '+=0.1',
                     )
                     .to(
                         '.slat-edge',
-                        { opacity: 1, duration: 0.2, stagger: 0.08 },
+                        { opacity: 1, duration: 0.15, stagger: 0.03 },
                         '<',
                     )
                     .to(
                         '.name-text span, .boot-hud, .preloader-hud',
-                        { autoAlpha: 0, duration: 0.3 },
+                        { autoAlpha: 0, duration: 0.25 },
                         '<',
                     )
-                    .to(el, { autoAlpha: 0, duration: 0.4 }, '+=0.5');
+                    .to(el, { autoAlpha: 0, duration: 0.35 }, '+=0.05');
+                // Armed last, once the timeline is built: anything thrown while
+                // building it leaves the page reachable instead of inert.
+                markShellBusy();
                 return;
             }
 
@@ -206,6 +252,7 @@ const Preloader = () => {
                 defaults: {
                     ease: 'power1.inOut',
                 },
+                onComplete: releaseShell,
             });
 
             bootHudIn(tl, 0);
@@ -260,6 +307,10 @@ const Preloader = () => {
                 '<',
             );
             tl.to(el, { autoAlpha: 0, duration: 0.6 }, '+=0.7');
+
+            // Armed last, once the timeline is built: anything thrown while
+            // building it leaves the page reachable instead of inert.
+            markShellBusy();
         },
         { scope: preloaderRef },
     );

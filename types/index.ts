@@ -29,7 +29,13 @@ export interface IProject {
     title: string;
     year: number;
     description: string;
-    role: string;
+    /**
+     * Optional: only solo or self-directed projects carry a written role, and
+     * `ProjectDetails` guards the section with `{project.role && …}`. It used to
+     * be required, which forced six `role: ''` placeholders that rendered
+     * nothing.
+     */
+    role?: string;
     techStack: string[];
     thumbnail?: string;
     longThumbnail?: string;

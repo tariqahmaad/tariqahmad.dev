@@ -1,5 +1,6 @@
 import { gsap, useGSAP } from '@/lib/gsap-setup';
 import { RefObject } from 'react';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
 
 interface UseScrollExitAnimationOptions {
     containerRef: RefObject<HTMLElement | null>;
@@ -20,14 +21,19 @@ export const useScrollExitAnimation = ({
     yOffset = -150,
     opacity = 0,
 }: UseScrollExitAnimationOptions) => {
+    // Subscribed rather than read once inside the effect: `useMediaQuery` is
+    // SSR-safe and follows the preference live, so flipping reduced motion on or
+    // off mid-session rebuilds (or tears down) the scrubbed fade instead of
+    // leaving whichever behaviour happened to be active at mount.
+    const prefersReducedMotion = useMediaQuery(
+        '(prefers-reduced-motion: reduce)',
+    );
+
     useGSAP(
         () => {
             // Scrubbed exit fades would hide content for reduced-motion users
             // (and fight the `opacity: 1 !important` CSS fallback), so skip.
-            if (
-                typeof window !== 'undefined' &&
-                window.matchMedia('(prefers-reduced-motion: reduce)').matches
-            ) {
+            if (prefersReducedMotion) {
                 gsap.set(containerRef.current, { y: 0, opacity: 1 });
                 return;
             }
@@ -46,6 +52,6 @@ export const useScrollExitAnimation = ({
                 opacity: opacity,
             });
         },
-        { scope: containerRef, dependencies: [startTrigger, endTrigger, yOffset, opacity], revertOnUpdate: true },
+        { scope: containerRef, dependencies: [startTrigger, endTrigger, yOffset, opacity, prefersReducedMotion], revertOnUpdate: true },
     );
 };

@@ -99,6 +99,13 @@ const ROW_MOTION = {
 
 const MENU_PANEL_ID = 'site-menu';
 
+// Roving order: the menu rows, then the social links, then the mailto link at
+// the bottom of the panel. The count has to include the mailto link or
+// ArrowDown from the last social wraps straight past it, and the final index
+// has to map to a ref or it becomes a dead stop the roving order never leaves.
+const ROVING_ITEM_COUNT = MENU_LINKS.length + SOCIAL_LINKS.length + 1;
+const CONTACT_INDEX = ROVING_ITEM_COUNT - 1;
+
 // Phones only: the toggle is a floating control that overlaps content, so it
 // recedes while the page is being scrolled down.
 const PHONE_QUERY = '(max-width: 767px)';
@@ -144,20 +151,29 @@ const Navbar = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const router = useRouter();
     const menuRef = useRef<HTMLDivElement>(null);
+    const backdropRef = useRef<HTMLDivElement>(null);
     const hamburgerRef = useRef<HTMLButtonElement>(null);
     const buttonRefs = useRef<(HTMLButtonElement | null)[]>([]);
     const socialRefs = useRef<(HTMLAnchorElement | null)[]>([]);
+    const contactRef = useRef<HTMLAnchorElement>(null);
     // Pending focus timer, tracked so it is cleared on close/unmount instead of
     // firing against a stale ref.
     const focusTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     // Close menu handler
     const closeMenu = useCallback(() => {
-        // Hand focus back to the hamburger, but only when focus is still inside
-        // the panel - otherwise we'd steal it from wherever the user moved it.
-        if (menuRef.current?.contains(document.activeElement)) {
+        // Hand focus back to the hamburger unless the user deliberately moved it
+        // somewhere else. A backdrop click lands on a non-focusable div and
+        // Safari never focuses a button on click, so `activeElement` is a bare
+        // <body> in both cases - checking only "is focus inside the panel" left
+        // the toggle unfocused after those dismissals.
+        const active = document.activeElement;
+        const focusInsidePanel = menuRef.current?.contains(active) ?? false;
+
+        if (!active || active === document.body || focusInsidePanel) {
             hamburgerRef.current?.focus();
         }
+
         setIsMenuOpen(false);
     }, []);
 
@@ -175,7 +191,7 @@ const Navbar = () => {
     // Keyboard navigation
     const { focusedIndex, setFocusedIndex } = useMenuKeyboardNavigation({
         isOpen: isMenuOpen,
-        itemCount: MENU_LINKS.length + SOCIAL_LINKS.length,
+        itemCount: ROVING_ITEM_COUNT,
         onClose: closeMenu,
     });
 
@@ -191,22 +207,104 @@ const Navbar = () => {
     });
     const isToggleDimmed = isPhone && isScrollingDown && !isMenuOpen;
 
-    // Contain focus inside the open menu. The panel is a modal dialog, so the
-    // rest of the page must not be reachable with Tab. `main`/`footer` cover
-    // the page shell; fixed widgets opt in with `data-menu-inert`.
+    // Contain focus inside the open menu. The panel is a modal dialog, so
+    // nothing outside it may be reachable with Tab, and `aria-modal` claims
+    // exactly that. A fixed selector list cannot keep that promise: it has to be
+    // updated for every widget that ever sits above the overlay, and the skip
+    // link (z-[10000]) and the fixed ScrollToTop button (z-50, above the panel's
+    // z-[31] and the backdrop's z-[30]) were both still reachable - and painted
+    // on top of - the open menu. Instead, walk the tree under <body> and inert
+    // everything that is not on the overlay's own branch, so a widget is covered
+    // without having to opt in.
     useEffect(() => {
         if (!isMenuOpen) return;
 
-        const targets = Array.from(
-            document.querySelectorAll<HTMLElement>(
-                'main, footer, [data-menu-inert]',
-            ),
-        );
-        targets.forEach((element) => element.setAttribute('inert', ''));
+        // The overlay itself stays interactive: the toggle is the way out and
+        // the backdrop is the click-to-dismiss layer, so neither may be inert -
+        // and neither may the dialog's own contents.
+        const overlayRoots = new Set<HTMLElement>();
+        for (const element of [
+            hamburgerRef.current,
+            backdropRef.current,
+            menuRef.current,
+        ]) {
+            if (element) overlayRoots.add(element);
+        }
 
-        return () => {
-            targets.forEach((element) => element.removeAttribute('inert'));
+        // Every ancestor of an overlay root is a branch this walk has to follow
+        // instead of inerting, so the overlay keeps working even if a layout
+        // renders a wrapper around it.
+        const keepBranches = new Set<HTMLElement>();
+        for (const element of overlayRoots) {
+            let branch = element.parentElement;
+            while (branch && branch !== document.body) {
+                keepBranches.add(branch);
+                branch = branch.parentElement;
+            }
+        }
+
+        // Prior state is recorded per element rather than assumed: another owner
+        // may already have set `inert`, and removing the attribute on close
+        // would silently clear it.
+        const previous = new Map<HTMLElement, boolean>();
+
+        // Only the kept branches are descended into; every other subtree is
+        // inerted whole.
+        const inertEverythingElse = (parent: HTMLElement) => {
+            for (const child of Array.from(parent.children)) {
+                if (!(child instanceof HTMLElement)) continue;
+                if (overlayRoots.has(child)) continue;
+
+                if (keepBranches.has(child)) {
+                    inertEverythingElse(child);
+                    continue;
+                }
+
+                previous.set(child, child.hasAttribute('inert'));
+                child.setAttribute('inert', '');
+            }
         };
+
+        inertEverythingElse(document.body);
+
+        // React runs this on close and on unmount while open, so the page never
+        // stays frozen behind a menu that is gone.
+        return () => {
+            previous.forEach((wasInert, element) => {
+                if (!wasInert) element.removeAttribute('inert');
+            });
+        };
+    }, [isMenuOpen]);
+
+    // `useMenuKeyboardNavigation` claims ArrowUp/ArrowDown/Home/End from a
+    // document listener and preventDefaults them unconditionally. On a short
+    // viewport, where the panel is `overflow-y-auto` and actually overflows,
+    // that leaves no keyboard way to scroll it - Space would be the only key
+    // left, and Space activates the focused row. The hook exposes no flag to
+    // turn that off, so stop those keys at the panel in the capture phase while
+    // it overflows: the hook's document listener never sees them, nothing
+    // preventDefaults them, and the browser scrolls the panel natively. Roving
+    // focus is simply not used in that state.
+    useEffect(() => {
+        if (!isMenuOpen) return;
+
+        const panel = menuRef.current;
+        if (!panel) return;
+
+        const hijackedKeys = new Set(['ArrowUp', 'ArrowDown', 'Home', 'End']);
+
+        const scrollPanelInsteadOfRoving = (event: KeyboardEvent) => {
+            if (!hijackedKeys.has(event.key)) return;
+            // Cheap enough on keydown, and it keeps roving navigation available
+            // whenever the panel fits.
+            if (panel.scrollHeight <= panel.clientHeight) return;
+
+            event.stopPropagation();
+        };
+
+        panel.addEventListener('keydown', scrollPanelInsteadOfRoving, true);
+        return () =>
+            panel.removeEventListener('keydown', scrollPanelInsteadOfRoving, true);
     }, [isMenuOpen]);
 
     // Move focus into the panel once it is open. The panel is `inert` while
@@ -226,8 +324,10 @@ const Navbar = () => {
             focusTimerRef.current = null;
             if (focusedIndex < MENU_LINKS.length) {
                 buttonRefs.current[focusedIndex]?.focus();
-            } else {
+            } else if (focusedIndex < CONTACT_INDEX) {
                 socialRefs.current[focusedIndex - MENU_LINKS.length]?.focus();
+            } else {
+                contactRef.current?.focus();
             }
         }, 0);
 
@@ -324,6 +424,7 @@ const Navbar = () => {
                 opacity so the fade-out is actually seen (a plain `invisible`
                 would drop the layer on the first frame of the close). */}
             <div
+                ref={backdropRef}
                 className={cn(
                     'fixed inset-0 z-[30] bg-black/90 backdrop-blur-md',
                     'transition-[opacity,visibility] duration-[300ms] ease-menu-out',
@@ -364,7 +465,10 @@ const Navbar = () => {
                     'transform-gpu transition-transform will-change-transform',
                     isMenuOpen ? PANEL_MOTION.open : PANEL_MOTION.closed,
                 )}
-                aria-label="Main navigation"
+                // Distinct from the nested <nav>'s "Main navigation": two
+                // landmarks with an identical accessible name are ambiguous in
+                // a landmark list.
+                aria-label="Site menu"
                 role="dialog"
                 aria-modal="true"
                 // While closed the panel is only shifted off-screen, so keep it
@@ -454,6 +558,18 @@ const Navbar = () => {
                                                     scrollToSection(
                                                         link.url.substring(2),
                                                     );
+                                                } else if (
+                                                    link.url === '/' &&
+                                                    pathname === '/'
+                                                ) {
+                                                    // Pushing the route we are
+                                                    // already on is a no-op, so
+                                                    // "Home" did nothing on the
+                                                    // home page. Send it through
+                                                    // the same Lenis-backed
+                                                    // scroll as the sections;
+                                                    // the banner is the top.
+                                                    scrollToSection('banner');
                                                 } else {
                                                     router.push(link.url);
                                                 }
@@ -678,6 +794,7 @@ const Navbar = () => {
                                 </p>
                             </div>
                             <a
+                                ref={contactRef}
                                 href={`mailto:${GENERAL_INFO.email}`}
                                 className="group/email text-body-sm sm:text-body-base md:text-body-lg lg:text-body-lg font-mono tracking-wide text-foreground/90 hover:text-primary transition-colors duration-300 block break-all mb-2.5 sm:mb-3 md:mb-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 rounded"
                             >
