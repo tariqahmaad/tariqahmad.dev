@@ -222,7 +222,7 @@ export default function ProductPage() {
                 </div>
             </section>
 
-            {/* Screenshots (placeholders until real captures land) */}
+            {/* Screenshots (captured live from cv.tariqahmad.dev) */}
             <section className="py-10 xs:py-14">
                 <div className="container">
                     <p className="font-mono uppercase tracking-[0.25em] text-primary/70 text-body-sm sm:text-body-base mb-4">
@@ -234,16 +234,16 @@ export default function ProductPage() {
                     <div className="grid gap-4 sm:grid-cols-3">
                         {[
                             {
-                                src: '/screenshots/editor.svg',
-                                alt: 'Placeholder for the CV Builder guided editor with live preview',
+                                src: '/screenshots/editor.png',
+                                alt: 'The CV Builder guided editor with live A4 preview',
                             },
                             {
-                                src: '/screenshots/templates.svg',
-                                alt: 'Placeholder for the CV Builder Classic, Rhyhorn and Nexus templates',
+                                src: '/screenshots/cover-letter.png',
+                                alt: 'The CV Builder cover letter editor with real-time preview',
                             },
                             {
-                                src: '/screenshots/share.svg',
-                                alt: 'Placeholder for CV Builder PDF export and share-link analytics',
+                                src: '/screenshots/share.png',
+                                alt: 'A shared CV page with one-click PDF download',
                             },
                         ].map((shot) => (
                             <figure
@@ -260,7 +260,7 @@ export default function ProductPage() {
                                     className="w-full aspect-[8/5] object-cover"
                                 />
                                 <figcaption className="px-3 py-2 font-mono text-ui-sm text-muted-foreground/80 border-t border-white/5">
-                                    Placeholder — real screenshot coming soon
+                                    Captured live from the app
                                 </figcaption>
                             </figure>
                         ))}
