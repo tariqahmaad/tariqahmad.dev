@@ -21,10 +21,10 @@ export default function Home() {
         <div>
             <Banner />
             <AboutMe />
-            <ProductSpotlight />
             <Skills />
             <Experiences />
             <Certifications />
+            <ProductSpotlight />
             <ProjectList />
             <Testimonials />
         </div>
