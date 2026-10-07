@@ -3,6 +3,7 @@ import AboutMe from '@/components/home/AboutMe';
 import Banner from '@/components/home/Banner';
 import Certifications from '@/components/home/Certifications';
 import Experiences from '@/components/home/Experiences';
+import ProductSpotlight from '@/components/home/ProductSpotlight';
 import ProjectList from '@/components/home/ProjectList';
 import Skills from '@/components/home/Skills';
 import Testimonials from '@/components/home/Testimonials';
@@ -19,11 +20,12 @@ export default function Home() {
     return (
         <div>
             <Banner />
+            <ProductSpotlight />
+            <ProjectList />
             <AboutMe />
             <Skills />
             <Experiences />
             <Certifications />
-            <ProjectList />
             <Testimonials />
         </div>
     );
