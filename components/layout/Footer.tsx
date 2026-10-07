@@ -4,7 +4,6 @@ import { GENERAL_INFO, SOCIAL_LINKS } from '@/lib/data';
 import { isProjectDetailPage } from '@/lib/utils';
 import { usePathname } from 'next/navigation';
 import { ArrowUpRight } from 'lucide-react';
-import TransitionLink from '@/components/shared/TransitionLink';
 
 const Footer = () => {
     const pathname = usePathname();
@@ -30,30 +29,6 @@ const Footer = () => {
                             {GENERAL_INFO.email}
                         </span>
                         <span className="footer-email-underline absolute -bottom-0.5 inset-x-0 h-[2px] bg-primary/60 origin-left scale-x-0 transition-transform duration-500 group-hover:scale-x-100" />
-                    </a>
-                </div>
-
-                {/* Product link */}
-                <div className="mb-4 flex items-center justify-center gap-2 font-mono text-ui-sm text-foreground/60">
-                    <TransitionLink
-                        href="/product"
-                        aria-label="Learn more about CV Builder"
-                        className="transition-colors hover:text-primary"
-                    >
-                        CV Builder
-                    </TransitionLink>
-                    <span aria-hidden="true" className="text-primary/40">
-                        -
-                    </span>
-                    <a
-                        href="https://cv.tariqahmad.dev"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        aria-label="Open the live CV Builder app (opens in new tab)"
-                        className="group/product inline-flex items-center gap-1 transition-colors hover:text-primary"
-                    >
-                        cv.tariqahmad.dev
-                        <ArrowUpRight className="w-3 h-3 text-primary/30 group-hover/product:text-primary group-hover/product:translate-x-0.5 group-hover/product:-translate-y-0.5 transition-all" />
                     </a>
                 </div>
 

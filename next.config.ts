@@ -36,6 +36,18 @@ const nextConfig: NextConfig = {
             },
         ];
     },
+    // CV Builder graduated from a project entry to the Featured Product page,
+    // so stale /projects/cv-builder links (bookmarks, external refs) land on
+    // the canonical /product page instead of a 404.
+    async redirects() {
+        return [
+            {
+                source: '/projects/cv-builder',
+                destination: '/product',
+                permanent: true,
+            },
+        ];
+    },
 };
 
 export default nextConfig;

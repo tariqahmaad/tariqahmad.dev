@@ -152,26 +152,6 @@ export const MY_STACK: Record<string, ISkill[]> = {
 
 export const PROJECTS: IProject[] = [
     {
-        title: 'CV Builder',
-        slug: 'cv-builder',
-        year: 2026,
-        techStack: ['Next.js', 'TypeScript', 'React', 'Tailwind'],
-        description: `A resume builder I built to solve a problem I kept running into: formatting a CV shouldn't take longer than writing it. Everything runs in the browser, so your data never leaves your device. You get a real-time preview as you type, ATS-friendly PDF export, and a few templates to pick from.<br/><br/>
-
-        Key Features:<br/>
-        <ul>
-            <li>Real-time preview as you fill in the form</li>
-            <li>ATS-friendly PDF export</li>
-            <li>Privacy-first: all data stays in the browser</li>
-            <li>Auto-save to local storage</li>
-            <li>Multiple resume versions with version control</li>
-            <li>3 templates: Classic, Rhyhorn, Nexus</li>
-            <li>Responsive and fast</li>
-            
-        </ul>`,
-        liveUrl: 'https://cv.tariqahmad.dev/',
-    },
-    {
         title: 'Quizlet',
         slug: 'quizlet',
         techStack: ['HTML', 'CSS', 'JavaScript'],
@@ -303,41 +283,43 @@ export const PROJECTS: IProject[] = [
 
 export const MY_EXPERIENCE: IExperience[] = [
     {
-        title: 'Research Assistant',
-        company: 'Industry 4.0 Research Centre',
-        startDate: 'October 2024',
-        endDate: 'July 2025',
-        startISO: '2024-10',
-        endISO: '2025-07',
-        employmentType: 'Research',
-        // Most recent role — drives the highlighted card border, the glowing
-        // timeline dot and the live duration meter. No role is ongoing, so
-        // `endISO` stays a real date rather than null.
-        highlighted: true,
+        title: 'Digital Security and Communications Officer',
+        company: 'Family Support and Welfare Organisations (FSWO)',
+        startDate: 'September 2025',
+        endDate: 'December 2025',
+        startISO: '2025-09',
+        endISO: '2025-12',
         description:
-            'Led research threads on using AI to make manufacturing systems smarter and more adaptive — carrying ideas from first principles through working prototypes, and keeping only what held up under testing.',
+            'Digital security and communications for a welfare NGO across provincial teams — hardened mailboxes and meeting channels for remote operations, kept electronic records in order, and protected participant data with VPNs and secure tooling.',
         highlights: [
-            'Industry 4.0 applied research',
-            'Prototype-driven validation',
-            'Literature surveys',
+            'Administered secure mailboxes and encrypted communication servers for remote NGO operations',
+            'Organised secure online meetings and maintained electronic records across provincial teams',
+            "Protected sensitive data of women's programme participants using VPNs and secure tools",
         ],
-        skills: ['AI', 'Python', 'Data Analysis'],
+        skills: ['Digital Security', 'Encrypted Communications', 'VPNs'],
     },
     {
-        title: 'Research Assistant Intern',
-        company: 'Istanbul Aydin University',
+        title: 'Research Assistant',
+        company: 'Istanbul Aydin University — Industry 4.0 Research Centre',
         startDate: 'March 2024',
-        endDate: 'May 2024',
+        endDate: 'July 2025',
         startISO: '2024-03',
-        endISO: '2024-05',
-        employmentType: 'Internship',
+        endISO: '2025-07',
+        employmentType: 'Research',
+        location: 'Istanbul, Türkiye',
+        // Merged from two same-lab terms (Mar–May 2024 as intern, Oct 2024–Jul
+        // 2025 as assistant) into one card. Drives the highlighted card border,
+        // the glowing timeline dot and the duration meter. No role is ongoing,
+        // so `endISO` stays a real date rather than null.
+        highlighted: true,
         description:
-            'Contributed data analysis and documentation to academic research, where I learned that good research starts with asking the right question — and that there is a real difference between code that runs and code that proves something.',
+            'Applied AI research for smart manufacturing across two terms — starting as an intern in spring 2024 and continuing as a research assistant through July 2025. Surveyed applied-AI approaches, built and benchmarked Python prototypes, and kept only what held up under testing.',
         highlights: [
-            'Data analysis for academic research',
-            'Research documentation',
+            'Surveyed applied-AI approaches for manufacturing and turned them into small, testable experiment plans',
+            'Built Python prototypes for data analysis and modeling, benchmarking results against baselines',
+            'Documented methods and results and presented findings to the centre; work fed into my graduation project',
         ],
-        skills: ['Data Analysis', 'Documentation'],
+        skills: ['Python', 'Machine Learning', 'Data Analysis'],
     },
     {
         title: 'Frontend Developer Intern',

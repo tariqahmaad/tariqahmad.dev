@@ -76,7 +76,7 @@ export const metadata: Metadata = {
             'Free browser-based resume builder: 3 ATS-friendly templates, live A4 preview, instant PDF export, share links with analytics.',
         images: [
             {
-                url: '/og-image.png',
+                url: '/og-image.jpg',
                 width: 1200,
                 height: 630,
                 alt: 'CV Builder - Free ATS Resume Builder by Tariq Ahmad',
@@ -88,7 +88,7 @@ export const metadata: Metadata = {
         title: 'CV Builder by Tariq Ahmad - Free ATS Resume Builder with AI',
         description:
             'Free browser-based resume builder: 3 ATS-friendly templates, live A4 preview, instant PDF export, share links with analytics.',
-        images: ['/og-image.png'],
+        images: ['/og-image.jpg'],
     },
     robots: {
         index: true,

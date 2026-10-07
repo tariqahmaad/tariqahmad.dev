@@ -135,7 +135,7 @@ app/
 components/
   home/              # Page section components (Banner, AboutMe, Skills, Experiences, Certifications, ProjectList, Testimonials, DurationBar, CvDownloadButton, ConnectButton)
   layout/            # Layout components (Navbar, Footer, CustomCursor, Preloader, ParticleBackground, ScrollProgressIndicator, StickyEmail, LenisBridge, ScrollSnap, ScrollToTop, StructuredData)
-  shared/            # Reusable components (Button, SectionTitle, TransitionLink, ArrowAnimation)
+  shared/            # Reusable components (Button, SectionTitle, TransitionLink, ArrowAnimation, BackLink)
   shared/icons/      # Custom SVG icon components
   projects/          # Project detail components (ProjectCard, ProjectDetails)
   error/             # Error handling components (ErrorBoundary, GlobalErrorFallback — wired via app/global-error.tsx)

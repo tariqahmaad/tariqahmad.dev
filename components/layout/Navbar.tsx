@@ -11,6 +11,7 @@ import {
     FolderGit2,
     Mail,
     MessageSquareQuote,
+    Rocket,
 } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
 import { GENERAL_INFO, SOCIAL_LINKS } from '@/lib/data';
@@ -56,6 +57,13 @@ const MENU_LINKS = [
         icon: Award,
         prefix: './certs',
         sectionId: 'certifications',
+    },
+    {
+        name: 'Product',
+        url: '/#product-spotlight',
+        icon: Rocket,
+        prefix: './product',
+        sectionId: 'product-spotlight',
     },
     {
         name: 'Projects',
@@ -452,9 +460,9 @@ const Navbar = () => {
                     'z-[31]',
                     // Original top padding: it leaves the toggle (44px at 16px
                     // from the top) sitting just above the first menu row.
-                    'py-12 sm:py-14 md:py-14 lg:py-14',
+                    'py-8 sm:py-10 md:py-10 lg:py-10',
                     'px-5 sm:px-6 md:px-6 lg:px-8 xl:px-10',
-                    'pt-[max(2.5rem,env(safe-area-inset-top)_+_0.75rem)] sm:pt-[max(3.5rem,env(safe-area-inset-top)_+_1rem)]',
+                    'pt-[max(2.25rem,env(safe-area-inset-top)_+_0.5rem)] sm:pt-[max(2.75rem,env(safe-area-inset-top)_+_0.75rem)]',
                     'pb-[max(1rem,env(safe-area-inset-bottom)_+_0.5rem)] sm:pb-[max(1.25rem,env(safe-area-inset-bottom)_+_0.5rem)] md:pb-[max(1.25rem,env(safe-area-inset-bottom)_+_0.5rem)]',
                     'overflow-y-auto overflow-x-hidden flex flex-col',
                     // Keep the panel's own scrolling from chaining to the page.
@@ -498,19 +506,22 @@ const Navbar = () => {
                     }}
                 />
 
-                {/* Corner brackets */}
+                {/* Corner brackets (top only): the bottom pair used to sit in
+                    the padding gap touching the bottom-docked contact card,
+                    reading as misaligned stray corners — and, being absolute
+                    inside a scrollable panel, they scrolled up over the rows
+                    whenever the content overflowed. The contact card carries
+                    its own corner accents, so the bottom frame is covered. */}
                 <CornerBracket position="top-left" />
                 <CornerBracket position="top-right" />
-                <CornerBracket position="bottom-left" />
-                <CornerBracket position="bottom-right" />
 
                 <nav
                     aria-label="Main navigation"
-                    className="relative z-10 w-full mx-auto flex-1 flex flex-col mt-6 sm:mt-6 md:mt-12 lg:mt-16"
+                    className="relative z-10 w-full mx-auto flex-1 flex flex-col mt-8 sm:mt-8 md:mt-12 lg:mt-14"
                 >
                     {/* Navigation Section */}
-                    <div className="mb-4 sm:mb-7 md:mb-8 lg:mb-8">
-                        <div className="flex items-center gap-2 mb-2.5 sm:mb-4 md:mb-4 lg:mb-5">
+                    <div className="mb-3 sm:mb-5 md:mb-6 lg:mb-6">
+                        <div className="flex items-center gap-2 mb-2 sm:mb-3 md:mb-3 lg:mb-4">
                             <span className="text-primary text-ui-sm md:text-ui-base lg:text-ui-lg font-mono">
                                 $
                             </span>
@@ -578,7 +589,7 @@ const Navbar = () => {
                                                 'group w-full flex items-center',
                                                 'gap-2.5 xs:gap-3 sm:gap-3 md:gap-3.5 lg:gap-4',
                                                 'px-3 xs:px-3.5 sm:px-3.5 md:px-4 lg:px-5',
-                                                'py-2.5 xs:py-3 sm:py-3 md:py-3.5 lg:py-4',
+                                                'py-2 xs:py-2.5 sm:py-2.5 md:py-3 lg:py-3.5',
                                                 'border border-white/5 transition-all duration-200 cursor-pointer',
                                                 'relative overflow-hidden rounded-sm',
                                                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50',
@@ -630,7 +641,7 @@ const Navbar = () => {
                                             <div className="flex-1 text-left min-w-0">
                                                 <div
                                                     className={cn(
-                                                        'text-[11px] sm:text-[11px] md:text-ui-sm lg:text-ui-base font-mono transition-colors mb-0.5 truncate',
+                                                        'text-[11px] sm:text-[11px] md:text-ui-sm lg:text-ui-base font-mono transition-colors truncate',
                                                         isActive
                                                             ? 'text-primary/70'
                                                             : 'text-muted-foreground/60 group-hover:text-primary/60',
@@ -667,11 +678,11 @@ const Navbar = () => {
                     </div>
 
                     {/* Separator */}
-                    <div className="mb-4 sm:mb-6 md:mb-7 lg:mb-7 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
+                    <div className="mb-3 sm:mb-4 md:mb-5 lg:mb-5 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
 
                     {/* Social Links Section */}
-                    <div className="mb-4 sm:mb-6 md:mb-8 lg:mb-8">
-                        <div className="flex items-center gap-2 mb-2.5 sm:mb-4 md:mb-4 lg:mb-5">
+                    <div className="mb-3 sm:mb-4 md:mb-5 lg:mb-5">
+                        <div className="flex items-center gap-2 mb-2 sm:mb-3 md:mb-3 lg:mb-4">
                             <span className="text-primary text-ui-sm md:text-ui-base lg:text-ui-lg font-mono">
                                 $
                             </span>
@@ -710,7 +721,7 @@ const Navbar = () => {
                                             className={cn(
                                                 'group cursor-pointer block',
                                                 'px-3 xs:px-3.5 sm:px-3.5 md:px-4 lg:px-5',
-                                                'py-2.5 xs:py-3 sm:py-3 md:py-3.5 lg:py-3.5',
+                                                'py-2 xs:py-2.5 sm:py-2.5 md:py-3 lg:py-3',
                                                 'border border-white/5 hover:border-primary/40',
                                                 'bg-foreground/[0.02] hover:bg-primary/[0.06]',
                                                 'transition-all duration-200 rounded-sm',
@@ -752,7 +763,7 @@ const Navbar = () => {
                     {/* Get In Touch Section */}
                     <div
                         className={cn(
-                            'mt-auto relative px-3 sm:px-4 md:px-5 lg:px-5 py-3 sm:py-4 md:py-5 lg:py-5 overflow-hidden group rounded-sm',
+                            'mt-auto relative px-3 sm:px-4 md:px-5 lg:px-5 py-2.5 sm:py-3 md:py-4 lg:py-4 overflow-hidden group rounded-sm',
                             'border border-white/5 hover:border-primary/20',
                             'transform-gpu transition-[opacity,transform]',
                             isMenuOpen ? ROW_MOTION.open : ROW_MOTION.closed,
@@ -787,7 +798,7 @@ const Navbar = () => {
                         </div>
 
                         <div className="relative">
-                            <div className="flex items-center gap-2 mb-3 sm:mb-3 md:mb-4 lg:mb-4">
+                            <div className="flex items-center gap-2 mb-2 sm:mb-2.5 md:mb-3 lg:mb-3">
                                 <Mail className="w-4 h-4 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 text-primary/60 animate-bounce" />
                                 <p className="text-ui-base md:text-ui-base lg:text-ui-lg font-mono tracking-widest text-primary/80 uppercase">
                                     Get In Touch
@@ -796,7 +807,7 @@ const Navbar = () => {
                             <a
                                 ref={contactRef}
                                 href={`mailto:${GENERAL_INFO.email}`}
-                                className="group/email text-body-sm sm:text-body-base md:text-body-lg lg:text-body-lg font-mono tracking-wide text-foreground/90 hover:text-primary transition-colors duration-300 block break-all mb-2.5 sm:mb-3 md:mb-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 rounded"
+                                className="group/email text-body-sm sm:text-body-base md:text-body-lg lg:text-body-lg font-mono tracking-wide text-foreground/90 hover:text-primary transition-colors duration-300 block break-all mb-2 sm:mb-2.5 md:mb-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 rounded"
                             >
                                 <span className="group-hover/email:text-primary/60 transition-colors">
                                     &gt;{' '}

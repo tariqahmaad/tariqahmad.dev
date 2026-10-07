@@ -772,6 +772,105 @@
         }
     }
 
+    /* Screenshot preview + lightbox entrances. Gated behind no-preference:
+       the floating panel never mounts under reduced motion (JS-gated in
+       useCursorPreview) and the lightbox simply appears without animation. */
+    @media (prefers-reduced-motion: no-preference) {
+        /* Crossfade replayed whenever the preview/lightbox image swaps
+           (the <Image> is keyed by src, so a new shot remounts it). The
+           preview image carries scale-[1.08] for parallax headroom, so the
+           keyframes land on 1.08 — ending at 1 would pop 8% larger the
+           moment the animation releases control back to the class. */
+        .shot-swap {
+            animation: shot-swap 0.28s ease-out;
+        }
+
+        @keyframes shot-swap {
+            from {
+                opacity: 0;
+                transform: translateY(8px) scale(1.1);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1.08);
+            }
+        }
+
+        .lightbox-in {
+            animation: lightbox-in 0.25s ease-out;
+            transform-origin: center;
+        }
+
+        @keyframes lightbox-in {
+            from {
+                opacity: 0;
+                transform: scale(0.95) translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        /* Plain variant for the lightbox image, which carries no scale
+           class and must land back at 1. */
+        .shot-swap-plain {
+            animation: shot-swap-plain 0.28s ease-out;
+        }
+
+        @keyframes shot-swap-plain {
+            from {
+                opacity: 0;
+                transform: translateY(8px) scale(1.01);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        /* Diagonal light sweep across the hover-preview panel, replayed on
+           every shot switch (the span is keyed by src, so it remounts). */
+        .panel-sheen {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            pointer-events: none;
+            background: linear-gradient(
+                105deg,
+                transparent 40%,
+                hsl(var(--primary) / 0.12) 48%,
+                rgba(255, 255, 255, 0.12) 50%,
+                hsl(var(--primary) / 0.12) 52%,
+                transparent 60%
+            );
+            transform: translateX(-120%) skewX(-12deg);
+            animation: panel-sheen 0.6s ease-out forwards;
+        }
+
+        @keyframes panel-sheen {
+            to {
+                transform: translateX(120%) skewX(-12deg);
+            }
+        }
+
+        /* Caption rise replayed with each preview image swap. */
+        .caption-rise {
+            display: inline-block;
+            animation: caption-rise 0.3s ease-out;
+        }
+
+        @keyframes caption-rise {
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    }
+
     /* Highlighted experience card glow */
     .experience-card-highlighted {
         border: 1px solid hsl(var(--primary) / 0.2);

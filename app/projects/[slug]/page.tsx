@@ -47,7 +47,7 @@ export const generateMetadata = async ({
                   .trim()}...`
             : cleanedDescription;
     const url = `https://tariqahmad.dev/projects/${slug}`;
-    const ogImage = project.thumbnail ?? '/og-image.png';
+    const ogImage = project.thumbnail ?? '/og-image.jpg';
 
     return {
         title,
