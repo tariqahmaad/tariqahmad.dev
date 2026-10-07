@@ -16,14 +16,14 @@ const SCREENSHOTS = [
         caption: 'Guided editor with live preview',
     },
     {
-        src: '/screenshots/cover-letter.png',
-        alt: 'The CV Builder cover letter editor with real-time preview',
-        caption: 'Cover letter builder with live preview',
+        src: '/screenshots/templates.png',
+        alt: 'The CV Builder template gallery with Classic, Rhyhorn and Nexus',
+        caption: 'Three ATS-friendly templates',
     },
     {
-        src: '/screenshots/share.png',
-        alt: 'A shared CV page with one-click PDF download',
-        caption: 'Share links with PDF download',
+        src: '/screenshots/landing.png',
+        alt: 'The CV Builder landing page: build a resume that gets you hired',
+        caption: 'Start free, no account needed',
     },
 ];
 

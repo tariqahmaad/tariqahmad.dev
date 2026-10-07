@@ -238,12 +238,12 @@ export default function ProductPage() {
                                 alt: 'The CV Builder guided editor with live A4 preview',
                             },
                             {
-                                src: '/screenshots/cover-letter.png',
-                                alt: 'The CV Builder cover letter editor with real-time preview',
+                                src: '/screenshots/templates.png',
+                                alt: 'The CV Builder template gallery with Classic, Rhyhorn and Nexus',
                             },
                             {
-                                src: '/screenshots/share.png',
-                                alt: 'A shared CV page with one-click PDF download',
+                                src: '/screenshots/landing.png',
+                                alt: 'The CV Builder landing page: build a resume that gets you hired',
                             },
                         ].map((shot) => (
                             <figure
