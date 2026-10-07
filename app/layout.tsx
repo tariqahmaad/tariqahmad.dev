@@ -70,7 +70,7 @@ export const metadata: Metadata = {
         type: 'website',
         locale: 'en_US',
         url: 'https://tariqahmad.dev',
-        siteName: 'Tariq Ahmad Portfolio',
+        siteName: 'CV Builder by Tariq Ahmad',
         title: 'CV Builder by Tariq Ahmad - Free ATS Resume Builder with AI',
         description:
             'Free browser-based resume builder: 3 ATS-friendly templates, live A4 preview, instant PDF export, share links with analytics. AI writing features built with Claude.',
@@ -79,7 +79,7 @@ export const metadata: Metadata = {
                 url: '/og-image.png',
                 width: 1200,
                 height: 630,
-                alt: 'Tariq Ahmad - Software Developer Portfolio',
+                alt: 'CV Builder - Free ATS Resume Builder by Tariq Ahmad',
             },
         ],
     },

@@ -1,21 +1,15 @@
-# Screenshot placeholders — CV Builder spotlight
+# Product screenshots — CV Builder spotlight
 
-These three SVGs are **clearly-labeled placeholders** rendered by
-`components/home/ProductSpotlight.tsx` and `app/product/page.tsx`.
+Real captures of the live app at https://cv.tariqahmad.dev (1280px
+viewport), rendered by `components/home/ProductSpotlight.tsx` and
+`app/product/page.tsx`.
 
 | File | Shows |
 | ---- | ----- |
-| `editor.svg` | Guided editor + live preview |
-| `templates.svg` | Classic / Rhyhorn / Nexus templates |
-| `share.svg` | PDF export + share links with analytics |
+| `editor.png` | Guided editor + live A4 preview |
+| `cover-letter.png` | Cover letter builder with live preview |
+| `share.png` | Public share-link view with PDF download |
 
-## Replacing with real screenshots
-
-1. Capture the live app at https://cv.tariqahmad.dev (1280px wide works well).
-2. Drop the real files into this folder — either overwrite these SVGs
-   (same filenames) or add PNGs (e.g. `editor.png`) and update the `src`
-   paths in `ProductSpotlight.tsx` / `app/product/page.tsx`.
-3. Compress before committing (`squoosh`, `sharp`, or `next/image`
-   optimization handles the rest at build time).
-
-No fake content: only ship captures of the real product.
+Captured 2026-10-07. To refresh: re-capture at 1280px wide, overwrite
+the PNGs, keep filenames stable. No fake content: only ship captures of
+the real product.

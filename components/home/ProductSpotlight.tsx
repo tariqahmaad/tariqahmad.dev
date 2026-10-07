@@ -11,19 +11,19 @@ import { useRef } from 'react';
 
 const SCREENSHOTS = [
     {
-        src: '/screenshots/editor.svg',
-        alt: 'Placeholder for the CV Builder guided editor with live preview',
-        caption: 'Guided editor — placeholder, real screenshot coming soon',
+        src: '/screenshots/editor.png',
+        alt: 'The CV Builder guided editor with live A4 preview',
+        caption: 'Guided editor with live preview',
     },
     {
-        src: '/screenshots/templates.svg',
-        alt: 'Placeholder for the CV Builder Classic, Rhyhorn and Nexus templates',
-        caption: 'Templates — placeholder, real screenshot coming soon',
+        src: '/screenshots/cover-letter.png',
+        alt: 'The CV Builder cover letter editor with real-time preview',
+        caption: 'Cover letter builder with live preview',
     },
     {
-        src: '/screenshots/share.svg',
-        alt: 'Placeholder for CV Builder PDF export and share-link analytics',
-        caption: 'Export & share — placeholder, real screenshot coming soon',
+        src: '/screenshots/share.png',
+        alt: 'A shared CV page with one-click PDF download',
+        caption: 'Share links with PDF download',
     },
 ];
 
