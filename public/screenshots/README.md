@@ -7,8 +7,8 @@ viewport), rendered by `components/home/ProductSpotlight.tsx` and
 | File | Shows |
 | ---- | ----- |
 | `editor.png` | Guided editor + live A4 preview |
-| `cover-letter.png` | Cover letter builder with live preview |
-| `share.png` | Public share-link view with PDF download |
+| `templates.png` | Template gallery: Classic, Rhyhorn, Nexus |
+| `landing.png` | Landing hero: start free, no account needed |
 
 Captured 2026-10-07. To refresh: re-capture at 1280px wide, overwrite
 the PNGs, keep filenames stable. No fake content: only ship captures of
