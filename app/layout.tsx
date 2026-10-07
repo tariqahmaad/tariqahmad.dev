@@ -46,7 +46,7 @@ export const metadata: Metadata = {
         template: '%s | Tariq Ahmad',
     },
     description:
-        'Free browser-based resume builder: 3 ATS-friendly templates, live A4 preview, instant PDF export, share links with analytics. AI writing features built with Claude.',
+        'Free browser-based resume builder: 3 ATS-friendly templates, live A4 preview, instant PDF export, share links with analytics.',
     keywords: [
         'Tariq Ahmad',
         'Software Developer',
@@ -73,7 +73,7 @@ export const metadata: Metadata = {
         siteName: 'CV Builder by Tariq Ahmad',
         title: 'CV Builder by Tariq Ahmad - Free ATS Resume Builder with AI',
         description:
-            'Free browser-based resume builder: 3 ATS-friendly templates, live A4 preview, instant PDF export, share links with analytics. AI writing features built with Claude.',
+            'Free browser-based resume builder: 3 ATS-friendly templates, live A4 preview, instant PDF export, share links with analytics.',
         images: [
             {
                 url: '/og-image.png',
@@ -87,7 +87,7 @@ export const metadata: Metadata = {
         card: 'summary_large_image',
         title: 'CV Builder by Tariq Ahmad - Free ATS Resume Builder with AI',
         description:
-            'Free browser-based resume builder: 3 ATS-friendly templates, live A4 preview, instant PDF export, share links with analytics. AI writing features built with Claude.',
+            'Free browser-based resume builder: 3 ATS-friendly templates, live A4 preview, instant PDF export, share links with analytics.',
         images: ['/og-image.png'],
     },
     robots: {

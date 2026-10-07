@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { ArrowUpRight, ExternalLink, Sparkles } from 'lucide-react';
+import { ArrowUpRight, ExternalLink } from 'lucide-react';
 import SectionTitle from '@/components/shared/SectionTitle';
 import TransitionLink from '@/components/shared/TransitionLink';
 import { useScrollExitAnimation } from '@/hooks/useScrollExitAnimation';
@@ -91,15 +91,6 @@ const ProductSpotlight = () => {
                                 </span>
                                 <span className="font-mono text-ui-sm uppercase tracking-wider text-primary/90">
                                     Live product
-                                </span>
-                            </span>
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-secondary/30 bg-secondary/[0.06] rounded-sm">
-                                <Sparkles
-                                    className="w-3.5 h-3.5 text-secondary"
-                                    aria-hidden="true"
-                                />
-                                <span className="font-mono text-ui-sm uppercase tracking-wider text-secondary/90">
-                                    Built with Claude
                                 </span>
                             </span>
                         </div>

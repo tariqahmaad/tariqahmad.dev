@@ -9,7 +9,6 @@ import {
     Pencil,
     Save,
     Share2,
-    Sparkles,
     User,
 } from 'lucide-react';
 import TransitionLink from '@/components/shared/TransitionLink';
@@ -17,7 +16,7 @@ import TransitionLink from '@/components/shared/TransitionLink';
 export const metadata: Metadata = {
     title: 'CV Builder - Free ATS Resume Builder',
     description:
-        'CV Builder: a free browser-based resume builder with 3 ATS-friendly templates, live A4 preview, instant PDF export, and share links with analytics. AI writing features built with Claude.',
+        'CV Builder: a free browser-based resume builder with 3 ATS-friendly templates, live A4 preview, instant PDF export, and share links with analytics.',
     alternates: {
         canonical: 'https://tariqahmad.dev/product',
     },
@@ -27,7 +26,7 @@ export const metadata: Metadata = {
         siteName: 'Tariq Ahmad Portfolio',
         title: 'CV Builder by Tariq Ahmad - Free ATS Resume Builder with AI',
         description:
-            'Free browser-based resume builder: 3 ATS-friendly templates, live A4 preview, instant PDF export, share links with analytics. AI writing features built with Claude.',
+            'Free browser-based resume builder: 3 ATS-friendly templates, live A4 preview, instant PDF export, share links with analytics.',
         images: [
             {
                 url: '/og-image.png',
@@ -41,7 +40,7 @@ export const metadata: Metadata = {
         card: 'summary_large_image',
         title: 'CV Builder by Tariq Ahmad - Free ATS Resume Builder with AI',
         description:
-            'Free browser-based resume builder: 3 ATS-friendly templates, live A4 preview, instant PDF export, share links with analytics. AI writing features built with Claude.',
+            'Free browser-based resume builder: 3 ATS-friendly templates, live A4 preview, instant PDF export, share links with analytics.',
         images: ['/og-image.png'],
     },
 };
@@ -108,6 +107,17 @@ export default function ProductPage() {
                     className="pointer-events-none absolute inset-x-0 top-0 h-64 bg-gradient-to-b from-primary/[0.07] to-transparent"
                 />
                 <div className="container relative">
+                    <TransitionLink
+                        href="/"
+                        className="group mb-8 inline-flex h-12 items-center gap-2 font-mono text-ui-base uppercase tracking-wider text-muted-foreground transition-colors hover:text-primary outline-none"
+                    >
+                        <ArrowLeft
+                            className="h-4 w-4 transition-transform duration-300 group-hover:-translate-x-1"
+                            aria-hidden="true"
+                        />
+                        Back to portfolio
+                    </TransitionLink>
+
                     <div className="flex flex-wrap items-center gap-2.5 mb-6">
                         <span className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-primary/30 bg-primary/[0.06] rounded-sm">
                             <span className="relative flex h-2 w-2">
@@ -116,15 +126,6 @@ export default function ProductPage() {
                             </span>
                             <span className="font-mono text-ui-sm uppercase tracking-wider text-primary/90">
                                 Live product
-                            </span>
-                        </span>
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-secondary/30 bg-secondary/[0.06] rounded-sm">
-                            <Sparkles
-                                className="w-3.5 h-3.5 text-secondary"
-                                aria-hidden="true"
-                            />
-                            <span className="font-mono text-ui-sm uppercase tracking-wider text-secondary/90">
-                                Built with Claude
                             </span>
                         </span>
                     </div>
@@ -264,34 +265,6 @@ export default function ProductPage() {
                                 </figcaption>
                             </figure>
                         ))}
-                    </div>
-                </div>
-            </section>
-
-            {/* Built with Claude */}
-            <section className="py-10 xs:py-14">
-                <div className="container">
-                    <div className="relative border border-secondary/25 bg-card overflow-hidden rounded-tl-[10px] rounded-br-[10px] p-6 xs:p-8 md:p-10">
-                        <div
-                            aria-hidden="true"
-                            className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-secondary/[0.07] to-transparent"
-                        />
-                        <div className="relative">
-                            <p className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-secondary/30 bg-secondary/[0.06] rounded-sm font-mono text-ui-sm uppercase tracking-wider text-secondary/90">
-                                <Sparkles
-                                    className="w-3.5 h-3.5"
-                                    aria-hidden="true"
-                                />
-                                Built with Claude
-                            </p>
-                            <h2 className="mt-4 font-anton text-heading-sm sm:text-heading-md leading-tight">
-                                AI writing, the Claude way
-                            </h2>
-                            <p className="mt-3 max-w-[60ch] text-body-lg leading-relaxed text-muted-foreground">
-                                Claude-powered writing features in active
-                                development.
-                            </p>
-                        </div>
                     </div>
                 </div>
             </section>
