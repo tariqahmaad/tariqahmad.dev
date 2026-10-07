@@ -42,11 +42,11 @@ export const metadata: Metadata = {
     // override it, which made /404 and error pages declare themselves
     // duplicates of the homepage.
     title: {
-        default: 'Tariq Ahmad - Software Developer | Computer Engineering Graduate',
+        default: 'CV Builder by Tariq Ahmad - Free ATS Resume Builder with AI',
         template: '%s | Tariq Ahmad',
     },
     description:
-        'Computer Engineering graduate and full-stack developer specializing in web development, networking, and AI. Building software that people actually enjoy using.',
+        'Free browser-based resume builder: 3 ATS-friendly templates, live A4 preview, instant PDF export, share links with analytics. AI writing features built with Claude.',
     keywords: [
         'Tariq Ahmad',
         'Software Developer',
@@ -71,9 +71,9 @@ export const metadata: Metadata = {
         locale: 'en_US',
         url: 'https://tariqahmad.dev',
         siteName: 'Tariq Ahmad Portfolio',
-        title: 'Tariq Ahmad - Software Developer | Computer Engineering Graduate',
+        title: 'CV Builder by Tariq Ahmad - Free ATS Resume Builder with AI',
         description:
-            'Computer Engineering graduate and full-stack developer specializing in web development, networking, and AI.',
+            'Free browser-based resume builder: 3 ATS-friendly templates, live A4 preview, instant PDF export, share links with analytics. AI writing features built with Claude.',
         images: [
             {
                 url: '/og-image.png',
@@ -85,9 +85,9 @@ export const metadata: Metadata = {
     },
     twitter: {
         card: 'summary_large_image',
-        title: 'Tariq Ahmad - Software Developer | Computer Engineering Graduate',
+        title: 'CV Builder by Tariq Ahmad - Free ATS Resume Builder with AI',
         description:
-            'Computer Engineering graduate and full-stack developer specializing in web development, networking, and AI.',
+            'Free browser-based resume builder: 3 ATS-friendly templates, live A4 preview, instant PDF export, share links with analytics. AI writing features built with Claude.',
         images: ['/og-image.png'],
     },
     robots: {
