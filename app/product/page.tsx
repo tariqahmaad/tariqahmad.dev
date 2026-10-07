@@ -1,7 +1,5 @@
 import type { Metadata } from 'next';
-import Image from 'next/image';
 import {
-    ArrowLeft,
     Download,
     Eye,
     History,
@@ -11,7 +9,10 @@ import {
     Share2,
     User,
 } from 'lucide-react';
+import BackLink from '@/components/shared/BackLink';
 import TransitionLink from '@/components/shared/TransitionLink';
+import ScreenshotGallery from '@/components/product/ScreenshotGallery';
+import { PRODUCT_SHOTS } from '@/components/product/screenshots';
 
 export const metadata: Metadata = {
     title: 'CV Builder - Free ATS Resume Builder',
@@ -29,7 +30,7 @@ export const metadata: Metadata = {
             'Free browser-based resume builder: 3 ATS-friendly templates, live A4 preview, instant PDF export, share links with analytics.',
         images: [
             {
-                url: '/og-image.png',
+                url: '/og-image.jpg',
                 width: 1200,
                 height: 630,
                 alt: 'CV Builder - Free ATS Resume Builder with AI',
@@ -41,7 +42,7 @@ export const metadata: Metadata = {
         title: 'CV Builder by Tariq Ahmad - Free ATS Resume Builder with AI',
         description:
             'Free browser-based resume builder: 3 ATS-friendly templates, live A4 preview, instant PDF export, share links with analytics.',
-        images: ['/og-image.png'],
+        images: ['/og-image.jpg'],
     },
 };
 
@@ -107,16 +108,11 @@ export default function ProductPage() {
                     className="pointer-events-none absolute inset-x-0 top-0 h-64 bg-gradient-to-b from-primary/[0.07] to-transparent"
                 />
                 <div className="container relative">
-                    <TransitionLink
+                    <BackLink
                         href="/"
-                        className="group mb-8 inline-flex h-12 items-center gap-2 font-mono text-ui-base uppercase tracking-wider text-muted-foreground transition-colors hover:text-primary outline-none"
-                    >
-                        <ArrowLeft
-                            className="h-4 w-4 transition-transform duration-300 group-hover:-translate-x-1"
-                            aria-hidden="true"
-                        />
-                        Back to portfolio
-                    </TransitionLink>
+                        label="Back to portfolio"
+                        className="mb-8"
+                    />
 
                     <div className="flex flex-wrap items-center gap-2.5 mb-6">
                         <span className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-primary/30 bg-primary/[0.06] rounded-sm">
@@ -232,40 +228,12 @@ export default function ProductPage() {
                     <h2 className="font-anton text-heading-sm sm:text-heading-md leading-tight mb-8">
                         Straight from the app
                     </h2>
-                    <div className="grid gap-4 sm:grid-cols-3">
-                        {[
-                            {
-                                src: '/screenshots/editor.png',
-                                alt: 'The CV Builder guided editor with live A4 preview',
-                            },
-                            {
-                                src: '/screenshots/templates.png',
-                                alt: 'The CV Builder template gallery with Classic, Rhyhorn and Nexus',
-                            },
-                            {
-                                src: '/screenshots/landing.png',
-                                alt: 'The CV Builder landing page: build a resume that gets you hired',
-                            },
-                        ].map((shot) => (
-                            <figure
-                                key={shot.src}
-                                className="border border-white/10 bg-card overflow-hidden rounded-sm"
-                            >
-                                <Image
-                                    src={shot.src}
-                                    alt={shot.alt}
-                                    width={800}
-                                    height={500}
-                                    sizes="(max-width: 640px) 100vw, (max-width: 1148px) 33vw, 360px"
-                                    loading="lazy"
-                                    className="w-full aspect-[8/5] object-cover"
-                                />
-                                <figcaption className="px-3 py-2 font-mono text-ui-sm text-muted-foreground/80 border-t border-white/5">
-                                    Captured live from the app
-                                </figcaption>
-                            </figure>
-                        ))}
-                    </div>
+                    <ScreenshotGallery
+                        shots={PRODUCT_SHOTS.map((shot) => ({
+                            ...shot,
+                            caption: 'Captured live from the app',
+                        }))}
+                    />
                 </div>
             </section>
 
@@ -311,17 +279,15 @@ export default function ProductPage() {
                             <span className="z-[1]">Start building — it&apos;s free</span>
                         </a>
                     </div>
-                    <p className="mt-10 font-mono text-ui-sm text-muted-foreground/60">
+                    <p className="mt-10 text-body-base text-muted-foreground/70">
+                        See it in context on the{' '}
                         <TransitionLink
                             href="/#about-me"
-                            className="inline-flex items-center gap-1.5 underline-offset-4 hover:underline hover:text-foreground transition-colors"
+                            className="underline underline-offset-4 transition-colors hover:text-primary"
                         >
-                            <ArrowLeft
-                                className="w-3.5 h-3.5"
-                                aria-hidden="true"
-                            />
-                            Back to about me &amp; the portfolio
+                            portfolio homepage
                         </TransitionLink>
+                        .
                     </p>
                 </div>
             </section>

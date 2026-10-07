@@ -64,7 +64,7 @@ export default function StructuredData() {
                 '@id': PERSON_ID,
                 name: 'Tariq Ahmad',
                 url: SITE_URL,
-                image: `${SITE_URL}/og-image.png`,
+                image: `${SITE_URL}/og-image.jpg`,
                 jobTitle: 'Software Developer',
                 description:
                     'Computer Engineering graduate from Istanbul Aydin University with expertise in full-stack development, networking, and AI.',

@@ -4,32 +4,77 @@ import Image from 'next/image';
 import { ArrowUpRight, ExternalLink } from 'lucide-react';
 import SectionTitle from '@/components/shared/SectionTitle';
 import TransitionLink from '@/components/shared/TransitionLink';
+import ScreenshotPreviewPanel from '@/components/product/ScreenshotPreviewPanel';
+import ScreenshotLightbox from '@/components/product/ScreenshotLightbox';
+import { PRODUCT_SHOTS } from '@/components/product/screenshots';
+import { useCursorPreview } from '@/hooks/useCursorPreview';
+import { useStickyIndex } from '@/hooks/useStickyIndex';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { useScrollExitAnimation } from '@/hooks/useScrollExitAnimation';
 import { gsap, useGSAP } from '@/lib/gsap-setup';
-import { shouldSkipAnimation } from '@/lib/utils';
-import { useRef } from 'react';
+import { cn, shouldSkipAnimation } from '@/lib/utils';
+import { useRef, useState } from 'react';
 
-const SCREENSHOTS = [
-    {
-        src: '/screenshots/editor.png',
-        alt: 'The CV Builder guided editor with live A4 preview',
-        caption: 'Guided editor with live preview',
-    },
-    {
-        src: '/screenshots/templates.png',
-        alt: 'The CV Builder template gallery with Classic, Rhyhorn and Nexus',
-        caption: 'Three ATS-friendly templates',
-    },
-    {
-        src: '/screenshots/landing.png',
-        alt: 'The CV Builder landing page: build a resume that gets you hired',
-        caption: 'Start free, no account needed',
-    },
+// Location-specific captions for the shared captures.
+const SPOTLIGHT_CAPTIONS = [
+    'Guided editor with live preview',
+    'Three ATS-friendly templates',
+    'Start free, no account needed',
 ];
+
+const SHOTS = PRODUCT_SHOTS.map((shot, i) => ({
+    ...shot,
+    caption: SPOTLIGHT_CAPTIONS[i] ?? '',
+}));
 
 const ProductSpotlight = () => {
     const containerRef = useRef<HTMLDivElement>(null);
     const cardRef = useRef<HTMLElement>(null);
+
+    // Hover preview shares the /product gallery's floating magnifier (same
+    // hook + panel). Desktop + no reduced motion only; touch users get the
+    // static grid plus the tap-to-expand lightbox below.
+    const isDesktop = useMediaQuery('(min-width: 768px)');
+    const prefersReducedMotion = useMediaQuery(
+        '(prefers-reduced-motion: reduce)',
+    );
+    const previewEnabled = isDesktop && !prefersReducedMotion;
+
+    const { attach, attachInner, show, move, hide, cancelHide } =
+        useCursorPreview(previewEnabled);
+    // Sticky: clearing defers so gap crossings never flash the chrome off
+    // and back on; the panel content still swaps instantly on enter.
+    const {
+        index: activeIndex,
+        set: setActiveIndex,
+        clearNow: clearActiveIndex,
+    } = useStickyIndex(300);
+    const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+
+    const active = activeIndex === null ? null : SHOTS[activeIndex];
+
+    const handleEnter = (index: number, e: React.MouseEvent) => {
+        if (!previewEnabled) return;
+        cancelHide();
+        setActiveIndex(index);
+        show(e);
+    };
+
+    const handleMove = (e: React.MouseEvent) => {
+        if (!previewEnabled || activeIndex === null) return;
+        move(e);
+    };
+
+    const handleLeave = () => {
+        setActiveIndex(null);
+        hide();
+    };
+
+    const openLightbox = (index: number) => {
+        hide();
+        clearActiveIndex();
+        setLightboxIndex(index);
+    };
 
     useGSAP(
         () => {
@@ -72,14 +117,18 @@ const ProductSpotlight = () => {
                         aria-hidden="true"
                         className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-primary/[0.08] to-transparent"
                     />
-                    {/* Corner brackets */}
+                    {/* Corner brackets — signature motif shared with
+                        Testimonials / Experiences / ProjectCard: full-inset
+                        arms with matching TL/BR radius + clip-path reveal, so
+                        they follow the card's rounded corners instead of being
+                        cropped by overflow-hidden like the old w-6 squares. */}
                     <span
                         aria-hidden="true"
-                        className="pointer-events-none absolute top-0 left-0 z-20 w-6 h-6 border-t-2 border-l-2 border-primary opacity-50 group-hover:opacity-100 transition-opacity duration-300"
+                        className="bracket-arm pointer-events-none absolute inset-0 z-20 rounded-tl-[10px] border-t-2 border-l-2 border-primary/60 [clip-path:inset(0_80%_60%_0)] transition-[clip-path,border-color] duration-300 ease-out group-hover:border-primary group-hover:[clip-path:inset(0)]"
                     />
                     <span
                         aria-hidden="true"
-                        className="pointer-events-none absolute bottom-0 right-0 z-20 w-6 h-6 border-b-2 border-r-2 border-primary opacity-50 group-hover:opacity-100 transition-opacity duration-300"
+                        className="bracket-arm pointer-events-none absolute inset-0 z-20 rounded-br-[10px] border-b-2 border-r-2 border-primary/60 [clip-path:inset(60%_0_0_80%)] transition-[clip-path,border-color] duration-300 delay-75 ease-out group-hover:border-primary group-hover:[clip-path:inset(0)]"
                     />
 
                     <div className="relative p-6 xs:p-8 md:p-10">
@@ -109,7 +158,7 @@ const ProductSpotlight = () => {
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 aria-label="Open the live CV Builder app (opens in a new tab)"
-                                className="group/live relative inline-flex items-center justify-center gap-2 h-12 px-8 bg-primary text-primary-foreground uppercase font-anton tracking-widest text-body-lg overflow-hidden transition-colors outline-none hover:bg-primary-hover"
+                                className="group/live relative inline-flex items-center justify-center gap-2 h-12 px-8 bg-primary text-primary-foreground uppercase font-anton tracking-widest text-body-lg overflow-hidden rounded-tl-[10px] rounded-br-[10px] transition-colors outline-none hover:bg-primary-hover"
                             >
                                 <span
                                     aria-hidden="true"
@@ -126,7 +175,7 @@ const ProductSpotlight = () => {
                             <TransitionLink
                                 href="/product"
                                 aria-label="See how CV Builder works"
-                                className="group/details relative inline-flex items-center justify-center gap-2 h-12 px-8 border border-primary text-primary uppercase font-anton tracking-widest text-body-lg overflow-hidden transition-colors hover:bg-primary/10"
+                                className="group/details relative inline-flex items-center justify-center gap-2 h-12 px-8 border border-primary text-primary uppercase font-anton tracking-widest text-body-lg overflow-hidden rounded-tl-[10px] rounded-br-[10px] transition-colors hover:bg-primary/10"
                             >
                                 See how it works
                                 <ArrowUpRight
@@ -137,28 +186,99 @@ const ProductSpotlight = () => {
                         </div>
 
                         <div className="mt-8 grid gap-4 sm:grid-cols-3">
-                            {SCREENSHOTS.map((shot) => (
-                                <figure
-                                    key={shot.src}
-                                    className="border border-white/10 bg-background/60 overflow-hidden rounded-sm"
-                                >
-                                    <Image
-                                        src={shot.src}
-                                        alt={shot.alt}
-                                        width={800}
-                                        height={500}
-                                        sizes="(max-width: 640px) 100vw, (max-width: 1148px) 33vw, 360px"
-                                        loading="lazy"
-                                        className="w-full aspect-[8/5] object-cover"
-                                    />
-                                    <figcaption className="px-3 py-2 font-mono text-ui-sm text-muted-foreground/80 border-t border-white/5">
-                                        {shot.caption}
-                                    </figcaption>
-                                </figure>
-                            ))}
+                            {SHOTS.map((shot, index) => {
+                                const isActive = activeIndex === index;
+
+                                return (
+                                    <figure
+                                        key={shot.src}
+                                        onMouseEnter={(e) =>
+                                            handleEnter(index, e)
+                                        }
+                                        onMouseMove={handleMove}
+                                        onMouseLeave={handleLeave}
+                                        className={cn(
+                                            'group/shot relative border bg-background/60 overflow-hidden rounded-tl-[10px] rounded-br-[10px] transition-all duration-300 hover:shadow-[0_0_30px_-10px_hsl(var(--primary)/0.35)]',
+                                            isActive
+                                                ? 'border-primary/50'
+                                                : 'border-white/10 hover:border-primary/30',
+                                            // Spotlight the hovered shot:
+                                            // siblings recede.
+                                            activeIndex !== null &&
+                                                !isActive &&
+                                                'opacity-60 saturate-[.85]',
+                                        )}
+                                    >
+                                        {/* Corner brackets — same signature
+                                            motif as the rest of the theme. */}
+                                        <span
+                                            aria-hidden="true"
+                                            className={cn(
+                                                'bracket-arm pointer-events-none absolute inset-0 z-[1] border-t-2 border-l-2 rounded-tl-[10px] transition-[clip-path,border-color] duration-300 ease-out',
+                                                isActive
+                                                    ? 'border-primary [clip-path:inset(0)]'
+                                                    : 'border-primary/60 [clip-path:inset(0_80%_60%_0)] group-hover/shot:border-primary group-hover/shot:[clip-path:inset(0)]',
+                                            )}
+                                        />
+                                        <span
+                                            aria-hidden="true"
+                                            className={cn(
+                                                'bracket-arm pointer-events-none absolute inset-0 z-[1] border-b-2 border-r-2 rounded-br-[10px] transition-[clip-path,border-color] duration-300 delay-75 ease-out',
+                                                isActive
+                                                    ? 'border-primary [clip-path:inset(0)]'
+                                                    : 'border-primary/60 [clip-path:inset(60%_0_0_80%)] group-hover/shot:border-primary group-hover/shot:[clip-path:inset(0)]',
+                                            )}
+                                        />
+                                        <button
+                                            type="button"
+                                            data-cursor-rest
+                                            onClick={() =>
+                                                openLightbox(index)
+                                            }
+                                            aria-label={`Expand screenshot: ${shot.alt}`}
+                                            className="relative z-[1] block w-full text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary/60"
+                                        >
+                                            <Image
+                                                src={shot.src}
+                                                alt={shot.alt}
+                                                width={shot.width}
+                                                height={shot.height}
+                                                sizes="(max-width: 640px) 100vw, (max-width: 1148px) 33vw, 360px"
+                                                loading="lazy"
+                                                className={cn(
+                                                    'w-full h-auto object-cover transition-transform duration-300 ease-out',
+                                                    isActive && 'scale-[1.02]',
+                                                )}
+                                            />
+                                        </button>
+                                        <figcaption className="relative z-[1] px-3 py-2 font-mono text-ui-sm text-muted-foreground/80 border-t border-white/5">
+                                            {shot.caption}
+                                        </figcaption>
+                                    </figure>
+                                );
+                            })}
                         </div>
                     </div>
                 </article>
+
+                <ScreenshotPreviewPanel
+                    shot={active}
+                    caption={active?.caption ?? ''}
+                    index={activeIndex ?? -1}
+                    total={SHOTS.length}
+                    visible={activeIndex !== null}
+                    attach={attach}
+                    attachInner={attachInner}
+                />
+
+                {lightboxIndex !== null && (
+                    <ScreenshotLightbox
+                        shots={SHOTS}
+                        index={lightboxIndex}
+                        onIndexChange={setLightboxIndex}
+                        onClose={() => setLightboxIndex(null)}
+                    />
+                )}
             </div>
         </section>
     );
