@@ -20,12 +20,12 @@ export default function Home() {
     return (
         <div>
             <Banner />
-            <ProductSpotlight />
-            <ProjectList />
             <AboutMe />
+            <ProductSpotlight />
             <Skills />
             <Experiences />
             <Certifications />
+            <ProjectList />
             <Testimonials />
         </div>
     );
