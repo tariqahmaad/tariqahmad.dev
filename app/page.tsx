@@ -12,7 +12,7 @@ import Testimonials from '@/components/home/Testimonials';
 // error routes stop inheriting the homepage URL.
 export const metadata: Metadata = {
     alternates: {
-        canonical: 'https://tariqahmad.dev/',
+        canonical: 'https://www.tariqahmad.dev/',
     },
 };
 

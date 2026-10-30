@@ -9,6 +9,6 @@ export default function robots(): MetadataRoute.Robots {
       // this fully client-animated site. Blocking them degrades indexing.
       disallow: ['/api/'],
     },
-    sitemap: 'https://tariqahmad.dev/sitemap.xml',
+    sitemap: 'https://www.tariqahmad.dev/sitemap.xml',
   }
 }

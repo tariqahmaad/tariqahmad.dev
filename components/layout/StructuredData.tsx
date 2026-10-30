@@ -5,7 +5,7 @@ import {
     SOCIAL_LINKS,
 } from '@/lib/data';
 
-const SITE_URL = 'https://tariqahmad.dev';
+const SITE_URL = 'https://www.tariqahmad.dev';
 const PERSON_ID = `${SITE_URL}/#person`;
 
 const MONTHS = [
@@ -83,7 +83,7 @@ export default function StructuredData() {
             {
                 '@type': 'WebSite',
                 '@id': `${SITE_URL}/#website`,
-                name: 'Tariq Ahmad Portfolio',
+                name: 'Tariq Ahmad',
                 url: SITE_URL,
                 description:
                     'Personal portfolio website showcasing software development projects and skills.',

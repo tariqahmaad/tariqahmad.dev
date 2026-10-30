@@ -36,17 +36,21 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-    metadataBase: new URL('https://tariqahmad.dev'),
+    metadataBase: new URL('https://www.tariqahmad.dev'),
     // NOTE: `alternates.canonical` deliberately lives on app/page.tsx, not
     // here. A root-level canonical is inherited by every route that does not
     // override it, which made /404 and error pages declare themselves
     // duplicates of the homepage.
+    // The site is a personal portfolio; the CV Builder product carries its own
+    // metadata in app/product/page.tsx. Product copy here was inherited by
+    // every route that did not override it, including the homepage — which is
+    // how the portfolio got indexed as a resume-builder landing page.
     title: {
-        default: 'CV Builder by Tariq Ahmad - Free ATS Resume Builder with AI',
+        default: 'Tariq Ahmad — Software Developer & Computer Engineer',
         template: '%s | Tariq Ahmad',
     },
     description:
-        'Free browser-based resume builder: 3 ATS-friendly templates, live A4 preview, instant PDF export, share links with analytics.',
+        'Portfolio of Tariq Ahmad, a Computer Engineering graduate from Istanbul Aydin University building full-stack web apps with React, Next.js and Node.js.',
     keywords: [
         'Tariq Ahmad',
         'Software Developer',
@@ -63,31 +67,31 @@ export const metadata: Metadata = {
         'Web Development',
         'Portfolio',
     ],
-    authors: [{ name: 'Tariq Ahmad', url: 'https://tariqahmad.dev' }],
+    authors: [{ name: 'Tariq Ahmad', url: 'https://www.tariqahmad.dev' }],
     creator: 'Tariq Ahmad',
     publisher: 'Tariq Ahmad',
     openGraph: {
         type: 'website',
         locale: 'en_US',
-        url: 'https://tariqahmad.dev',
-        siteName: 'CV Builder by Tariq Ahmad',
-        title: 'CV Builder by Tariq Ahmad - Free ATS Resume Builder with AI',
+        url: 'https://www.tariqahmad.dev',
+        siteName: 'Tariq Ahmad',
+        title: 'Tariq Ahmad — Software Developer & Computer Engineer',
         description:
-            'Free browser-based resume builder: 3 ATS-friendly templates, live A4 preview, instant PDF export, share links with analytics.',
+            'Portfolio of Tariq Ahmad, a Computer Engineering graduate from Istanbul Aydin University building full-stack web apps with React, Next.js and Node.js.',
         images: [
             {
                 url: '/og-image.png',
-                width: 1200,
-                height: 630,
-                alt: 'CV Builder - Free ATS Resume Builder by Tariq Ahmad',
+                width: 1376,
+                height: 768,
+                alt: 'Tariq Ahmad — Full-Stack Developer',
             },
         ],
     },
     twitter: {
         card: 'summary_large_image',
-        title: 'CV Builder by Tariq Ahmad - Free ATS Resume Builder with AI',
+        title: 'Tariq Ahmad — Software Developer & Computer Engineer',
         description:
-            'Free browser-based resume builder: 3 ATS-friendly templates, live A4 preview, instant PDF export, share links with analytics.',
+            'Portfolio of Tariq Ahmad, a Computer Engineering graduate from Istanbul Aydin University building full-stack web apps with React, Next.js and Node.js.',
         images: ['/og-image.png'],
     },
     robots: {

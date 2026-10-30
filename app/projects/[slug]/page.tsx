@@ -46,7 +46,7 @@ export const generateMetadata = async ({
                   .replace(/\s+\S*$/, '')
                   .trim()}...`
             : cleanedDescription;
-    const url = `https://tariqahmad.dev/projects/${slug}`;
+    const url = `https://www.tariqahmad.dev/projects/${slug}`;
     const ogImage = project.thumbnail ?? '/og-image.png';
 
     return {
@@ -60,12 +60,12 @@ export const generateMetadata = async ({
             url,
             title,
             description,
-            siteName: 'Tariq Ahmad Portfolio',
+            siteName: 'Tariq Ahmad',
             images: [
                 {
                     url: ogImage,
-                    width: 1200,
-                    height: 630,
+                    width: 1376,
+                    height: 768,
                     alt: `${project.title} - Project by Tariq Ahmad`,
                 },
             ],

@@ -16,23 +16,23 @@ import TransitionLink from '@/components/shared/TransitionLink';
 export const metadata: Metadata = {
     title: 'CV Builder - Free ATS Resume Builder',
     description:
-        'CV Builder: a free browser-based resume builder with 3 ATS-friendly templates, live A4 preview, instant PDF export, and share links with analytics.',
+        'A free browser-based resume builder with 3 ATS-friendly templates, live A4 preview, instant PDF export, and share links with analytics.',
     alternates: {
-        canonical: 'https://tariqahmad.dev/product',
+        canonical: 'https://www.tariqahmad.dev/product',
     },
     openGraph: {
         type: 'website',
-        url: 'https://tariqahmad.dev/product',
-        siteName: 'Tariq Ahmad Portfolio',
+        url: 'https://www.tariqahmad.dev/product',
+        siteName: 'Tariq Ahmad',
         title: 'CV Builder by Tariq Ahmad - Free ATS Resume Builder with AI',
         description:
-            'Free browser-based resume builder: 3 ATS-friendly templates, live A4 preview, instant PDF export, share links with analytics.',
+            'A free browser-based resume builder with 3 ATS-friendly templates, live A4 preview, instant PDF export, and share links with analytics.',
         images: [
             {
                 url: '/og-image.png',
-                width: 1200,
-                height: 630,
-                alt: 'CV Builder - Free ATS Resume Builder with AI',
+                width: 1376,
+                height: 768,
+                alt: 'Tariq Ahmad — Full-Stack Developer',
             },
         ],
     },
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
         card: 'summary_large_image',
         title: 'CV Builder by Tariq Ahmad - Free ATS Resume Builder with AI',
         description:
-            'Free browser-based resume builder: 3 ATS-friendly templates, live A4 preview, instant PDF export, share links with analytics.',
+            'A free browser-based resume builder with 3 ATS-friendly templates, live A4 preview, instant PDF export, and share links with analytics.',
         images: ['/og-image.png'],
     },
 };
