@@ -80,7 +80,7 @@ export const metadata: Metadata = {
             'Portfolio of Tariq Ahmad, a Computer Engineering graduate from Istanbul Aydin University building full-stack web apps with React, Next.js and Node.js.',
         images: [
             {
-                url: '/og-image.png',
+                url: '/og-image.jpg',
                 width: 1376,
                 height: 768,
                 alt: 'Tariq Ahmad — Full-Stack Developer',
@@ -92,7 +92,7 @@ export const metadata: Metadata = {
         title: 'Tariq Ahmad — Software Developer & Computer Engineer',
         description:
             'Portfolio of Tariq Ahmad, a Computer Engineering graduate from Istanbul Aydin University building full-stack web apps with React, Next.js and Node.js.',
-        images: ['/og-image.png'],
+        images: ['/og-image.jpg'],
     },
     robots: {
         index: true,

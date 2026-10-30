@@ -59,7 +59,7 @@ certifications, stack, testimonials and the hero roles. Types are in
 
 Project thumbnails are optional: drop images into `public/projects/` and set
 `thumbnail` / `longThumbnail` / `images` on the matching entry. Without them the
-detail page and social card fall back to `/og-image.png`.
+detail page and social card fall back to `/og-image.jpg`.
 
 ## Deployment
 

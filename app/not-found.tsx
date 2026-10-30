@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import Button from '@/components/shared/Button';
+import BackLink from '@/components/shared/BackLink';
 
 // Without this the 404 inherited the layout's title and canonical URL, so it
 // was indexable and looked like a duplicate of the homepage.
@@ -22,9 +22,14 @@ export default function NotFound() {
                 <p className="text-body-lg text-muted-foreground max-w-sm mx-auto">
                     The page you are looking for does not exist or has been moved.
                 </p>
-                <Button as="link" href="/" variant="primary">
-                    Back to Home
-                </Button>
+                <div className="flex justify-center pt-2">
+                    <BackLink
+                        href="/"
+                        label="Back to home"
+                        alwaysHref
+                        className="text-body-lg"
+                    />
+                </div>
             </div>
         </div>
     );
