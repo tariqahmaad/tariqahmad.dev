@@ -1,10 +1,10 @@
 'use client';
 import parse from 'html-react-parser';
 import ArrowAnimation from '@/components/shared/ArrowAnimation';
-import TransitionLink from '@/components/shared/TransitionLink';
+import BackLink from '@/components/shared/BackLink';
 import { IProject } from '@/types';
 import { gsap, useGSAP } from '@/lib/gsap-setup';
-import { ArrowLeft, ExternalLink, Github } from 'lucide-react';
+import { ExternalLink, Github } from 'lucide-react';
 import { useRef } from 'react';
 
 interface Props {
@@ -14,8 +14,6 @@ interface Props {
 const ProjectDetails = ({ project }: Props) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const infoRef = useRef<HTMLDivElement>(null);
-
-    const isCvBuilder = project.slug === 'cv-builder';
 
     useGSAP(
         () => {
@@ -113,14 +111,11 @@ const ProjectDetails = ({ project }: Props) => {
     return (
         <section className="pt-5 pb-14">
             <div className="container" ref={containerRef}>
-                <TransitionLink
-                    back
+                <BackLink
                     href="/"
-                    className="mb-16 inline-flex gap-2 items-center group h-12"
-                >
-                    <ArrowLeft className="group-hover:-translate-x-1 group-hover:text-primary transition-all duration-300" />
-                    Back
-                </TransitionLink>
+                    label="Back to projects"
+                    className="mb-16"
+                />
 
                 <div
                     className="top-0 min-h-[calc(100svh-100px)] flex"
@@ -153,14 +148,14 @@ const ProjectDetails = ({ project }: Props) => {
                                     {project.techStack.join(', ')}
                                 </div>
                             </div>
-                            {!isCvBuilder && (project.sourceCode || project.liveUrl) && (
+                            {(project.sourceCode || project.liveUrl) && (
                                 <div className="fade-in-later">
                                     <p className="text-muted-foreground font-anton mb-3">
                                         Project Links
                                     </p>
 
                                     <div className="flex gap-4">
-                                        {project.sourceCode && !isCvBuilder && (
+                                        {project.sourceCode && (
                                             <a
                                                 href={project.sourceCode}
                                                 target="_blank"
@@ -172,7 +167,7 @@ const ProjectDetails = ({ project }: Props) => {
                                                 <span className="relative z-[1] font-mono uppercase tracking-wider text-xs">View Source</span>
                                             </a>
                                         )}
-                                        {project.liveUrl && !isCvBuilder && (
+                                        {project.liveUrl && (
                                             <a
                                                 href={project.liveUrl}
                                                 target="_blank"

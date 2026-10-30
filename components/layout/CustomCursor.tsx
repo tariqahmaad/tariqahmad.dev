@@ -258,6 +258,15 @@ const CustomCursor = () => {
         const resolveHover = (element: Element | null): boolean => {
             if (!element) return false;
 
+            // Screenshot-preview thumbnails carry their own floating panel, so
+            // the cursor stays at rest scale over them even though they are
+            // <button>s (otherwise the spotlight would scale up and stack with
+            // the panel). Same opt-out idea as `data-cursor-hide` above.
+            if (element.closest('[data-cursor-rest]')) {
+                interactiveAncestor = null;
+                return false;
+            }
+
             const cached = interactiveAncestor;
             // `matches()` on the cached node is a single-element test, cheaper
             // than walking the tree: while it still matches, every descendant of
