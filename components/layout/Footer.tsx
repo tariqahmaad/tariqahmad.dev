@@ -1,15 +1,8 @@
-'use client';
-
-import { GENERAL_INFO, SOCIAL_LINKS } from '@/lib/data';
-import { isProjectDetailPage } from '@/lib/utils';
-import { usePathname } from 'next/navigation';
 import { ArrowUpRight } from 'lucide-react';
 
-const Footer = () => {
-    const pathname = usePathname();
+import { GENERAL_INFO, SOCIAL_LINKS } from '@/lib/data';
 
-    if (isProjectDetailPage(pathname)) return null;
-
+export default function Footer() {
     return (
         <footer className="relative pb-5 pt-8" id="contact">
             {/* Top separator */}
@@ -56,19 +49,11 @@ const Footer = () => {
                         })}
                     </div>
 
-                    {/* Rendered at build time on the server and re-evaluated in
-                        the browser, so suppress the (theoretical) New-Year
-                        hydration mismatch. */}
-                    <p
-                        suppressHydrationWarning
-                        className="text-ui-sm text-muted-foreground/65 font-mono"
-                    >
+                    <p className="text-ui-sm text-muted-foreground/70 font-mono">
                         &copy; {new Date().getFullYear()} tariqahmad.dev
                     </p>
                 </div>
             </div>
         </footer>
     );
-};
-
-export default Footer;
+}

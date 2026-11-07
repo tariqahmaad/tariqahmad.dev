@@ -62,10 +62,10 @@ const ScrollProgressIndicator = () => {
     return (
         <div
             aria-hidden="true"
-            className="fixed top-[50svh] right-[2%] -translate-y-1/2 w-1.5 h-[100px] bg-background-light overflow-hidden"
+            className="fixed top-[50svh] right-[2%] -translate-y-1/2 w-1.5 h-[100px] border border-white/5 bg-white/[0.03] overflow-hidden"
         >
             <div
-                className="w-full bg-primary h-full shadow-[0_0_8px_rgba(0,255,0,0.6)]"
+                className="w-full bg-primary/70 h-full shadow-[0_0_8px_rgba(0,255,0,0.6)]"
                 ref={scrollBarRef}
             ></div>
         </div>

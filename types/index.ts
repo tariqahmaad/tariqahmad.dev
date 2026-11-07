@@ -1,15 +1,3 @@
-export type Variant =
-    | 'primary'
-    | 'secondary'
-    | 'success'
-    | 'warning'
-    | 'danger'
-    | 'info'
-    | 'light'
-    | 'dark'
-    | 'link'
-    | 'no-color';
-
 export interface ISkill {
     name: string;
     icon: string;
@@ -45,6 +33,18 @@ export interface IProject {
     sourceCode?: string;
 }
 
+/**
+ * The slice of a project the case-file pager needs. ProjectDetails is a client
+ * component, so passing the full IProject (with description/role HTML) for both
+ * neighbours would ship every project's copy to the browser twice per page.
+ */
+export interface IProjectLink {
+    slug: string;
+    title: string;
+    year: number;
+    techStack: string[];
+}
+
 export interface IExperience {
     title: string;
     company: string;
@@ -56,8 +56,7 @@ export interface IExperience {
     description?: string;
     highlighted?: boolean;
     employmentType?: 'Research' | 'Internship' | 'Full-time' | 'Contract';
-    location?: string;
-    /** Skill chips shown in the expanded panel (click scrolls to My Stack). */
+    /** Skill chips shown in the expanded panel (click scrolls to Tech Stack). */
     skills?: string[];
     /** Achievement bullets shown in the expanded panel. */
     highlights?: string[];

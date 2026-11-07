@@ -4,6 +4,8 @@ import Image from 'next/image';
 import { ArrowUpRight, ExternalLink } from 'lucide-react';
 import SectionTitle from '@/components/shared/SectionTitle';
 import TransitionLink from '@/components/shared/TransitionLink';
+import BracketFrame from '@/components/shared/hud/BracketFrame';
+import HudButton from '@/components/shared/hud/HudButton';
 import ScreenshotPreviewPanel from '@/components/product/ScreenshotPreviewPanel';
 import ScreenshotLightbox from '@/components/product/ScreenshotLightbox';
 import { PRODUCT_SHOTS } from '@/components/product/screenshots';
@@ -17,9 +19,9 @@ import { useRef, useState } from 'react';
 
 // Location-specific captions for the shared captures.
 const SPOTLIGHT_CAPTIONS = [
-    'Guided editor with live preview',
-    'Three ATS-friendly templates',
     'Start free, no account needed',
+    'Template gallery with live preview',
+    'Guided editor with live preview',
 ];
 
 const SHOTS = PRODUCT_SHOTS.map((shot, i) => ({
@@ -118,18 +120,8 @@ const ProductSpotlight = () => {
                         className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-primary/[0.08] to-transparent"
                     />
                     {/* Corner brackets — signature motif shared with
-                        Testimonials / Experiences / ProjectCard: full-inset
-                        arms with matching TL/BR radius + clip-path reveal, so
-                        they follow the card's rounded corners instead of being
-                        cropped by overflow-hidden like the old w-6 squares. */}
-                    <span
-                        aria-hidden="true"
-                        className="bracket-arm pointer-events-none absolute inset-0 z-20 rounded-tl-[10px] border-t-2 border-l-2 border-primary/60 [clip-path:inset(0_80%_60%_0)] transition-[clip-path,border-color] duration-300 ease-out group-hover:border-primary group-hover:[clip-path:inset(0)]"
-                    />
-                    <span
-                        aria-hidden="true"
-                        className="bracket-arm pointer-events-none absolute inset-0 z-20 rounded-br-[10px] border-b-2 border-r-2 border-primary/60 [clip-path:inset(60%_0_0_80%)] transition-[clip-path,border-color] duration-300 delay-75 ease-out group-hover:border-primary group-hover:[clip-path:inset(0)]"
-                    />
+                        Testimonials / Experiences / ProjectCard. */}
+                    <BracketFrame className="z-20" />
 
                     <div className="relative p-6 xs:p-8 md:p-10">
                         <div className="flex flex-wrap items-center gap-2.5 mb-5">
@@ -153,25 +145,16 @@ const ProductSpotlight = () => {
                         </p>
 
                         <div className="mt-6 flex flex-col xs:flex-row flex-wrap items-stretch xs:items-center gap-3">
-                            <a
+                            <HudButton
                                 href="https://cv.tariqahmad.dev"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                aria-label="Open the live CV Builder app (opens in a new tab)"
-                                className="group/live relative inline-flex items-center justify-center gap-2 h-12 px-8 bg-primary text-primary-foreground uppercase font-anton tracking-widest text-body-lg overflow-hidden rounded-tl-[10px] rounded-br-[10px] transition-colors outline-none hover:bg-primary-hover"
+                                external
+                                variant="solid"
+                                size="md"
+                                ariaLabel="Open the live CV Builder app (opens in a new tab)"
+                                icon={<ExternalLink className="w-4 h-4" />}
                             >
-                                <span
-                                    aria-hidden="true"
-                                    className="absolute top-[200%] left-0 right-0 h-full bg-foreground/90 group-hover/live:top-0 transition-all duration-500 ease-out"
-                                />
-                                <span className="z-[1] inline-flex items-center gap-2">
-                                    Open the live app
-                                    <ExternalLink
-                                        className="w-4 h-4"
-                                        aria-hidden="true"
-                                    />
-                                </span>
-                            </a>
+                                Open the live app
+                            </HudButton>
                             <TransitionLink
                                 href="/product"
                                 aria-label="See how CV Builder works"
@@ -198,7 +181,7 @@ const ProductSpotlight = () => {
                                         onMouseMove={handleMove}
                                         onMouseLeave={handleLeave}
                                         className={cn(
-                                            'group/shot relative border bg-background/60 overflow-hidden rounded-tl-[10px] rounded-br-[10px] transition-all duration-300 hover:shadow-[0_0_30px_-10px_hsl(var(--primary)/0.35)]',
+                                            'group group/shot relative border bg-background/60 overflow-hidden rounded-tl-[10px] rounded-br-[10px] transition-all duration-300 hover:shadow-[0_0_30px_-10px_hsl(var(--primary)/0.35)]',
                                             isActive
                                                 ? 'border-primary/50'
                                                 : 'border-white/10 hover:border-primary/30',
@@ -211,23 +194,9 @@ const ProductSpotlight = () => {
                                     >
                                         {/* Corner brackets — same signature
                                             motif as the rest of the theme. */}
-                                        <span
-                                            aria-hidden="true"
-                                            className={cn(
-                                                'bracket-arm pointer-events-none absolute inset-0 z-[1] border-t-2 border-l-2 rounded-tl-[10px] transition-[clip-path,border-color] duration-300 ease-out',
-                                                isActive
-                                                    ? 'border-primary [clip-path:inset(0)]'
-                                                    : 'border-primary/60 [clip-path:inset(0_80%_60%_0)] group-hover/shot:border-primary group-hover/shot:[clip-path:inset(0)]',
-                                            )}
-                                        />
-                                        <span
-                                            aria-hidden="true"
-                                            className={cn(
-                                                'bracket-arm pointer-events-none absolute inset-0 z-[1] border-b-2 border-r-2 rounded-br-[10px] transition-[clip-path,border-color] duration-300 delay-75 ease-out',
-                                                isActive
-                                                    ? 'border-primary [clip-path:inset(0)]'
-                                                    : 'border-primary/60 [clip-path:inset(60%_0_0_80%)] group-hover/shot:border-primary group-hover/shot:[clip-path:inset(0)]',
-                                            )}
+                                        <BracketFrame
+                                            className="z-[1]"
+                                            active={isActive}
                                         />
                                         <button
                                             type="button"

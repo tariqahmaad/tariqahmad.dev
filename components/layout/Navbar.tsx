@@ -1,85 +1,28 @@
 'use client';
 import { cn } from '@/lib/utils';
 import { useState, useRef, useCallback, useEffect } from 'react';
-import {
-    MoveUpRight,
-    Terminal,
-    Shield,
-    Code,
-    Briefcase,
-    Award,
-    FolderGit2,
-    Mail,
-    MessageSquareQuote,
-    Rocket,
-} from 'lucide-react';
+import { Mail, MoveUpRight, Search } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
 import { GENERAL_INFO, SOCIAL_LINKS } from '@/lib/data';
-import { scrollToSection, isProjectDetailPage } from '@/lib/utils';
-import { useScrollDetection } from '@/hooks/useScrollDetection';
+import { SITE_SECTIONS } from '@/lib/navigation';
+import { scrollToSection } from '@/lib/utils';
 import { useScrollLock } from '@/hooks/useScrollLock';
 import { useMenuKeyboardNavigation } from '@/hooks/useMenuKeyboardNavigation';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { useScrollDirection } from '@/hooks/useScrollDirection';
+import { useInertOutside } from '@/hooks/useInertOutside';
+import { useActiveSection } from '@/components/layout/ActiveSectionProvider';
+import { useCommandConsole } from '@/components/command/CommandProvider';
 
-const MENU_LINKS = [
-    {
-        name: 'Home',
-        url: '/',
-        icon: Terminal,
-        prefix: '~/',
-        sectionId: null,
-    },
-    {
-        name: 'About Me',
-        url: '/#about-me',
-        icon: Shield,
-        prefix: './whoami',
-        sectionId: 'about-me',
-    },
-    {
-        name: 'Skills',
-        url: '/#my-stack',
-        icon: Code,
-        prefix: './tech',
-        sectionId: 'my-stack',
-    },
-    {
-        name: 'Experience',
-        url: '/#my-experience',
-        icon: Briefcase,
-        prefix: './work',
-        sectionId: 'my-experience',
-    },
-    {
-        name: 'Certifications',
-        url: '/#certifications',
-        icon: Award,
-        prefix: './certs',
-        sectionId: 'certifications',
-    },
-    {
-        name: 'Product',
-        url: '/#product-spotlight',
-        icon: Rocket,
-        prefix: './product',
-        sectionId: 'product-spotlight',
-    },
-    {
-        name: 'Projects',
-        url: '/#selected-projects',
-        icon: FolderGit2,
-        prefix: './projects',
-        sectionId: 'selected-projects',
-    },
-    {
-        name: 'Testimonials',
-        url: '/#testimonials',
-        icon: MessageSquareQuote,
-        prefix: './reviews',
-        sectionId: 'testimonials',
-    },
-] as const;
+// Navbar-shaped view of the shared section list: one source (lib/navigation)
+// feeds the menu, the scroll-spy and the command console.
+const MENU_LINKS = SITE_SECTIONS.map((section) => ({
+    name: section.label,
+    url: section.href,
+    icon: section.icon,
+    prefix: section.prefix,
+    sectionId: section.id,
+}));
 
 // Motion timings. The whole cascade has to land within roughly one panel slide
 // (~460ms) or the menu feels sluggish on a phone, so the stagger is small and
@@ -108,9 +51,7 @@ const ROW_MOTION = {
 const MENU_PANEL_ID = 'site-menu';
 
 // Roving order: the menu rows, then the social links, then the mailto link at
-// the bottom of the panel. The count has to include the mailto link or
-// ArrowDown from the last social wraps straight past it, and the final index
-// has to map to a ref or it becomes a dead stop the roving order never leaves.
+// the bottom of the panel.
 const ROVING_ITEM_COUNT = MENU_LINKS.length + SOCIAL_LINKS.length + 1;
 const CONTACT_INDEX = ROVING_ITEM_COUNT - 1;
 
@@ -158,6 +99,7 @@ const Navbar = () => {
     const pathname = usePathname();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const router = useRouter();
+    const commandConsole = useCommandConsole();
     const menuRef = useRef<HTMLDivElement>(null);
     const backdropRef = useRef<HTMLDivElement>(null);
     const hamburgerRef = useRef<HTMLButtonElement>(null);
@@ -167,6 +109,16 @@ const Navbar = () => {
     // Pending focus timer, tracked so it is cleared on close/unmount instead of
     // firing against a stale ref.
     const focusTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    // The shortcut hint must match the visitor's keyboard. The Command glyph
+    // (U+2318) has no glyph in the Windows mono stack, so it falls back to a
+    // different font and reads as a broken icon jammed against the K. Start
+    // with the cross-platform label so server and first client render agree,
+    // then upgrade on Apple hardware.
+    const [isApple, setIsApple] = useState(false);
+
+    useEffect(() => {
+        setIsApple(/Mac|iPhone|iPad|iPod/.test(navigator.userAgent));
+    }, []);
 
     // Close menu handler
     const closeMenu = useCallback(() => {
@@ -185,16 +137,18 @@ const Navbar = () => {
         setIsMenuOpen(false);
     }, []);
 
-    // Hide navbar on project details pages
-    const isProjectDetail = isProjectDetailPage(pathname ?? '');
+    // Scroll detection for active section. One provider serves the menu and
+    // the command console; the navbar only subscribes.
+    const activeSection = useActiveSection();
 
-    // Scroll detection for active section. The navbar renders nothing on
-    // project detail pages, so disable the hook there entirely.
-    const activeSection = useScrollDetection({
-        links: MENU_LINKS,
-        offset: 100,
-        enabled: !isProjectDetail,
-    });
+    // The console's "Open site menu" command cannot reach React state
+    // directly, so it dispatches a window event the navbar listens for.
+    useEffect(() => {
+        const openFromConsole = () => setIsMenuOpen(true);
+        window.addEventListener('site-menu:open', openFromConsole);
+        return () =>
+            window.removeEventListener('site-menu:open', openFromConsole);
+    }, []);
 
     // Keyboard navigation
     const { focusedIndex, setFocusedIndex } = useMenuKeyboardNavigation({
@@ -211,78 +165,19 @@ const Navbar = () => {
     // open menu, or a tap/focus brings it straight back to full strength.
     const isPhone = useMediaQuery(PHONE_QUERY);
     const isScrollingDown = useScrollDirection({
-        enabled: isPhone && !isProjectDetail,
+        enabled: isPhone,
     });
     const isToggleDimmed = isPhone && isScrollingDown && !isMenuOpen;
 
-    // Contain focus inside the open menu. The panel is a modal dialog, so
-    // nothing outside it may be reachable with Tab, and `aria-modal` claims
-    // exactly that. A fixed selector list cannot keep that promise: it has to be
-    // updated for every widget that ever sits above the overlay, and the skip
-    // link (z-[10000]) and the fixed ScrollToTop button (z-50, above the panel's
-    // z-[31] and the backdrop's z-[30]) were both still reachable - and painted
-    // on top of - the open menu. Instead, walk the tree under <body> and inert
-    // everything that is not on the overlay's own branch, so a widget is covered
-    // without having to opt in.
-    useEffect(() => {
-        if (!isMenuOpen) return;
-
-        // The overlay itself stays interactive: the toggle is the way out and
-        // the backdrop is the click-to-dismiss layer, so neither may be inert -
-        // and neither may the dialog's own contents.
-        const overlayRoots = new Set<HTMLElement>();
-        for (const element of [
-            hamburgerRef.current,
-            backdropRef.current,
-            menuRef.current,
-        ]) {
-            if (element) overlayRoots.add(element);
-        }
-
-        // Every ancestor of an overlay root is a branch this walk has to follow
-        // instead of inerting, so the overlay keeps working even if a layout
-        // renders a wrapper around it.
-        const keepBranches = new Set<HTMLElement>();
-        for (const element of overlayRoots) {
-            let branch = element.parentElement;
-            while (branch && branch !== document.body) {
-                keepBranches.add(branch);
-                branch = branch.parentElement;
-            }
-        }
-
-        // Prior state is recorded per element rather than assumed: another owner
-        // may already have set `inert`, and removing the attribute on close
-        // would silently clear it.
-        const previous = new Map<HTMLElement, boolean>();
-
-        // Only the kept branches are descended into; every other subtree is
-        // inerted whole.
-        const inertEverythingElse = (parent: HTMLElement) => {
-            for (const child of Array.from(parent.children)) {
-                if (!(child instanceof HTMLElement)) continue;
-                if (overlayRoots.has(child)) continue;
-
-                if (keepBranches.has(child)) {
-                    inertEverythingElse(child);
-                    continue;
-                }
-
-                previous.set(child, child.hasAttribute('inert'));
-                child.setAttribute('inert', '');
-            }
-        };
-
-        inertEverythingElse(document.body);
-
-        // React runs this on close and on unmount while open, so the page never
-        // stays frozen behind a menu that is gone.
-        return () => {
-            previous.forEach((wasInert, element) => {
-                if (!wasInert) element.removeAttribute('inert');
-            });
-        };
-    }, [isMenuOpen]);
+    // Contain focus inside the open menu. `aria-modal` is a promise, not a
+    // mechanism: everything outside the overlay's own branch is inerted, and
+    // prior `inert` state is restored on close so another owner is never
+    // silently cleared.
+    useInertOutside(isMenuOpen, () => [
+        hamburgerRef.current,
+        backdropRef.current,
+        menuRef.current,
+    ]);
 
     // `useMenuKeyboardNavigation` claims ArrowUp/ArrowDown/Home/End from a
     // document listener and preventDefaults them unconditionally. On a short
@@ -347,10 +242,43 @@ const Navbar = () => {
         };
     }, [focusedIndex]);
 
-    if (isProjectDetail) return null;
-
     return (
         <>
+            {/* Site search / console trigger. Lives in the header next to the
+                menu toggle — the conventional place for search — rather than
+                as another row in the menu list. */}
+            {!isMenuOpen && (
+                <button
+                    type="button"
+                    onClick={() => commandConsole.open()}
+                    aria-label="Search the site (Control or Command plus K)"
+                    aria-keyshortcuts="Control+K Meta+K"
+                    aria-haspopup="dialog"
+                    className={cn(
+                        'fixed z-[41] inline-flex items-center justify-center gap-2',
+                        'top-[max(1rem,env(safe-area-inset-top)_+_0.5rem)] right-[4.25rem]',
+                        'sm:top-5 sm:right-[5rem] md:top-6 md:right-[6rem]',
+                        'h-11 w-11 sm:h-12 sm:w-12 md:h-14 md:w-auto md:px-5',
+                        'border border-white/10 bg-background/60 text-subtle backdrop-blur-sm',
+                        'font-mono text-ui-xs uppercase tracking-wider',
+                        'transition-colors hover:border-primary/40 hover:text-primary',
+                        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50',
+                    )}
+                >
+                    <Search className="h-4 w-4" aria-hidden="true" />
+                    <span className="hidden md:inline" aria-hidden="true">
+                        Search
+                    </span>
+                    <kbd
+                        aria-hidden="true"
+                        className="hidden items-center gap-1 rounded-sm border border-white/10 bg-white/[0.03] px-2 py-1 font-mono text-ui-sm leading-none text-subtle md:inline-flex"
+                    >
+                        <span>{isApple ? '⌘' : 'Ctrl'}</span>
+                        <span className="text-foreground/70">K</span>
+                    </kbd>
+                </button>
+            )}
+
             {/* Hamburger / close button.
                 Deliberately `fixed` rather than `sticky`: `useScrollLock`
                 freezes <body> with `position: fixed` + `overflow: hidden` while
@@ -479,6 +407,7 @@ const Navbar = () => {
                 aria-label="Site menu"
                 role="dialog"
                 aria-modal="true"
+                data-modal-open={isMenuOpen}
                 // While closed the panel is only shifted off-screen, so keep it
                 // out of the tab order and the accessibility tree entirely.
                 inert={!isMenuOpen}
@@ -528,10 +457,6 @@ const Navbar = () => {
                             <p className="text-ui-sm md:text-ui-base lg:text-ui-lg font-mono tracking-widest text-primary/80 uppercase">
                                 Navigation
                             </p>
-                            <span className="ml-auto text-[11px] xs:text-ui-sm sm:text-ui-sm font-mono text-muted-foreground/40">
-                                {String(MENU_LINKS.length).padStart(2, '0')}{' '}
-                                items
-                            </span>
                         </div>
                         <ul className="space-y-1 sm:space-y-2 md:space-y-2.5 lg:space-y-2.5">
                             {MENU_LINKS.map((link, idx) => {
@@ -615,21 +540,6 @@ const Navbar = () => {
                                                 )}
                                             />
 
-                                            {/* Numbered prefix */}
-                                            <span
-                                                className={cn(
-                                                    'text-[11px] font-mono flex-shrink-0 w-5 sm:w-5 text-right transition-colors',
-                                                    isActive
-                                                        ? 'text-primary/60'
-                                                        : 'text-muted-foreground/30 group-hover:text-primary/40',
-                                                )}
-                                            >
-                                                {String(idx + 1).padStart(
-                                                    2,
-                                                    '0',
-                                                )}
-                                            </span>
-
                                             <Icon
                                                 className={cn(
                                                     'w-5 h-5 sm:w-5 sm:h-5 md:w-5 md:h-5 lg:w-6 lg:h-6 transition-colors flex-shrink-0',
@@ -644,7 +554,7 @@ const Navbar = () => {
                                                         'text-[11px] sm:text-[11px] md:text-ui-sm lg:text-ui-base font-mono transition-colors truncate',
                                                         isActive
                                                             ? 'text-primary/70'
-                                                            : 'text-muted-foreground/60 group-hover:text-primary/60',
+                                                            : 'text-subtle group-hover:text-primary',
                                                     )}
                                                 >
                                                     {link.prefix}
@@ -807,22 +717,13 @@ const Navbar = () => {
                             <a
                                 ref={contactRef}
                                 href={`mailto:${GENERAL_INFO.email}`}
-                                className="group/email text-body-sm sm:text-body-base md:text-body-lg lg:text-body-lg font-mono tracking-wide text-foreground/90 hover:text-primary transition-colors duration-300 block break-all mb-2 sm:mb-2.5 md:mb-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 rounded"
+                                className="group/email text-body-sm sm:text-body-base md:text-body-lg lg:text-body-lg font-mono tracking-wide text-foreground/90 hover:text-primary transition-colors duration-300 block break-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 rounded"
                             >
                                 <span className="group-hover/email:text-primary/60 transition-colors">
                                     &gt;{' '}
                                 </span>
                                 {GENERAL_INFO.email}
                             </a>
-                            <div className="flex items-center gap-2 sm:gap-2 text-[11px] xs:text-ui-sm sm:text-ui-sm md:text-ui-base lg:text-ui-base text-muted-foreground/80">
-                                <span className="h-2 w-2 sm:h-2 sm:w-2 md:h-2.5 md:w-2.5 flex-shrink-0 bg-primary shadow-[0_0_6px_rgba(0,255,0,0.7)] animate-pulse-subtle" />
-                                <span className="font-mono text-primary/70">
-                                    STATUS:
-                                </span>
-                                <span className="truncate font-mono text-foreground/70">
-                                    AVAILABLE FOR WORK
-                                </span>
-                            </div>
                         </div>
                     </div>
                 </nav>

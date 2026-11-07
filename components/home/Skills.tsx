@@ -72,7 +72,7 @@ const Skills = () => {
     return (
         <section id="my-stack" className="py-section">
             <div className="container" ref={containerRef}>
-                <SectionTitle title="My Stack" />
+                <SectionTitle title="Tech Stack" />
 
                 <div className="space-y-8 xs:space-y-12 md:space-y-20">
                     {/* `sm:gap-[25px]` replaces the old global

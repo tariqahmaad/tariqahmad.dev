@@ -21,6 +21,9 @@
         --secondary-foreground: 0 0% 2%;
         --muted: 0 0% 12%;
         --muted-foreground: 0 0% 75%;
+        /* Tertiary text. 62% grey on the 2% page is ~7.6:1, so small labels can
+           use this instead of opacity tints that dropped below 4.5:1. */
+        --subtle: 0 0% 62%;
         --accent: 0 0% 15%;
         --accent-foreground: 0 0% 98%;
         --destructive: 0 70% 45%;
@@ -77,6 +80,13 @@
         outline-offset: 2px;
     }
 
+    /* The console input sits inside an always-visible dialog and is focused as
+       soon as it opens; the generic 2px ring draws a hard box across the prompt
+       row. The row's own focus-within border + the caret carry the state. */
+    .command-input:focus-visible {
+        outline: none;
+    }
+
     /* Hide cursor only on desktop where custom cursor is shown, and respect prefers-reduced-motion.
        Gated on `html.has-custom-cursor`, which CustomCursor.tsx adds only once the custom cursor is
        live: if JS is disabled or hydration fails, the native cursor stays visible. */
@@ -84,6 +94,10 @@
         @media (prefers-reduced-motion: no-preference) {
             html.has-custom-cursor * {
                 cursor: none !important;
+            }
+            /* Text entry needs a caret and an I-beam, even under a custom cursor. */
+            html.has-custom-cursor .command-input {
+                cursor: text !important;
             }
         }
     }
@@ -96,6 +110,17 @@
             linear-gradient(rgba(0, 255, 0, 0.15) 1px, transparent 1px),
             linear-gradient(90deg, rgba(0, 255, 0, 0.15) 1px, transparent 1px);
         background-size: 32px 32px;
+    }
+
+    /* CRT scanline overlay, shared by the menu and the command console. */
+    .hud-scanlines {
+        background-image: repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 2px,
+            rgba(0, 255, 0, 0.05) 2px,
+            rgba(0, 255, 0, 0.05) 4px
+        );
     }
 
     @media (min-width: 640px) {

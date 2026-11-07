@@ -1,8 +1,6 @@
 'use client';
 
 import { GENERAL_INFO } from '@/lib/data';
-import { isProjectDetailPage } from '@/lib/utils';
-import { usePathname } from 'next/navigation';
 import { useRef, useEffect, useState } from 'react';
 import gsap from 'gsap';
 
@@ -11,7 +9,6 @@ const RENDERED_SET_COUNT = 3;
 const TOTAL_RENDERED_ITEMS = ORIGINAL_ITEM_COUNT * RENDERED_SET_COUNT;
 
 const StickyEmail = () => {
-    const pathname = usePathname();
     const marqueeRef = useRef<HTMLDivElement>(null);
     const animationRef = useRef<gsap.core.Tween | null>(null);
     const timeScaleTweenRef = useRef<gsap.core.Tween | null>(null);
@@ -108,7 +105,7 @@ const StickyEmail = () => {
             animationRef.current = null;
             gsap.set(marquee, { y: 0 });
         };
-    }, [prefersReducedMotion, pathname]);
+    }, [prefersReducedMotion]);
 
     // Hover eases the marquee to a stop instead of slamming it to a halt, and
     // eases back up on leave. The playhead is never reset, so the text cannot
@@ -141,8 +138,6 @@ const StickyEmail = () => {
         };
     }, [isHovered]);
 
-    if (isProjectDetailPage(pathname)) return null;
-
     return (
         <div
             className="max-xl:hidden fixed top-0 bottom-0 left-0 overflow-hidden
@@ -163,14 +158,17 @@ const StickyEmail = () => {
                 style={{ gap: '120px' }}
             >
                 {Array.from({ length: TOTAL_RENDERED_ITEMS }).map((_, index) => {
-                    const isDuplicateSet = index >= ORIGINAL_ITEM_COUNT;
-
                     return (
                         <a
                             key={index}
                             href={`mailto:${GENERAL_INFO.email}`}
-                            aria-hidden={isDuplicateSet ? 'true' : undefined}
-                            tabIndex={isDuplicateSet ? -1 : undefined}
+                            // The rail loops the address three times; every
+                            // copy is decorative. Making them all aria-hidden
+                            // and untabbable removes three duplicate "email"
+                            // links from the accessibility tree and tab order
+                            // (the footer and the menu carry the real one).
+                            aria-hidden="true"
+                            tabIndex={-1}
                             // `transition-colors`, never `transition-all`: with
                             // `all` the browser promotes this anchor to its own
                             // layer when the hover transition starts, which

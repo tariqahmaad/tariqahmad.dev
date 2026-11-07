@@ -4,18 +4,14 @@ import { ReactLenis } from 'lenis/react';
 
 import 'lenis/dist/lenis.css';
 import './globals.css';
-import Footer from '@/components/layout/Footer';
 import ScrollProgressIndicator from '@/components/layout/ScrollProgressIndicator';
-import ParticleBackground from '@/components/layout/ParticleBackground';
-import Navbar from '@/components/layout/Navbar';
 import CustomCursor from '@/components/layout/CustomCursor';
-import Preloader from '@/components/layout/Preloader';
-import StickyEmail from '@/components/layout/StickyEmail';
 import StructuredData from '@/components/layout/StructuredData';
-import ScrollSnap from '@/components/layout/ScrollSnap';
 import ScrollToTop from '@/components/layout/ScrollToTop';
 import LenisBridge from '@/components/layout/LenisBridge';
 import { ErrorBoundary } from '@/components/error/ErrorBoundary';
+import { ActiveSectionProvider } from '@/components/layout/ActiveSectionProvider';
+import { CommandProvider } from '@/components/command/CommandProvider';
 
 const antonFont = Anton({
     weight: '400',
@@ -145,22 +141,25 @@ export default function RootLayout({
                     <ReactLenis
                         root
                         options={{
-                            lerp: 0.1,
+                            // Lenis takes the duration + easing branch whenever
+                            // `duration` is set and fills in its default easing;
+                            // a `lerp` alongside it would be dead config (see
+                            // ScrollSnap's note). The easing function cannot be
+                            // passed from this server component anyway, so keep
+                            // one model and let Lenis own the curve.
                             duration: 1.4,
                         }}
                     >
                         <LenisBridge />
-                        <Navbar />
-                        <main id="main">{children}</main>
-                        <Footer />
+                        <ActiveSectionProvider>
+                            <CommandProvider>
+                                {children}
 
-                        <CustomCursor />
-                        <Preloader />
-                        <ScrollProgressIndicator />
-                        <ParticleBackground />
-                        <StickyEmail />
-                        <ScrollSnap />
-                        <ScrollToTop />
+                                <CustomCursor />
+                                <ScrollProgressIndicator />
+                                <ScrollToTop />
+                            </CommandProvider>
+                        </ActiveSectionProvider>
                     </ReactLenis>
                 </ErrorBoundary>
             </body>

@@ -2,16 +2,29 @@
 import parse from 'html-react-parser';
 import ArrowAnimation from '@/components/shared/ArrowAnimation';
 import BackLink from '@/components/shared/BackLink';
-import { IProject } from '@/types';
+import HudButton from '@/components/shared/hud/HudButton';
+import TransitionLink from '@/components/shared/TransitionLink';
+import { IProject, IProjectLink } from '@/types';
 import { gsap, useGSAP } from '@/lib/gsap-setup';
 import { ExternalLink, Github } from 'lucide-react';
 import { useRef } from 'react';
 
 interface Props {
     project: IProject;
+    /** Minimal neighbours, computed on the server so project copy stays there. */
+    previousProject: IProjectLink | null;
+    nextProject: IProjectLink | null;
+    projectIndex: number;
+    totalProjects: number;
 }
 
-const ProjectDetails = ({ project }: Props) => {
+const ProjectDetails = ({
+    project,
+    previousProject,
+    nextProject,
+    projectIndex,
+    totalProjects,
+}: Props) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const infoRef = useRef<HTMLDivElement>(null);
 
@@ -111,11 +124,28 @@ const ProjectDetails = ({ project }: Props) => {
     return (
         <section className="pt-5 pb-14">
             <div className="container" ref={containerRef}>
-                <BackLink
-                    href="/"
-                    label="Back to projects"
-                    className="mb-16"
-                />
+                {/* Case-file header: breadcrumb, case number, and the way back
+                    all in one HUD strip. */}
+                <div className="mb-12 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 border-b border-white/5 pb-4 font-mono text-ui-xs uppercase tracking-[0.2em] text-subtle">
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                        <BackLink
+                            href="/"
+                            label="All projects"
+                            className="text-ui-sm uppercase tracking-[0.2em] text-subtle hover:text-primary"
+                        />
+                        <span aria-hidden="true" className="text-subtle/60">
+                            ·
+                        </span>
+                        <span className="break-all text-primary/80">
+                            ~/projects/{project.slug}
+                        </span>
+                    </div>
+                    <span>
+                        case{' '}
+                        {String(Math.max(projectIndex + 1, 1)).padStart(2, '0')}{' '}
+                        / {String(totalProjects).padStart(2, '0')}
+                    </span>
+                </div>
 
                 <div
                     className="top-0 min-h-[calc(100svh-100px)] flex"
@@ -124,7 +154,7 @@ const ProjectDetails = ({ project }: Props) => {
                 >
                     <div className="relative w-full">
                         <div className="flex items-start gap-6 mx-auto mb-10 max-w-[635px]">
-                            <h1 className="fade-in-later text-4xl md:text-[60px] leading-none font-anton overflow-hidden">
+                            <h1 className="fade-in-later text-display-sm md:text-[60px] leading-none font-anton overflow-hidden">
                                 <span className="inline-block">
                                     {project.title}
                                 </span>
@@ -133,71 +163,80 @@ const ProjectDetails = ({ project }: Props) => {
 
                         <div className="max-w-[635px] space-y-7 pb-20 mx-auto">
                             <div className="fade-in-later">
-                                <p className="text-muted-foreground font-anton mb-3">
-                                    Year
+                                <p className="mb-3 font-mono text-ui-sm uppercase tracking-[0.25em] text-subtle">
+                                    {'// year'}
                                 </p>
 
-                                <div className="text-lg">{project.year}</div>
+                                <p className="text-body-lg text-foreground/90">
+                                    {project.year}
+                                </p>
                             </div>
                             <div className="fade-in-later">
-                                <p className="text-muted-foreground font-anton mb-3">
-                                    Technologies
+                                <p className="mb-3 font-mono text-ui-sm uppercase tracking-[0.25em] text-subtle">
+                                    {'// stack'}
                                 </p>
 
-                                <div className="text-lg">
-                                    {project.techStack.join(', ')}
-                                </div>
+                                <ul className="flex flex-wrap gap-2">
+                                    {project.techStack.map((tech) => (
+                                        <li
+                                            key={tech}
+                                            className="border border-primary/25 bg-primary/[0.04] px-2.5 py-1 font-mono text-ui-sm text-primary/80"
+                                        >
+                                            {tech}
+                                        </li>
+                                    ))}
+                                </ul>
                             </div>
                             {(project.sourceCode || project.liveUrl) && (
                                 <div className="fade-in-later">
-                                    <p className="text-muted-foreground font-anton mb-3">
-                                        Project Links
+                                    <p className="mb-3 font-mono text-ui-sm uppercase tracking-[0.25em] text-subtle">
+                                        {'// links'}
                                     </p>
 
-                                    <div className="flex gap-4">
+                                    <div className="flex flex-wrap gap-3">
                                         {project.sourceCode && (
-                                            <a
+                                            <HudButton
                                                 href={project.sourceCode}
-                                                target="_blank"
-                                                rel="noreferrer noopener"
-                                                className="group relative inline-flex items-center gap-2 px-4 py-2.5 border border-primary/40 bg-primary/[0.04] hover:bg-primary/[0.1] hover:border-primary text-primary/80 hover:text-primary transition-all duration-300 rounded-tl-[8px] rounded-br-[8px] rounded-tr-none rounded-bl-none overflow-hidden hover:shadow-[0_0_20px_hsl(var(--primary)/0.2)]"
+                                                external
+                                                variant="outline"
+                                                size="sm"
+                                                icon={<Github size={16} />}
                                             >
-                                                <span aria-hidden className="pointer-events-none absolute inset-y-0 -left-full w-1/2 bg-gradient-to-r from-transparent via-primary/25 to-transparent skew-x-[-20deg] group-hover:left-[150%] transition-all duration-700 ease-out" />
-                                                <Github size={18} className="relative z-[1]" />
-                                                <span className="relative z-[1] font-mono uppercase tracking-wider text-xs">View Source</span>
-                                            </a>
+                                                View source
+                                            </HudButton>
                                         )}
                                         {project.liveUrl && (
-                                            <a
+                                            <HudButton
                                                 href={project.liveUrl}
-                                                target="_blank"
-                                                rel="noreferrer noopener"
-                                                className="group relative inline-flex items-center gap-2 px-4 py-2.5 border border-primary/40 bg-primary/[0.04] hover:bg-primary/[0.1] hover:border-primary text-primary/80 hover:text-primary transition-all duration-300 rounded-tl-[8px] rounded-br-[8px] rounded-tr-none rounded-bl-none overflow-hidden hover:shadow-[0_0_20px_hsl(var(--primary)/0.2)]"
+                                                external
+                                                variant="outline"
+                                                size="sm"
+                                                icon={
+                                                    <ExternalLink size={16} />
+                                                }
                                             >
-                                                <span aria-hidden className="pointer-events-none absolute inset-y-0 -left-full w-1/2 bg-gradient-to-r from-transparent via-primary/25 to-transparent skew-x-[-20deg] group-hover:left-[150%] transition-all duration-700 ease-out" />
-                                                <ExternalLink size={18} className="relative z-[1]" />
-                                                <span className="relative z-[1] font-mono uppercase tracking-wider text-xs">Live Demo</span>
-                                            </a>
+                                                Live demo
+                                            </HudButton>
                                         )}
                                     </div>
                                 </div>
                             )}
                             <div className="fade-in-later">
-                                <p className="text-muted-foreground font-anton mb-3">
-                                    Description
+                                <p className="mb-3 font-mono text-ui-sm uppercase tracking-[0.25em] text-subtle">
+                                    {'// description'}
                                 </p>
 
-                                <div className="text-lg markdown-text">
+                                <div className="text-body-lg markdown-text text-foreground/90">
                                     {parse(project.description)}
                                 </div>
                             </div>
                             {project.role && (
                                 <div className="fade-in-later">
-                                    <p className="text-muted-foreground font-anton mb-3">
-                                        My Role
+                                    <p className="mb-3 font-mono text-ui-sm uppercase tracking-[0.25em] text-subtle">
+                                        {'// my role'}
                                     </p>
 
-                                    <div className="text-lg">
+                                    <div className="text-body-lg text-foreground/90">
                                         {parse(project.role)}
                                     </div>
                                 </div>
@@ -237,6 +276,54 @@ const ProjectDetails = ({ project }: Props) => {
                         ))}
                     </div>
                 )}
+
+                {/* Case navigation: a project page previously ended on a dead
+                    end. Each neighbouring project is a card, so the immersive
+                    layout still lets a visitor keep browsing. */}
+                <nav
+                    aria-label="Project navigation"
+                    className="mt-16 grid gap-3 border-t border-white/5 pt-8 sm:grid-cols-2"
+                >
+                    {previousProject ? (
+                        <TransitionLink
+                            href={`/projects/${previousProject.slug}`}
+                            className="group relative rounded-tl-[10px] rounded-br-[10px] border border-white/10 bg-card p-5 transition-colors hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+                        >
+                            <span className="font-mono text-ui-xs uppercase tracking-[0.2em] text-subtle">
+                                ← previous case
+                            </span>
+                            <span className="mt-2 block font-anton text-body-xl text-foreground transition-colors group-hover:text-primary">
+                                {previousProject.title}
+                            </span>
+                            <span className="mt-1 block font-mono text-ui-xs text-subtle">
+                                {previousProject.year} ·{' '}
+                                {previousProject.techStack
+                                    .slice(0, 2)
+                                    .join(' / ')}
+                            </span>
+                        </TransitionLink>
+                    ) : (
+                        <span aria-hidden="true" className="hidden sm:block" />
+                    )}
+
+                    {nextProject ? (
+                        <TransitionLink
+                            href={`/projects/${nextProject.slug}`}
+                            className="group relative rounded-tl-[10px] rounded-br-[10px] border border-white/10 bg-card p-5 text-left transition-colors hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 sm:text-right"
+                        >
+                            <span className="font-mono text-ui-xs uppercase tracking-[0.2em] text-subtle">
+                                next case →
+                            </span>
+                            <span className="mt-2 block font-anton text-body-xl text-foreground transition-colors group-hover:text-primary">
+                                {nextProject.title}
+                            </span>
+                            <span className="mt-1 block font-mono text-ui-xs text-subtle">
+                                {nextProject.year} ·{' '}
+                                {nextProject.techStack.slice(0, 2).join(' / ')}
+                            </span>
+                        </TransitionLink>
+                    ) : null}
+                </nav>
             </div>
         </section>
     );

@@ -18,21 +18,21 @@ export interface ICaptionedShot extends IProductShot {
 
 export const PRODUCT_SHOTS: IProductShot[] = [
     {
+        src: '/screenshots/landing.webp',
+        alt: 'The CV Builder landing page: build a resume that gets you hired',
+        width: 1280,
+        height: 793,
+    },
+    {
+        src: '/screenshots/templates.webp',
+        alt: 'The CV Builder template gallery with Classic, Rhyhorn, Nexus and Ivy',
+        width: 1280,
+        height: 794,
+    },
+    {
         src: '/screenshots/editor.webp',
         alt: 'The CV Builder guided editor with live A4 preview',
         width: 1280,
         height: 788,
-    },
-    {
-        src: '/screenshots/templates.webp',
-        alt: 'The CV Builder template gallery with Classic, Rhyhorn and Nexus',
-        width: 1280,
-        height: 743,
-    },
-    {
-        src: '/screenshots/landing.webp',
-        alt: 'The CV Builder landing page: build a resume that gets you hired',
-        width: 1280,
-        height: 632,
     },
 ];

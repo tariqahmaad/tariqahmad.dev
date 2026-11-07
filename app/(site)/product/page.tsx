@@ -10,6 +10,7 @@ import {
     User,
 } from 'lucide-react';
 import BackLink from '@/components/shared/BackLink';
+import HudButton from '@/components/shared/hud/HudButton';
 import TransitionLink from '@/components/shared/TransitionLink';
 import ScreenshotGallery from '@/components/product/ScreenshotGallery';
 import { PRODUCT_SHOTS } from '@/components/product/screenshots';
@@ -25,24 +26,27 @@ export const metadata: Metadata = {
         type: 'website',
         url: 'https://www.tariqahmad.dev/product',
         siteName: 'Tariq Ahmad',
-        title: 'CV Builder by Tariq Ahmad - Free ATS Resume Builder with AI',
+        title: 'CV Builder by Tariq Ahmad - Free ATS Resume Builder',
         description:
             'A free browser-based resume builder with 3 ATS-friendly templates, live A4 preview, instant PDF export, and share links with analytics.',
         images: [
             {
-                url: '/og-image.jpg',
-                width: 1376,
-                height: 768,
-                alt: 'Tariq Ahmad — Full-Stack Developer',
+                // A real capture of the template gallery, not the portfolio's
+                // personal card: sharing /product used to preview Tariq's face
+                // and "Full-Stack Developer" alt text.
+                url: '/og-product.jpg',
+                width: 1200,
+                height: 630,
+                alt: 'CV Builder template gallery with the Classic, Rhyhorn and Nexus templates',
             },
         ],
     },
     twitter: {
         card: 'summary_large_image',
-        title: 'CV Builder by Tariq Ahmad - Free ATS Resume Builder with AI',
+        title: 'CV Builder by Tariq Ahmad - Free ATS Resume Builder',
         description:
             'A free browser-based resume builder with 3 ATS-friendly templates, live A4 preview, instant PDF export, and share links with analytics.',
-        images: ['/og-image.jpg'],
+        images: ['/og-product.jpg'],
     },
 };
 
@@ -136,22 +140,16 @@ export default function ProductPage() {
                     </p>
 
                     <div className="mt-8">
-                        <a
+                        <HudButton
                             href="https://cv.tariqahmad.dev"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            aria-label="Open the live CV Builder app (opens in a new tab)"
-                            className="group/live relative inline-flex items-center justify-center gap-2 h-14 px-10 bg-primary text-primary-foreground uppercase font-anton tracking-widest text-body-lg sm:text-body-xl overflow-hidden transition-colors outline-none hover:bg-primary-hover"
+                            external
+                            variant="solid"
+                            size="lg"
+                            ariaLabel="Open the live CV Builder app (opens in a new tab)"
                         >
-                            <span
-                                aria-hidden="true"
-                                className="absolute top-[200%] left-0 right-0 h-full bg-foreground/90 group-hover/live:top-0 transition-all duration-500 ease-out"
-                            />
-                            <span className="z-[1]">
-                                Open the live app
-                            </span>
-                        </a>
-                        <p className="mt-3 font-mono text-ui-sm text-muted-foreground/70">
+                            Open the live app
+                        </HudButton>
+                        <p className="mt-3 font-mono text-ui-sm text-subtle">
                             Free forever · No credit card required
                         </p>
                     </div>
@@ -265,21 +263,17 @@ export default function ProductPage() {
                         with a better resume.
                     </h2>
                     <div className="mt-8">
-                        <a
+                        <HudButton
                             href="https://cv.tariqahmad.dev"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            aria-label="Open the live CV Builder app (opens in a new tab)"
-                            className="group/live relative inline-flex items-center justify-center gap-2 h-14 px-10 bg-primary text-primary-foreground uppercase font-anton tracking-widest text-body-lg sm:text-body-xl overflow-hidden transition-colors outline-none hover:bg-primary-hover"
+                            external
+                            variant="solid"
+                            size="lg"
+                            ariaLabel="Open the live CV Builder app (opens in a new tab)"
                         >
-                            <span
-                                aria-hidden="true"
-                                className="absolute top-[200%] left-0 right-0 h-full bg-foreground/90 group-hover/live:top-0 transition-all duration-500 ease-out"
-                            />
-                            <span className="z-[1]">Start building — it&apos;s free</span>
-                        </a>
+                            Start building — it&apos;s free
+                        </HudButton>
                     </div>
-                    <p className="mt-10 text-body-base text-muted-foreground/70">
+                    <p className="mt-10 text-body-base text-subtle">
                         See it in context on the{' '}
                         <TransitionLink
                             href="/#about-me"

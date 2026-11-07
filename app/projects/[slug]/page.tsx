@@ -83,13 +83,41 @@ export const generateMetadata = async ({
 const Page = async ({ params }: { params: Promise<{ slug: string }> }) => {
     const { slug } = await params;
 
-    const project = PROJECTS.find((project) => project.slug === slug);
+    const projectIndex = PROJECTS.findIndex(
+        (entry) => entry.slug === slug,
+    );
+    const project = projectIndex >= 0 ? PROJECTS[projectIndex] : undefined;
 
     if (!project) {
         return notFound();
     }
 
-    return <ProjectDetails project={project} />;
+    // Only the pager fields cross into the client component; the full project
+    // copy (description/role HTML) stays on the server.
+    const toLink = (entry: (typeof PROJECTS)[number]) => ({
+        slug: entry.slug,
+        title: entry.title,
+        year: entry.year,
+        techStack: entry.techStack,
+    });
+
+    return (
+        <main id="main">
+            <ProjectDetails
+                project={project}
+                projectIndex={projectIndex}
+                totalProjects={PROJECTS.length}
+                previousProject={
+                    projectIndex > 0 ? toLink(PROJECTS[projectIndex - 1]) : null
+                }
+                nextProject={
+                    projectIndex < PROJECTS.length - 1
+                        ? toLink(PROJECTS[projectIndex + 1])
+                        : null
+                }
+            />
+        </main>
+    );
 };
 
 export default Page;

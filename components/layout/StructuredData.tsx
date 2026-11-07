@@ -4,8 +4,8 @@ import {
     MY_STACK,
     SOCIAL_LINKS,
 } from '@/lib/data';
+import { CONTENT_UPDATED_AT, SITE_URL, SITE_NAME } from '@/lib/site';
 
-const SITE_URL = 'https://www.tariqahmad.dev';
 const PERSON_ID = `${SITE_URL}/#person`;
 
 const MONTHS = [
@@ -62,7 +62,7 @@ export default function StructuredData() {
             {
                 '@type': 'Person',
                 '@id': PERSON_ID,
-                name: 'Tariq Ahmad',
+                name: SITE_NAME,
                 url: SITE_URL,
                 image: `${SITE_URL}/og-image.jpg`,
                 jobTitle: 'Software Developer',
@@ -83,7 +83,7 @@ export default function StructuredData() {
             {
                 '@type': 'WebSite',
                 '@id': `${SITE_URL}/#website`,
-                name: 'Tariq Ahmad',
+                name: SITE_NAME,
                 url: SITE_URL,
                 description:
                     'Personal portfolio website showcasing software development projects and skills.',
@@ -94,8 +94,8 @@ export default function StructuredData() {
                 '@type': 'ProfilePage',
                 '@id': `${SITE_URL}/#profilepage`,
                 dateCreated: '2024-01-01',
-                // Bump when the portfolio content changes.
-                dateModified: '2026-09-09',
+                // Single source with the sitemap's lastModified.
+                dateModified: CONTENT_UPDATED_AT,
                 mainEntity: { '@id': PERSON_ID },
             },
         ],

@@ -88,9 +88,3 @@ export function scrollToSection(id: string, delay = 300, offset = 0): void {
     }, delay);
 }
 
-export const PROJECTS_ROUTE_PREFIX = '/projects/';
-
-// Returns true when the current pathname is a project detail page
-export function isProjectDetailPage(pathname: string): boolean {
-    return pathname.startsWith(PROJECTS_ROUTE_PREFIX);
-}

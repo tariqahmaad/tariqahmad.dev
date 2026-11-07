@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
-import BackLink from '@/components/shared/BackLink';
+
+import HudErrorScreen from '@/components/error/HudErrorScreen';
+import HudButton from '@/components/shared/hud/HudButton';
 
 // Without this the 404 inherited the layout's title and canonical URL, so it
 // was indexable and looked like a duplicate of the homepage.
@@ -10,27 +12,28 @@ export const metadata: Metadata = {
 
 export default function NotFound() {
     return (
-        <div className="flex items-center justify-center min-h-screen bg-background text-foreground">
-            <div className="text-center space-y-6 px-4">
-                <p className="font-mono text-primary text-body-base tracking-widest uppercase">
-                    404
-                </p>
-                <h1 className="text-display-sm sm:text-display-md font-anton text-foreground leading-none">
-                    PAGE NOT<br />
-                    <span className="text-primary">FOUND</span>
-                </h1>
-                <p className="text-body-lg text-muted-foreground max-w-sm mx-auto">
-                    The page you are looking for does not exist or has been moved.
-                </p>
-                <div className="flex justify-center pt-2">
-                    <BackLink
-                        href="/"
-                        label="Back to home"
-                        alwaysHref
-                        className="text-body-lg"
-                    />
-                </div>
-            </div>
-        </div>
+        <HudErrorScreen
+            command="cd /the-page-you-wanted"
+            output="bash: cd: no such file or directory"
+            title="PAGE NOT FOUND"
+            description="The URL does not exist or has moved. The sections below are the fastest way back into the site."
+            actions={
+                <>
+                    <HudButton href="/" variant="solid" size="md">
+                        Back to home
+                    </HudButton>
+                    <HudButton
+                        href="/#selected-projects"
+                        variant="outline"
+                        size="md"
+                    >
+                        Projects
+                    </HudButton>
+                    <HudButton href="/product" variant="outline" size="md">
+                        CV Builder
+                    </HudButton>
+                </>
+            }
+        />
     );
 }

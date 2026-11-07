@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
+import BracketFrame from '@/components/shared/hud/BracketFrame';
 import { useCursorPreview } from '@/hooks/useCursorPreview';
 import { useStickyIndex } from '@/hooks/useStickyIndex';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
@@ -112,23 +113,9 @@ const ScreenshotGallery = ({ shots }: Props) => {
                         >
                             {/* Corner brackets, revealed on hover - the same
                                 treatment as Testimonials / ProjectCard. */}
-                            <span
-                                aria-hidden="true"
-                                className={cn(
-                                    'bracket-arm pointer-events-none absolute inset-0 z-[1] border-t-2 border-l-2 rounded-tl-[10px] transition-[clip-path,border-color] duration-300 ease-out',
-                                    isActive
-                                        ? 'border-primary [clip-path:inset(0)]'
-                                        : 'border-primary/60 [clip-path:inset(0_80%_60%_0)] group-hover:border-primary group-hover:[clip-path:inset(0)]',
-                                )}
-                            />
-                            <span
-                                aria-hidden="true"
-                                className={cn(
-                                    'bracket-arm pointer-events-none absolute inset-0 z-[1] border-b-2 border-r-2 rounded-br-[10px] transition-[clip-path,border-color] duration-300 delay-75 ease-out',
-                                    isActive
-                                        ? 'border-primary [clip-path:inset(0)]'
-                                        : 'border-primary/60 [clip-path:inset(60%_0_0_80%)] group-hover:border-primary group-hover:[clip-path:inset(0)]',
-                                )}
+                            <BracketFrame
+                                className="z-[1]"
+                                active={isActive}
                             />
 
                             <button

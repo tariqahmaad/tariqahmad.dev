@@ -1,9 +1,13 @@
 'use client';
+
 import { useEffect } from 'react';
 
+import HudErrorScreen from '@/components/error/HudErrorScreen';
+import HudButton from '@/components/shared/hud/HudButton';
+
 /**
- * Global error fallback component for Next.js 15 app router
- * This component is displayed when a fatal error occurs in the app
+ * Fatal fallback: Next renders this instead of the root layout when the layout
+ * itself throws, so it must provide its own <html>/<body>.
  */
 export default function GlobalError({
     error,
@@ -13,7 +17,6 @@ export default function GlobalError({
     reset: () => void;
 }) {
     useEffect(() => {
-        // Log error to console in development
         if (process.env.NODE_ENV === 'development') {
             console.error('Global error:', error);
         }
@@ -22,53 +25,33 @@ export default function GlobalError({
     return (
         <html lang="en">
             <body className="bg-background text-foreground antialiased">
-                <div
-                    role="alert"
-                    className="flex items-center justify-center min-h-screen p-4"
-                >
-                    <div className="max-w-md w-full text-center space-y-6">
-                        <div className="space-y-2">
-                            <h1 className="text-4xl font-anton text-primary">
-                                System Error
-                            </h1>
-                            <p className="text-muted-foreground">
-                                A critical error has occurred. Please refresh the
-                                page or try again later.
-                            </p>
-                        </div>
-
-                        {process.env.NODE_ENV === 'development' && (
-                            <details className="text-left bg-card border border-border rounded-lg p-4">
-                                <summary className="cursor-pointer text-sm font-mono text-primary mb-2">
-                                    Error Details
-                                </summary>
-                                {/* `stack` already begins with the message. */}
-                                <pre className="text-xs text-muted-foreground overflow-auto max-h-40">
-                                    {error.stack ?? error.message}
-                                </pre>
-                            </details>
-                        )}
-
-                        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                            <button
-                                type="button"
-                                onClick={reset}
-                                className="inline-flex items-center justify-center gap-2 h-12 px-8 bg-primary text-primary-foreground hover:bg-primary-hover rounded-md transition-colors"
+                <HudErrorScreen
+                    command="systemctl restart portfolio"
+                    output="fatal: root layout failed to render"
+                    title="SYSTEM ERROR"
+                    description="A critical error stopped the site shell from rendering. Reloading usually clears it; if not, the build needs attention."
+                    digest={error.digest}
+                    actions={
+                        <>
+                            <HudButton
+                                variant="solid"
+                                size="md"
+                                onClick={() => reset()}
                             >
-                                Try Again
-                            </button>
-                            <button
-                                type="button"
+                                Reload
+                            </HudButton>
+                            <HudButton
+                                variant="outline"
+                                size="md"
                                 onClick={() => {
                                     window.location.href = '/';
                                 }}
-                                className="inline-flex items-center justify-center gap-2 h-12 px-8 border border-primary text-primary hover:bg-primary/10 rounded-md transition-colors"
                             >
-                                Go Home
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                                Go home
+                            </HudButton>
+                        </>
+                    }
+                />
             </body>
         </html>
     );

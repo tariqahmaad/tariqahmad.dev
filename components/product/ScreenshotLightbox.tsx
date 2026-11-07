@@ -5,6 +5,7 @@ import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useScrollLock } from '@/hooks/useScrollLock';
+import { useInertOutside } from '@/hooks/useInertOutside';
 import type { ICaptionedShot } from './screenshots';
 
 interface Props {
@@ -34,6 +35,8 @@ const ScreenshotLightbox = ({
     // Mounted only while open, so the lock applies exactly for the open
     // lifetime (the hook is ref-counted, so nesting with the menu is safe).
     useScrollLock(true);
+    // `aria-modal` alone leaves the page behind reachable; inert it for real.
+    useInertOutside(true, () => [dialogRef.current]);
 
     const goPrev = useCallback(() => {
         onIndexChange((index - 1 + total) % total);
@@ -50,10 +53,14 @@ const ScreenshotLightbox = ({
         const raf = requestAnimationFrame(() => dialogRef.current?.focus());
         return () => {
             cancelAnimationFrame(raf);
+            // Deferred one task: the inert teardown runs in the same commit,
+            // and focusing an element that is still inert would be a no-op.
             const opener = openerRef.current;
-            if (opener instanceof HTMLElement) {
-                opener.focus({ preventScroll: true });
-            }
+            window.setTimeout(() => {
+                if (opener instanceof HTMLElement && opener.isConnected) {
+                    opener.focus({ preventScroll: true });
+                }
+            }, 0);
         };
     }, []);
 
@@ -111,6 +118,7 @@ const ScreenshotLightbox = ({
             tabIndex={-1}
             role="dialog"
             aria-modal="true"
+            data-modal-open="true"
             aria-label={`Screenshot ${index + 1} of ${total}: ${shot.alt}`}
             onClick={(e) => {
                 if (e.target === e.currentTarget) onClose();

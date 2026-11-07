@@ -1,6 +1,7 @@
 'use client';
 
 import SectionTitle from '@/components/shared/SectionTitle';
+import BracketFrame from '@/components/shared/hud/BracketFrame';
 import { TESTIMONIALS } from '@/lib/data';
 import type { ITestimonial } from '@/types';
 import { useScrollExitAnimation } from '@/hooks/useScrollExitAnimation';
@@ -32,7 +33,6 @@ const CLONE = 3;
 // a single real slide, no clones, and stepping becomes a no-op instead of
 // addressing a slide the track never rendered.
 const cloneCount = Math.min(CLONE, Math.max(0, TESTIMONIALS.length - 1));
-const AUTOPLAY_MS = 5000;
 const SLIDE_MS = 600;
 // Minimum gap between wheel-driven steps so a continuous scroll advances the
 // cards at a readable pace instead of one-and-done (or blasting through them).
@@ -82,16 +82,8 @@ const TestimonialCard = ({
 }: TestimonialCardProps) => {
     return (
         <div className="testimonial-item group relative flex h-full flex-col bg-background-light border border-transparent rounded-tl-[10px] rounded-br-[10px] p-5 xs:p-6 transition-all duration-300 hover:shadow-[0_0_20px_hsl(var(--primary)/0.08)]">
-            {/* Diagonal corner brackets — same signature motif as ProjectCard and
-               the nav buttons below (top-left + bottom-right, asymmetric radius). */}
-            <span
-                aria-hidden
-                className="bracket-arm pointer-events-none absolute inset-0 border-t-2 border-l-2 border-primary/60 rounded-tl-[10px] [clip-path:inset(0_80%_60%_0)] group-hover:border-primary group-hover:[clip-path:inset(0)] transition-[clip-path,border-color] duration-300 ease-out"
-            />
-            <span
-                aria-hidden
-                className="bracket-arm pointer-events-none absolute inset-0 border-b-2 border-r-2 border-primary/60 rounded-br-[10px] [clip-path:inset(60%_0_0_80%)] group-hover:border-primary group-hover:[clip-path:inset(0)] transition-[clip-path,border-color] duration-300 delay-75 ease-out"
-            />
+            {/* Diagonal corner brackets — the site-wide motif. */}
+            <BracketFrame />
 
             <Quote className="text-primary/50 mb-2 h-5 w-5" aria-hidden />
             <p className="text-body-sm sm:text-body-base text-muted-foreground leading-relaxed flex-1">
@@ -195,21 +187,9 @@ const Testimonials = () => {
     const containerRef = useRef<HTMLDivElement>(null);
     const trackRef = useRef<HTMLDivElement>(null);
     const count = TESTIMONIALS.length;
-    // Start parked on the first real card (after the front clones).
+    // Start parked on the first real card (after the front clones). The
+    // carousel is entirely manual: no autoplay, no timers, no rotation state.
     const [active, setActive] = useState(cloneCount);
-    // Pause is derived from two independent reasons so neither clobbers the
-    // other: hovering pauses autoplay, dragging pauses it too. A single boolean
-    // broke this — a pointerup from a button/card click (or a drag release)
-    // cleared the pause even while still hovering, so autoplay resumed mid-hover.
-    const [isHovering, setIsHovering] = useState(false);
-    const [isDragging, setIsDragging] = useState(false);
-    const isPaused = isHovering || isDragging;
-    // Autoplay gates, deliberately separate from `isPaused` for the same reason
-    // (hover and visibility must not clear each other). Both start false and are
-    // seeded by the observer/visibility effect below, so the timer never runs
-    // before we know the carousel is actually being looked at.
-    const [isInView, setIsInView] = useState(false);
-    const [isDocumentHidden, setIsDocumentHidden] = useState(false);
 
     // Refs read from GSAP callbacks / observers without retriggering effects.
     const activeRef = useRef(active);
@@ -326,7 +306,6 @@ const Testimonials = () => {
         // `|| 0` guards against NaN if the track's x was never set (it should
         // always be set by the layout effect, but be defensive).
         dragStartXTrackRef.current = Number(gsap.getProperty(track, 'x')) || 0;
-        setIsDragging(true);
     };
 
     const onPointerMove = (e: ReactPointerEvent<HTMLDivElement>) => {
@@ -342,7 +321,6 @@ const Testimonials = () => {
             if (Math.abs(dy) > Math.abs(dx)) {
                 // Vertical gesture — release so the page can scroll.
                 draggingRef.current = false;
-                setIsDragging(false);
                 return;
             }
             dragEngagedRef.current = true;
@@ -359,7 +337,6 @@ const Testimonials = () => {
         const engaged = dragEngagedRef.current;
         draggingRef.current = false;
         dragEngagedRef.current = false;
-        setIsDragging(false);
         if (!engaged) return; // tap, vertical swipe, or a click on a button/card
         const track = trackRef.current;
         if (!track) return;
@@ -447,54 +424,6 @@ const Testimonials = () => {
         return () => gsap.killTweensOf(track);
     }, [active, count]);
 
-    // ── Autoplay visibility gates ───────────────────────────────────────────
-    // There are two ways the carousel is not being looked at, and both must stop
-    // the timer: it is scrolled out of the viewport (so it no longer advances
-    // while the visitor reads another section), or the whole tab is in the
-    // background (where a timer keeps firing for slides nobody can see). Plain
-    // state, so flipping either gate back simply restarts the autoplay effect.
-    useEffect(() => {
-        const el = containerRef.current;
-        if (!el) return;
-
-        // Seed from the live value: mounting into an already-hidden tab must not
-        // leave the gate reading its initial `false`.
-        setIsDocumentHidden(document.hidden);
-        const onVisibilityChange = () => setIsDocumentHidden(document.hidden);
-        document.addEventListener('visibilitychange', onVisibilityChange);
-
-        // Default threshold (0) = intersecting at all, which is exactly the
-        // "off-screen" question; `isInView` stays false until it first fires.
-        const io = new IntersectionObserver(([entry]) => {
-            setIsInView(entry.isIntersecting);
-        });
-        io.observe(el);
-
-        return () => {
-            document.removeEventListener('visibilitychange', onVisibilityChange);
-            io.disconnect();
-        };
-    }, []);
-
-    // Auto-advance one step at a time, resetting the timer each slide. Pauses on
-    // hover, while the carousel is off-screen, and in a hidden tab, and is
-    // disabled for reduced-motion / tiny screens (manual nav stays on). One
-    // timeout per advance rather than an interval: each step re-runs this effect
-    // anyway, and the cleanup then clears the pending tick when a gate flips.
-    useEffect(() => {
-        if (
-            shouldSkipAnimation() ||
-            isPaused ||
-            !isInView ||
-            isDocumentHidden ||
-            count <= 1
-        ) {
-            return;
-        }
-        const id = window.setTimeout(() => step(1), AUTOPLAY_MS);
-        return () => window.clearTimeout(id);
-    }, [active, isPaused, isInView, isDocumentHidden, count, step]);
-
     useScrollExitAnimation({ containerRef });
 
     if (count === 0) return null;
@@ -514,8 +443,6 @@ const Testimonials = () => {
                     role="group"
                     aria-label="Testimonials carousel"
                     className="relative touch-pan-y"
-                    onMouseEnter={() => setIsHovering(true)}
-                    onMouseLeave={() => setIsHovering(false)}
                     onPointerDown={onPointerDown}
                     onPointerMove={onPointerMove}
                     onPointerUp={endDrag}

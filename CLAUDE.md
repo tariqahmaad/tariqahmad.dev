@@ -43,7 +43,7 @@ with errors like `Cannot find module './vendor-chunks/…'` or
 ### Data-Driven Content
 
 All portfolio content is centralized in `lib/data.ts`:
-- `GENERAL_INFO` - Contact information (email, phone, LinkedIn)
+- `GENERAL_INFO` - Contact information (email, LinkedIn, `cvUrl`)
 - `SOCIAL_LINKS` - Social media profiles
 - `MY_STACK` - Technology stack organized by category (languages, frontend, backend, database, tools), typed as `Record<string, ISkill[]>`
 - `PROJECTS` - Project details with HTML descriptions, tech stacks, links
@@ -54,7 +54,13 @@ All portfolio content is centralized in `lib/data.ts`:
 - `ABOUT_ME` - Tagline, availability line, bio paragraphs
 - `TESTIMONIALS` - Quotes with optional `avatar` and `rating`
 
-Types are defined in `types/index.ts` (`IProject`, `IExperience`, `ITestimonial`, `ISkill`, `ICertificationCategory`).
+Non-content constants live in `lib/site.ts` (`SITE_URL`, `CONTENT_UPDATED_AT`).
+The sitemap and JSON-LD `dateModified` both read `CONTENT_UPDATED_AT`, so there
+is one date to bump. `lib/navigation.ts` is the single source for the site's
+sections (navbar labels/icons, scroll-spy, console), and `lib/commands.ts`
+describes the console's command index.
+
+Types are defined in `types/index.ts` (`IProject`, `IProjectLink`, `IExperience`, `ITestimonial`, `ISkill`, `ICertificationCategory`).
 
 ### Animation System
 
@@ -66,9 +72,36 @@ Uses **GSAP** with ScrollTrigger for scroll-triggered animations:
   `end: 'bottom 10%'` with `scrub: 1`
 
 **Lenis** provides smooth scrolling:
-- Initialized in `app/layout.tsx` via `ReactLenis` wrapper with `lerp: 0.1`, `duration: 1.4`
+- Initialized in `app/layout.tsx` via `ReactLenis` wrapper with `duration: 1.4`
+  (Lenis takes the duration + easing branch when `duration` is set, so a `lerp`
+  alongside it would be dead config)
 - `LenisBridge` component exposes the instance on `window.lenis` for use in utility functions (`scrollToSection`) and the scroll lock
 - Snap scrolling enabled via `ScrollSnap` component using the typed `lenis/snap` entry point (not a deep `dist/` import)
+
+### Site Shell, Console and HUD Language
+
+`app/(site)/layout.tsx` owns the marketing chrome (Navbar, Footer, Preloader,
+ParticleBackground, StickyEmail, ScrollSnap) for `/` and `/product`. Project
+pages live outside that group, wrap themselves in `<main id="main">`, and keep
+their immersive case-file layout. The root layout keeps only global pieces
+(Lenis, providers, CustomCursor, ScrollProgressIndicator, ScrollToTop).
+
+- **Command console**: `components/command/CommandProvider.tsx` holds the
+  `⌘K`/`Ctrl+K` state and lazy-loads `CommandPalette.tsx`. The palette is a
+  modal dialog with a combobox input (`aria-activedescendant`), ref-counted
+  scroll lock, inert background, focus restore, and a static command index in
+  `lib/commands.ts`. Triggers: the `Search ⌘K` button in the header (next to the
+  menu toggle) and the keyboard shortcut. It is deliberately not a row in the
+  menu list.
+- **One scroll-spy**: `ActiveSectionProvider` runs `useScrollDetection` once and
+  feeds the navbar plus the console's status line.
+- **HUD primitives**: `components/shared/hud/` — `BracketFrame` (corner arms),
+  `HudButton` (solid/outline link button), `HudOverlay` (modal backdrop).
+- **Errors**: `components/error/HudErrorScreen.tsx` is shared by `app/error.tsx`,
+  `app/not-found.tsx`, `app/global-error.tsx` and `ErrorBoundary`.
+- **Modal contract**: dialogs carry `data-modal-open="true"` so `⌘K` never stacks
+  a second dialog; `useInertOutside` handles background inerting and restores
+  prior state.
 
 ### Styling System
 
@@ -104,57 +137,75 @@ Two approaches for icons:
 Located in `hooks/`:
 - `useScrollExitAnimation` - GSAP exit animations on scroll
 - `useGlitchText` - Text glitch effect
-- `useScrollDetection` - Active-section detection from scroll position
+- `useScrollDetection` - Active-section detection (run once by `ActiveSectionProvider`)
 - `useScrollDirection` - Down/up scroll state (dims the phone menu toggle)
 - `useMediaQuery` - Live CSS media-query subscription (SSR-safe)
-- `useScrollLock` - Lock body scroll (for modals/menus)
+- `useScrollLock` - Ref-counted body scroll lock (menu, console, lightbox)
+- `useInertOutside` - Inert everything outside a modal's branch, restoring prior state
 - `useMenuKeyboardNavigation` - Keyboard navigation for menus
 
 ### SEO Configuration
 
 - `app/robots.ts` - Dynamic robots.txt generation
-- `app/sitemap.ts` - Dynamic sitemap.xml generation
-- `components/layout/StructuredData.tsx` - JSON-LD structured data
+- `app/sitemap.ts` - Dynamic sitemap.xml generation (lastModified = `CONTENT_UPDATED_AT`)
+- `components/layout/StructuredData.tsx` - JSON-LD structured data (dateModified = `CONTENT_UPDATED_AT`)
 - Metadata configured in `app/layout.tsx` with Open Graph and Twitter cards
+- `/product` has its own 1200×630 card at `public/og-product.jpg` (a real
+  template-gallery capture), not the portfolio's personal `og-image.jpg`.
 
 ### Project Structure
 
 ```
 app/
-  page.tsx           # Main landing page (imports all sections)
-  layout.tsx         # Root layout with Lenis, fonts, metadata
-  globals.css        # CSS variables, custom animations, reduced motion support
-  error.tsx          # Error boundary for route errors
-  loading.tsx        # Loading state for page transitions
-  template.tsx       # Page template wrapper
-  not-found.tsx      # 404 page
-  robots.ts          # SEO robots.txt
-  sitemap.ts         # SEO sitemap.xml
-  projects/[slug]/   # Dynamic project detail pages
+  layout.tsx          # Root layout: fonts, metadata, Lenis, providers, global overlays
+  template.tsx        # Page-transition wipe (wraps every route)
+  globals.css         # CSS variables, HUD utilities, reduced-motion support
+  error.tsx           # Route error boundary (HudErrorScreen)
+  global-error.tsx    # Fatal fallback, renders its own <html>/<body>
+  not-found.tsx       # Terminal-style 404
+  robots.ts           # SEO robots.txt
+  sitemap.ts          # SEO sitemap.xml
+  (site)/
+    layout.tsx        # Marketing chrome: Navbar, <main>, Footer, Preloader, particles, email, snap
+    loading.tsx       # HUD boot skeleton
+    page.tsx          # Portfolio homepage (imports all sections)
+    product/page.tsx  # CV Builder case study
+  projects/[slug]/    # Immersive project "case files" (outside the site shell)
+    page.tsx
+    loading.tsx
 
 components/
-  home/              # Page section components (Banner, AboutMe, Skills, Experiences, Certifications, ProjectList, Testimonials, DurationBar, CvDownloadButton, ConnectButton)
-  layout/            # Layout components (Navbar, Footer, CustomCursor, Preloader, ParticleBackground, ScrollProgressIndicator, StickyEmail, LenisBridge, ScrollSnap, ScrollToTop, StructuredData)
-  shared/            # Reusable components (Button, SectionTitle, TransitionLink, ArrowAnimation, BackLink)
-  shared/icons/      # Custom SVG icon components
-  projects/          # Project detail components (ProjectCard, ProjectDetails)
-  error/             # Error handling components (ErrorBoundary, GlobalErrorFallback — wired via app/global-error.tsx)
+  command/            # CommandProvider (⌘K state) + lazy CommandPalette
+  home/               # Banner, AboutMe, Skills, Experiences, Certifications, ProductSpotlight, ProjectList, Testimonials, DurationBar, CvDownloadButton, ConnectButton
+  layout/             # Navbar, Footer, CustomCursor, Preloader, ParticleBackground, ScrollProgressIndicator, StickyEmail, LenisBridge, ScrollSnap, ScrollToTop, StructuredData, ActiveSectionProvider
+  shared/             # SectionTitle, TransitionLink, ArrowAnimation, BackLink
+  shared/hud/         # BracketFrame, HudButton, HudOverlay
+  shared/icons/       # Custom SVG icon components
+  projects/           # ProjectCard, ProjectDetails
+  product/            # ScreenshotGallery, ScreenshotLightbox, ScreenshotPreviewPanel, screenshots.ts
+  error/              # ErrorBoundary, HudErrorScreen, GlobalErrorFallback
 
-hooks/               # Custom React hooks (useScrollExitAnimation, useGlitchText, useScrollDetection, useScrollDirection, useMediaQuery, useScrollLock, useMenuKeyboardNavigation)
+hooks/                # useScrollExitAnimation, useGlitchText, useScrollDetection, useScrollDirection, useMediaQuery, useScrollLock, useInertOutside, useMenuKeyboardNavigation, useStickyIndex, useCursorPreview
 
 lib/
-  data.ts            # All portfolio content (edit this to update content)
-  utils.ts           # cn() utility, scrollToSection, gradient text classes
-  gsap-setup.ts      # GSAP + ScrollTrigger initialization
+  data.ts             # All portfolio content (edit this to update content)
+  site.ts             # SITE_URL, CONTENT_UPDATED_AT
+  navigation.ts       # SITE_SECTIONS (navbar + scroll-spy + console)
+  commands.ts         # Console command index
+  utils.ts            # cn() utility, scrollToSection, gradient text classes, shouldSkipAnimation
+  gsap-setup.ts       # GSAP + ScrollTrigger initialization
 
 types/
-  index.ts           # TypeScript interfaces (IProject, IExperience, ITestimonial, ISkill, ICertification*, Variant)
+  index.ts            # TypeScript interfaces (IProject, IProjectLink, IExperience, ITestimonial, ISkill, ICertification*)
 
 public/
-  logo/              # Technology stack icons (match names in MY_STACK)
-  projects/          # Project images (currently empty — set `thumbnail` in data.ts to use)
-  personal/          # Profile images
-  testimonials/      # Optional testimonial avatars (set `avatar` in data.ts to use)
+  logo/               # Technology stack icons (match names in MY_STACK)
+  projects/           # Project images (empty — set `thumbnail` in data.ts to use)
+  personal/           # Profile images
+  screenshots/        # Real CV Builder captures (spotlight + /product gallery)
+  testimonials/       # Optional testimonial avatars (set `avatar` in data.ts to use)
+  og-image.jpg        # Portfolio social card
+  og-product.jpg      # /product social card (1200×630)
 ```
 
 ### Path Aliases
@@ -201,6 +252,15 @@ To update portfolio content, edit `lib/data.ts`:
 **Adding Experience:**
 - Set `highlighted: true` for featured/important positions (adds "Featured" badge, glow effects on timeline dot, and enhanced duration bar animation)
 
+**CV link:**
+- `GENERAL_INFO.cvUrl` is the CV Builder share URL, not a committed file; it
+  renders the latest saved CV. If the share is rotated, update that one value.
+  The banner button says "OPENING…" because the new tab owns the download.
+
+**Dates:**
+- Bump `CONTENT_UPDATED_AT` in `lib/site.ts` when content changes (feeds the
+  sitemap and JSON-LD).
+
 ## Key Implementation Details
 
 ### Reduced Motion Support
@@ -235,6 +295,7 @@ All animations respect `prefers-reduced-motion`:
 
 Auto-deploys to Vercel on push to `main` branch.
 
-Domain: **tariqahmad.dev**
+Canonical domain: **https://www.tariqahmad.dev** (the apex `tariqahmad.dev`
+301-redirects to it).
 
 

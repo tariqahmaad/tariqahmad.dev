@@ -1,4 +1,5 @@
 import TransitionLink from '@/components/shared/TransitionLink';
+import BracketFrame from '@/components/shared/hud/BracketFrame';
 import { cn, gradientTextClass } from '@/lib/utils';
 import { IProject } from '@/types';
 import { ArrowUpRight, ExternalLink } from 'lucide-react';
@@ -30,14 +31,7 @@ const VisitButton = ({ title, url }: { title: string; url: string }) => (
         </span>
 
         {/* Corner brackets — revealed from each corner via clip-path */}
-        <span
-            aria-hidden="true"
-            className="bracket-arm pointer-events-none absolute inset-0 border-t-2 border-l-2 border-primary/60 group-hover:border-primary rounded-tl-[10px] [clip-path:inset(0_80%_60%_0)] group-hover:[clip-path:inset(0)] transition-[clip-path,border-color] duration-300 ease-out"
-        />
-        <span
-            aria-hidden="true"
-            className="bracket-arm pointer-events-none absolute inset-0 border-b-2 border-r-2 border-primary/60 group-hover:border-primary rounded-br-[10px] [clip-path:inset(60%_0_0_80%)] group-hover:[clip-path:inset(0)] transition-[clip-path,border-color] duration-300 delay-75 ease-out"
-        />
+        <BracketFrame />
 
         {/* Content */}
         <span className="relative z-[1] flex items-center gap-1.5 sm:gap-2 md:gap-2.5 uppercase font-anton tracking-[0.14em] text-primary/80 group-hover:text-primary transition-colors duration-300 text-[13px] sm:text-body-sm md:text-body-lg">

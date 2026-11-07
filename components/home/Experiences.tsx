@@ -1,6 +1,7 @@
 'use client';
 
 import SectionTitle from '@/components/shared/SectionTitle';
+import BracketFrame from '@/components/shared/hud/BracketFrame';
 import { MY_EXPERIENCE } from '@/lib/data';
 import { gsap, ScrollTrigger, useGSAP } from '@/lib/gsap-setup';
 import { useScrollExitAnimation } from '@/hooks/useScrollExitAnimation';
@@ -43,26 +44,7 @@ const formatTenure = (months: number): string => {
    Diagonal brackets that draw inward on hover. `forced` (dot hover) pins
    them open without relying on group-hover. */
 const CornerBrackets = ({ forced }: { forced: boolean }) => (
-    <>
-        <span
-            aria-hidden="true"
-            className={cn(
-                'bracket-arm pointer-events-none absolute inset-0 border-t-2 border-l-2 rounded-tl-[10px] transition-[clip-path,border-color] duration-300 ease-out',
-                forced
-                    ? 'border-primary [clip-path:inset(0)]'
-                    : 'border-primary/60 [clip-path:inset(0_80%_60%_0)] group-hover:border-primary group-hover:[clip-path:inset(0)]'
-            )}
-        />
-        <span
-            aria-hidden="true"
-            className={cn(
-                'bracket-arm pointer-events-none absolute inset-0 border-b-2 border-r-2 rounded-br-[10px] transition-[clip-path,border-color] duration-300 delay-75 ease-out',
-                forced
-                    ? 'border-primary [clip-path:inset(0)]'
-                    : 'border-primary/60 [clip-path:inset(60%_0_0_80%)] group-hover:border-primary group-hover:[clip-path:inset(0)]'
-            )}
-        />
-    </>
+    <BracketFrame active={forced} />
 );
 
 /* ── Timeline item ─────────────────────────────────────────────────────── */
@@ -229,7 +211,7 @@ const TimelineItem = ({
                                                     onClick={() =>
                                                         scrollToSection('my-stack')
                                                     }
-                                                    title="Jump to My Stack"
+                                                    title="Jump to Tech Stack"
                                                     className="font-mono text-ui-sm px-2 py-1 border border-primary/25 text-primary/80 hover:text-primary hover:border-primary/60 hover:bg-primary/[0.06] rounded-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
                                                 >
                                                     {s}
@@ -658,24 +640,7 @@ const Experiences = () => {
             id="my-experience"
         >
             <div className="container relative z-10" ref={containerRef}>
-                <SectionTitle title="My Experience" />
-
-                {/* Temporal anchor: the rail starts here and runs down through
-                    every dot to the last role. Labelled "LATEST ROLE" — no role
-                    is ongoing (the newest ended 2025-07), so a pulsing
-                    "PRESENT DAY" marker would be factually wrong. */}
-                <div aria-hidden="true" className="mb-[-8px] ml-[2px]">
-                    <div className="flex items-center gap-3">
-                        <span className="relative flex h-3 w-3">
-                            <span className="relative inline-flex h-3 w-3 rounded-full bg-primary" />
-                        </span>
-                        <span className="font-mono text-ui-sm tracking-[0.3em] text-primary/70">
-                            LATEST ROLE
-                        </span>
-                    </div>
-                    {/* Connector stub into the first dot (slides underneath it) */}
-                    <div className="w-0.5 h-10 bg-border ml-[5px] mt-2" />
-                </div>
+                <SectionTitle title="Experience" />
 
                 {/* Timeline - one continuous list on mobile, two independent
                     columns on desktop so an expanding card never stretches
