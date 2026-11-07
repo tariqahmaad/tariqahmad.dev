@@ -19,10 +19,19 @@ const CommandPalette = dynamic(() => import('./CommandPalette'), {
     loading: () => <HudOverlay zIndex={70} />,
 });
 
+/** Viewport rect of the trigger that opened the console. */
+export interface CommandOrigin {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+}
+
 interface CommandUI {
     isOpen: boolean;
-    open: () => void;
+    open: (origin?: CommandOrigin) => void;
     close: () => void;
+    prefetch: () => void;
 }
 
 const NOOP = () => {};
@@ -30,9 +39,31 @@ const CommandUIContext = createContext<CommandUI>({
     isOpen: false,
     open: NOOP,
     close: NOOP,
+    prefetch: NOOP,
 });
 
 export const useCommandConsole = () => useContext(CommandUIContext);
+
+// Read the trigger's viewport rect at call time. Keyboard opens have no click
+// event to carry one, so this is what lets them share the button's unfold;
+// routes without the marketing navbar simply get no origin and use the
+// palette's centered fallback.
+const readSearchTriggerOrigin = (): CommandOrigin | undefined => {
+    if (typeof document === 'undefined') return undefined;
+
+    const trigger = document.querySelector<HTMLElement>(
+        '[data-search-trigger]',
+    );
+    if (!trigger) return undefined;
+
+    const rect = trigger.getBoundingClientRect();
+    return {
+        x: rect.left,
+        y: rect.top,
+        width: rect.width,
+        height: rect.height,
+    };
+};
 
 /**
  * Owns the console's open state and the global shortcut.
@@ -40,16 +71,28 @@ export const useCommandConsole = () => useContext(CommandUIContext);
  * The palette itself is a lazy chunk: it is not part of any route's initial
  * JavaScript, and the static backdrop renders immediately on open so the first
  * keypress never feels like it did nothing. A short idle prefetch warms the
- * chunk for people who never ask for it up front.
+ * chunk for people who never ask for it up front; the navbar trigger warms it
+ * on hover/focus too.
  */
 export function CommandProvider({ children }: { children: React.ReactNode }) {
     const [isOpen, setIsOpen] = useState(false);
+    const [origin, setOrigin] = useState<CommandOrigin | null>(null);
     const pathname = usePathname();
     const pathnameRef = useRef(pathname);
     pathnameRef.current = pathname;
+    // The shortcut listener is registered once, so it cannot read `isOpen`
+    // from a closure. The ref is the live value.
+    const isOpenRef = useRef(isOpen);
+    isOpenRef.current = isOpen;
 
-    const open = useCallback(() => setIsOpen(true), []);
+    const open = useCallback((nextOrigin?: CommandOrigin) => {
+        setOrigin(nextOrigin ?? readSearchTriggerOrigin() ?? null);
+        setIsOpen(true);
+    }, []);
     const close = useCallback(() => setIsOpen(false), []);
+    const prefetch = useCallback(() => {
+        void import('./CommandPalette');
+    }, []);
 
     useEffect(() => {
         const onKeyDown = (event: KeyboardEvent) => {
@@ -59,18 +102,18 @@ export function CommandProvider({ children }: { children: React.ReactNode }) {
 
             event.preventDefault();
 
-            setIsOpen((currentlyOpen) => {
-                if (currentlyOpen) return false;
-                if (document.querySelector('[data-modal-open="true"]')) {
-                    return false;
-                }
-                return true;
-            });
+            if (isOpenRef.current) {
+                setIsOpen(false);
+                return;
+            }
+            if (document.querySelector('[data-modal-open="true"]')) return;
+
+            open();
         };
 
         document.addEventListener('keydown', onKeyDown);
         return () => document.removeEventListener('keydown', onKeyDown);
-    }, []);
+    }, [open]);
 
     // A navigation from inside the palette closes it; so does any other
     // route change while it happens to be open.
@@ -94,15 +137,15 @@ export function CommandProvider({ children }: { children: React.ReactNode }) {
     }, []);
 
     const value = useMemo(
-        () => ({ isOpen, open, close }),
-        [isOpen, open, close],
+        () => ({ isOpen, open, close, prefetch }),
+        [isOpen, open, close, prefetch],
     );
 
     return (
         <CommandUIContext.Provider value={value}>
             {children}
             {isOpen ? (
-                <CommandPalette onClose={close} />
+                <CommandPalette origin={origin ?? undefined} onClose={close} />
             ) : null}
         </CommandUIContext.Provider>
     );

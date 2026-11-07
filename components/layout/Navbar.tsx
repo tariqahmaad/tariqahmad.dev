@@ -100,6 +100,8 @@ const Navbar = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const router = useRouter();
     const commandConsole = useCommandConsole();
+    const searchButtonRef = useRef<HTMLButtonElement>(null);
+    const [isLaunching, setIsLaunching] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
     const backdropRef = useRef<HTMLDivElement>(null);
     const hamburgerRef = useRef<HTMLButtonElement>(null);
@@ -168,6 +170,48 @@ const Navbar = () => {
         enabled: isPhone,
     });
     const isToggleDimmed = isPhone && isScrollingDown && !isMenuOpen;
+
+    // The console trigger's own feedback: a lock/scan beat on click, then the
+    // palette unfolds from the button's screen position. Reduced motion opens
+    // straight away and lets the palette's own guard skip its entrance too.
+    const reduceMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
+
+    const handleSearchOpen = useCallback(() => {
+        if (isLaunching) return;
+
+        const rect = searchButtonRef.current?.getBoundingClientRect();
+        const origin = rect
+            ? {
+                  x: rect.left,
+                  y: rect.top,
+                  width: rect.width,
+                  height: rect.height,
+              }
+            : undefined;
+
+        if (reduceMotion) {
+            commandConsole.open(origin);
+            return;
+        }
+
+        setIsLaunching(true);
+        commandConsole.open(origin);
+    }, [commandConsole, isLaunching, reduceMotion]);
+
+    // Clear the lock state once the console closes; the button is usually
+    // behind the palette while it is open.
+    useEffect(() => {
+        if (!commandConsole.isOpen) setIsLaunching(false);
+    }, [commandConsole.isOpen]);
+
+    // The glitch label is an infinite animation, so do not leave it running
+    // behind the palette for the whole session. The entrance is over well
+    // before this; the reset is invisible.
+    useEffect(() => {
+        if (!isLaunching) return;
+        const id = window.setTimeout(() => setIsLaunching(false), 720);
+        return () => window.clearTimeout(id);
+    }, [isLaunching]);
 
     // Contain focus inside the open menu. `aria-modal` is a promise, not a
     // mechanism: everything outside the overlay's own branch is inerted, and
@@ -249,11 +293,16 @@ const Navbar = () => {
                 as another row in the menu list. */}
             {!isMenuOpen && (
                 <button
+                    ref={searchButtonRef}
+                    data-search-trigger
                     type="button"
-                    onClick={() => commandConsole.open()}
+                    onClick={handleSearchOpen}
+                    onPointerEnter={() => commandConsole.prefetch()}
+                    onFocus={() => commandConsole.prefetch()}
                     aria-label="Search the site (Control or Command plus K)"
                     aria-keyshortcuts="Control+K Meta+K"
                     aria-haspopup="dialog"
+                    aria-expanded={commandConsole.isOpen}
                     className={cn(
                         'fixed z-[41] inline-flex items-center justify-center gap-2',
                         'top-[max(1rem,env(safe-area-inset-top)_+_0.5rem)] right-[4.25rem]',
@@ -261,14 +310,76 @@ const Navbar = () => {
                         'h-11 w-11 sm:h-12 sm:w-12 md:h-14 md:w-auto md:px-5',
                         'border border-white/10 bg-background/60 text-subtle backdrop-blur-sm',
                         'font-mono text-ui-xs uppercase tracking-wider',
-                        'transition-colors hover:border-primary/40 hover:text-primary',
+                        'transition-[background-color,border-color,box-shadow,color,transform] duration-200 ease-menu-out',
+                        'hover:border-primary/40 hover:text-primary',
                         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50',
+                        isLaunching &&
+                            'scale-[0.97] border-primary/60 bg-background/80 text-primary shadow-[0_0_28px_hsl(var(--primary)/0.3)]',
                     )}
                 >
-                    <Search className="h-4 w-4" aria-hidden="true" />
-                    <span className="hidden md:inline" aria-hidden="true">
-                        Search
+                    {/* One bright band crosses the button as it locks. */}
+                    <span
+                        aria-hidden="true"
+                        className="pointer-events-none absolute inset-0 overflow-hidden"
+                    >
+                        <span
+                            className={cn(
+                                'absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-transparent via-primary/60 to-transparent opacity-0',
+                                isLaunching && 'animate-search-scan',
+                            )}
+                        />
                     </span>
+
+                    {/* Four corner arms snap inward — the menu toggle only has
+                        the two-bar morph, so this is deliberately busier. */}
+                    <span
+                        aria-hidden="true"
+                        className={cn(
+                            'pointer-events-none absolute inset-0 transition-[opacity,transform] duration-150 ease-menu-out',
+                            isLaunching
+                                ? 'scale-100 opacity-100'
+                                : 'scale-125 opacity-0',
+                        )}
+                    >
+                        <span className="absolute left-1 top-1 h-1.5 w-1.5 border-l border-t border-primary shadow-[0_0_6px_hsl(var(--primary)/0.65)]" />
+                        <span className="absolute right-1 top-1 h-1.5 w-1.5 border-r border-t border-primary shadow-[0_0_6px_hsl(var(--primary)/0.65)]" />
+                        <span className="absolute bottom-1 left-1 h-1.5 w-1.5 border-b border-l border-primary shadow-[0_0_6px_hsl(var(--primary)/0.65)]" />
+                        <span className="absolute bottom-1 right-1 h-1.5 w-1.5 border-b border-r border-primary shadow-[0_0_6px_hsl(var(--primary)/0.65)]" />
+                    </span>
+
+                    {/* The icon's reticle rotates square and locks on click. */}
+                    <span className="relative flex h-4 w-4 items-center justify-center">
+                        <span
+                            aria-hidden="true"
+                            className={cn(
+                                'absolute -inset-1.5 border transition-[transform,border-color,opacity] duration-300 ease-menu-out',
+                                isLaunching
+                                    ? 'rotate-0 scale-90 border-primary/70 opacity-100'
+                                    : 'rotate-45 border-white/15 opacity-40',
+                            )}
+                        />
+                        <Search
+                            className={cn(
+                                'relative h-4 w-4',
+                                isLaunching && 'search-icon-lock',
+                            )}
+                            aria-hidden="true"
+                        />
+                    </span>
+
+                    {/* Same character count as "Search" in mono, so the
+                        button never changes width mid-animation. */}
+                    <span
+                        className={cn(
+                            'hidden md:inline',
+                            isLaunching && 'glitch-text glitch-active',
+                        )}
+                        data-text={isLaunching ? 'LOCKED' : 'Search'}
+                        aria-hidden="true"
+                    >
+                        {isLaunching ? 'LOCKED' : 'Search'}
+                    </span>
+
                     <kbd
                         aria-hidden="true"
                         className="hidden items-center gap-1 rounded-sm border border-white/10 bg-white/[0.03] px-2 py-1 font-mono text-ui-sm leading-none text-subtle md:inline-flex"

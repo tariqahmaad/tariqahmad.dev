@@ -152,6 +152,19 @@ export default {
                     '0%': { left: '-100%' },
                     '100%': { left: '100%' },
                 },
+                // Console trigger: one bright band crosses the button as it
+                // locks. Runs once per click, so it is not `infinite`.
+                'search-scan': {
+                    '0%': {
+                        transform: 'translateX(-160%) skewX(-12deg)',
+                        opacity: '0',
+                    },
+                    '12%': { opacity: '1' },
+                    '100%': {
+                        transform: 'translateX(320%) skewX(-12deg)',
+                        opacity: '0',
+                    },
+                },
                 drop: {
                     '0%': { transform: 'translateY(-100%)', opacity: '0' },
                     '50%': { opacity: '1' },
@@ -231,6 +244,8 @@ export default {
             },
             animation: {
                 scan: 'scan 2s linear infinite',
+                'search-scan':
+                    'search-scan 360ms cubic-bezier(0.22, 1, 0.36, 1)',
                 drop: 'drop 1.5s linear infinite',
                 'arrow-enter': 'arrow-enter 3s ease-in-out infinite',
                 'cyber-drop':

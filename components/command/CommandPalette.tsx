@@ -12,6 +12,8 @@ import { usePathname, useRouter } from 'next/navigation';
 import { CornerDownLeft, Search, X } from 'lucide-react';
 
 import HudOverlay from '@/components/shared/hud/HudOverlay';
+import { gsap, useGSAP } from '@/lib/gsap-setup';
+import type { CommandOrigin } from './CommandProvider';
 import { useActiveSection } from '@/components/layout/ActiveSectionProvider';
 import { useScrollLock } from '@/hooks/useScrollLock';
 import { useInertOutside } from '@/hooks/useInertOutside';
@@ -25,6 +27,8 @@ import { cn, scrollToSection } from '@/lib/utils';
 
 interface Props {
     onClose: () => void;
+    /** Screen rect of the trigger, when the console was opened from it. */
+    origin?: CommandOrigin;
 }
 
 const normalize = (value: string): string =>
@@ -59,12 +63,14 @@ function scoreCommand(command: CommandSeed, query: string): number {
  * list is driven by `aria-activedescendant` rather than moving focus, so
  * screen-reader users keep typing while arrowing through results.
  */
-export default function CommandPalette({ onClose }: Props) {
+export default function CommandPalette({ onClose, origin }: Props) {
     const router = useRouter();
     const pathname = usePathname();
     const activeSection = useActiveSection();
 
     const rootRef = useRef<HTMLDivElement>(null);
+    const panelRef = useRef<HTMLDivElement>(null);
+    const backdropRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
     const closeRef = useRef<HTMLButtonElement>(null);
     const optionRefs = useRef<Array<HTMLDivElement | null>>([]);
@@ -78,6 +84,113 @@ export default function CommandPalette({ onClose }: Props) {
 
     useScrollLock(true);
     useInertOutside(true, () => [rootRef.current]);
+
+    // Entrance: the palette grows out of the search trigger instead of
+    // appearing centred. The first ~320ms are deliberately invisible so the
+    // trigger's full lock/scan/icon sequence reads through the still-
+    // transparent backdrop.
+    useGSAP(
+        () => {
+            const panel = panelRef.current;
+            const backdrop = backdropRef.current;
+            const root = rootRef.current;
+            if (!panel || !backdrop || !root) return;
+
+            // Read synchronously: `useMediaQuery` is false on the first render,
+            // so it cannot be the only guard against animating for someone who
+            // asked for reduced motion.
+            if (
+                window.matchMedia('(prefers-reduced-motion: reduce)').matches
+            ) {
+                gsap.set([panel, backdrop], { clearProps: 'all' });
+                backdrop.style.pointerEvents = 'auto';
+                return;
+            }
+
+            // Measured before any transform is applied (layout effect), so this
+            // is the panel's resting rect.
+            const rest = panel.getBoundingClientRect();
+
+            if (origin) {
+                // Anchor the panel's TOP-RIGHT on the trigger's top-right and
+                // scale it down to the trigger's size, then grow down-left into
+                // place. The panel starts exactly covering the button.
+                gsap.set(panel, {
+                    transformOrigin: '100% 0%',
+                    x: origin.x + origin.width - rest.right,
+                    y: origin.y - rest.top,
+                    scaleX: Math.max(origin.width / (rest.width || 1), 0.05),
+                    scaleY: Math.max(origin.height / (rest.height || 1), 0.02),
+                    opacity: 0,
+                });
+            } else {
+                // Keyboard open on a route without the navbar: a restrained
+                // top drop rather than a centred pop.
+                gsap.set(panel, {
+                    y: -10,
+                    scaleY: 0.92,
+                    opacity: 0,
+                    transformOrigin: '50% 0%',
+                });
+            }
+
+            gsap.set(backdrop, { opacity: 0 });
+            // The trigger's animation plays through a transparent backdrop;
+            // don't let a second click dismiss the palette before it is even
+            // visible. Clicks become live when the backdrop starts fading.
+            backdrop.style.pointerEvents = 'none';
+
+            // Set the stagger's start state now, not with a late `.from()` —
+            // otherwise the rows are visible during the panel fade and then pop
+            // back to opacity 0 when the stagger begins.
+            const reveals = root.querySelectorAll('[data-palette-reveal]');
+            gsap.set(reveals, { y: 10, opacity: 0 });
+
+            // Hold the palette invisible long enough for the trigger's full
+            // lock sequence to read (icon redraw, brackets, scan, label). The
+            // panel then grows out of the trigger, so the two motions join
+            // rather than one covering the other.
+            const tl = gsap.timeline({ defaults: { ease: 'power4.out' } });
+            tl.to(
+                backdrop,
+                {
+                    opacity: 1,
+                    duration: 0.24,
+                    ease: 'power2.out',
+                    onStart: () => {
+                        backdrop.style.pointerEvents = 'auto';
+                    },
+                },
+                0.28,
+            )
+                .to(
+                    panel,
+                    { opacity: 1, duration: 0.18, ease: 'power2.out' },
+                    0.32,
+                )
+                .to(
+                    panel,
+                    { x: 0, y: 0, scaleX: 1, scaleY: 1, duration: 0.52 },
+                    0.32,
+                )
+                .to(
+                    reveals,
+                    {
+                        y: 0,
+                        opacity: 1,
+                        duration: 0.32,
+                        stagger: 0.05,
+                        ease: 'power2.out',
+                    },
+                    0.48,
+                );
+
+            return () => {
+                tl.kill();
+            };
+        },
+        { scope: rootRef, dependencies: [origin] },
+    );
 
     const results = useMemo(() => {
         const needle = normalize(query.trim());
@@ -322,9 +435,17 @@ export default function CommandPalette({ onClose }: Props) {
             className="fixed inset-0 z-[70] flex items-start justify-center px-3 pt-[7vh] sm:pt-[12vh]"
             onKeyDown={onKeyDown}
         >
-            <HudOverlay open onClick={onClose} zIndex={0} />
+            {/* The wrapper has no transition of its own, so GSAP fully owns
+                the backdrop opacity (HudOverlay has a CSS opacity transition
+                that would fight per-frame tweening). */}
+            <div ref={backdropRef} className="absolute inset-0">
+                <HudOverlay open onClick={onClose} zIndex={0} />
+            </div>
 
-            <div className="relative z-10 w-full max-w-[660px] overflow-hidden rounded-tl-[10px] rounded-br-[10px] border border-primary/25 bg-background/95 shadow-[0_0_70px_-15px_hsl(var(--primary)/0.3)]">
+            <div
+                ref={panelRef}
+                className="relative z-10 w-full max-w-[660px] overflow-hidden rounded-tl-[10px] rounded-br-[10px] border border-primary/25 bg-background/95 shadow-[0_0_70px_-15px_hsl(var(--primary)/0.3)]"
+            >
                 <div
                     aria-hidden="true"
                     className="pointer-events-none absolute inset-0 bg-menu-grid opacity-[0.02]"
@@ -339,7 +460,10 @@ export default function CommandPalette({ onClose }: Props) {
                 />
 
                 {/* Title bar */}
-                <div className="relative flex items-center justify-between gap-3 border-b border-white/5 bg-background px-4 py-3 sm:px-5">
+                <div
+                    data-palette-reveal
+                    className="relative flex items-center justify-between gap-3 border-b border-white/5 bg-background px-4 py-3 sm:px-5"
+                >
                     <p className="font-mono text-ui-sm uppercase tracking-[0.2em] text-primary/80">
                         <span className="text-primary">$</span> tariq
                         <span className="text-subtle"> --console</span>
@@ -361,7 +485,10 @@ export default function CommandPalette({ onClose }: Props) {
                 </div>
 
                 {/* Prompt */}
-                <div className="relative flex items-center gap-3 border-b border-white/5 px-4 py-3.5 focus-within:border-primary/30 sm:px-5">
+                <div
+                    data-palette-reveal
+                    className="relative flex items-center gap-3 border-b border-white/5 px-4 py-3.5 focus-within:border-primary/30 sm:px-5"
+                >
                     <Search
                         className="h-4 w-4 shrink-0 text-primary/70"
                         aria-hidden="true"
@@ -397,6 +524,7 @@ export default function CommandPalette({ onClose }: Props) {
                 {/* Results */}
                 <div
                     id="command-list"
+                    data-palette-reveal
                     role="listbox"
                     aria-label="Commands"
                     className="relative max-h-[52vh] min-h-[180px] overflow-y-auto overscroll-contain py-2"
