@@ -36,7 +36,11 @@ const ScreenshotLightbox = ({
     // lifetime (the hook is ref-counted, so nesting with the menu is safe).
     useScrollLock(true);
     // `aria-modal` alone leaves the page behind reachable; inert it for real.
-    useInertOutside(true, () => [dialogRef.current]);
+    // Keyed on `mounted`, not `true`: the dialog only renders after the first
+    // commit, so a `true` here ran the hook while `dialogRef` was still null,
+    // found no overlay root, bailed, and (its only dependency being `isActive`)
+    // never ran again — the page behind was never inert.
+    useInertOutside(mounted, () => [dialogRef.current]);
 
     const goPrev = useCallback(() => {
         onIndexChange((index - 1 + total) % total);
@@ -87,7 +91,13 @@ const ScreenshotLightbox = ({
                 if (focusables.length === 0) return;
                 const first = focusables[0];
                 const last = focusables[focusables.length - 1];
-                if (
+                // Focus starts on the dialog container itself (tabindex -1), which
+                // is not in `focusables`: Shift+Tab from there used to step out to
+                // the document. Enter the control ring from the matching end.
+                if (!dialog.contains(document.activeElement) || document.activeElement === dialog) {
+                    e.preventDefault();
+                    (e.shiftKey ? last : first).focus();
+                } else if (
                     e.shiftKey &&
                     document.activeElement === first
                 ) {

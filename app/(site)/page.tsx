@@ -3,6 +3,7 @@ import AboutMe from '@/components/home/AboutMe';
 import Banner from '@/components/home/Banner';
 import Certifications from '@/components/home/Certifications';
 import Experiences from '@/components/home/Experiences';
+import HashScroll from '@/components/layout/HashScroll';
 import ProductSpotlight from '@/components/home/ProductSpotlight';
 import ProjectList from '@/components/home/ProjectList';
 import Skills from '@/components/home/Skills';
@@ -27,6 +28,8 @@ export default function Home() {
             <ProductSpotlight />
             <ProjectList />
             <Testimonials />
+            {/* Last, so every section above has mounted. */}
+            <HashScroll />
         </div>
     );
 }

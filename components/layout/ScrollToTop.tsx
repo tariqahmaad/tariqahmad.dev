@@ -273,11 +273,28 @@ const ScrollToTop = () => {
             setClickSuccess(false);
         }, 600);
 
-        const lenis = (window as Window & { lenis?: { scrollTo: (target: string | number) => void } }).lenis;
+        // Reduced motion: jump, don't glide. Neither Lenis's eased scroll nor an
+        // explicit `behavior: 'smooth'` is covered by the CSS reduced-motion rules.
+        const reduceMotion = window.matchMedia(
+            '(prefers-reduced-motion: reduce)',
+        ).matches;
+        const lenis = (
+            window as Window & {
+                lenis?: {
+                    scrollTo: (
+                        target: string | number,
+                        options?: { immediate?: boolean },
+                    ) => void;
+                };
+            }
+        ).lenis;
         if (lenis) {
-            lenis.scrollTo(0);
+            lenis.scrollTo(0, { immediate: reduceMotion });
         } else {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            window.scrollTo({
+                top: 0,
+                behavior: reduceMotion ? 'auto' : 'smooth',
+            });
         }
     };
 
@@ -319,11 +336,18 @@ const ScrollToTop = () => {
             tabIndex={isVisible ? 0 : -1}
             data-cursor-hide
         >
+            {/* Two layers on purpose. The outer one is GSAP's (entrance scale and
+                opacity, click flash); the inner one is CSS's (the idle breathe).
+                They used to be the same element, and a running CSS animation
+                beats inline styles, so whenever the button was not hovered the
+                breathe silently overrode every GSAP tween on the glow. */}
             <div
                 ref={glowRef}
                 aria-hidden="true"
-                className="absolute inset-0 rounded-full bg-primary/20 blur-xl opacity-0 group-hover:bg-primary/40 transition-colors duration-300"
-            />
+                className="absolute inset-0 opacity-0"
+            >
+                <div className="glow-breathe absolute inset-0 rounded-full bg-primary/20 blur-xl group-hover:bg-primary/40 transition-colors duration-300" />
+            </div>
 
             <div className="relative flex items-center justify-center w-14 h-14 rounded-full bg-background-light/90 border border-primary/30 backdrop-blur-md transition-all duration-300 group-hover:border-primary/60 group-hover:bg-primary/5 shadow-[0_0_20px_rgba(0,255,0,0.1)] group-hover:shadow-[0_0_30px_rgba(0,255,0,0.2)] overflow-hidden">
 
@@ -421,12 +445,15 @@ const ScrollToTop = () => {
                     visibility: hidden;
                 }
 
+                /* Relative to the outer layer, which GSAP holds at opacity 0.6 and
+                   scale 1.5 once visible: 0.33 x 0.6 = 0.2 and 0.66 x 0.6 = 0.4,
+                   1 x 1.5 = 1.5 and 1.13 x 1.5 = 1.7 — the same breathe as before. */
                 @keyframes breathe {
-                    0%, 100% { opacity: 0.2; transform: scale(1.5); }
-                    50% { opacity: 0.4; transform: scale(1.7); }
+                    0%, 100% { opacity: 0.33; transform: scale(1); }
+                    50% { opacity: 0.66; transform: scale(1.13); }
                 }
 
-                button:not(:hover) > div:first-child {
+                button:not(:hover) .glow-breathe {
                     animation: breathe 3s ease-in-out infinite;
                 }
             `}</style>

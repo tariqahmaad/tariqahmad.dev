@@ -30,9 +30,14 @@ export const useScrollLock = (isLocked: boolean) => {
             };
         };
 
+        // Deliberately NO `overflow` writes on <html>/<body>. Changing the
+        // root's overflow re-lays out the whole page (measured ~30ms real,
+        // ~115ms at 4x CPU, per change) and was paid up to three times per open
+        // (here, twice, plus Lenis's own `overflow: clip` class). The fixed
+        // body below already freezes the page, so it was pure cost; moving the
+        // body to `position: fixed` costs ~1ms. The matching Lenis override
+        // lives in globals.css.
         const clearLockStyles = () => {
-            document.body.style.overflow = '';
-            document.documentElement.style.overflow = '';
             document.body.style.paddingRight = '';
             document.body.style.position = '';
             document.body.style.width = '';
@@ -53,12 +58,11 @@ export const useScrollLock = (isLocked: boolean) => {
             // Reset all styles
             clearLockStyles();
 
-            // Resume Lenis *before* restoring the scroll position. While it is
-            // stopped, lenis.css applies `overflow: clip` to <html> via the
-            // `.lenis-stopped` class, and `clip` forbids scrolling entirely -
-            // including programmatic scrolls. Restoring first was therefore a
-            // silent no-op and the page snapped back to the top whenever the
-            // menu was closed from a scrolled position.
+            // Resume Lenis *before* restoring the scroll position. Lenis's own
+            // stylesheet would clip <html> while it is stopped (we neutralise
+            // that in globals.css), and a stopped Lenis would also swallow the
+            // restore, so keep this order: the page used to snap back to the
+            // top whenever the menu was closed from a scrolled position.
             try {
                 win.lenis?.start();
             } catch (err) {
@@ -99,26 +103,29 @@ export const useScrollLock = (isLocked: boolean) => {
                 savedScrollY = window.scrollY;
                 hasSavedScrollY = true;
 
-                const scrollbarWidth =
-                    window.innerWidth - document.documentElement.clientWidth;
+                // No scrollbar-width compensation: the site hides its scrollbar
+                // (globals.css), so there is no gutter to preserve, and the
+                // `clientWidth` read it needed forced a full style flush in
+                // the middle of the open.
+                //
+                // Apply every style write first and stop Lenis LAST. Lenis's
+                // stop emits a scroll event that ScrollTrigger answers by
+                // reading layout, which flushes pending styles on the spot.
+                // Stopping first meant that flush ran before the lock styles
+                // existed, and they then cost a second one.
 
-                // Freeze Lenis so it doesn't keep reading the (soon-to-be
-                // fixed) scroll as 0 and drift its internal target out of sync.
-                win.lenis?.stop();
-
-                // Apply scroll lock styles
-                document.body.style.overflow = 'hidden';
-                document.documentElement.style.overflow = 'hidden';
-                document.body.style.paddingRight = `${scrollbarWidth}px`;
-
-                // Mobile scroll lock - the fixed body keeps the page put. Touch
-                // gestures are contained by the menu overlay in Navbar instead
-                // of writing touch-action on the body, which would disable
-                // pinch-zoom for the whole document (WCAG 1.4.4).
+                // The fixed body keeps the page put. Touch gestures are
+                // contained by the menu overlay in Navbar instead of writing
+                // touch-action on the body, which would disable pinch-zoom for
+                // the whole document (WCAG 1.4.4).
                 document.body.style.position = 'fixed';
                 document.body.style.width = '100%';
                 document.body.style.left = '0';
                 document.body.style.top = `-${savedScrollY}px`;
+
+                // Freeze Lenis so it doesn't keep reading the fixed body's
+                // scroll as 0 and drift its internal target out of sync.
+                win.lenis?.stop();
             }
         } else {
             releaseLock();

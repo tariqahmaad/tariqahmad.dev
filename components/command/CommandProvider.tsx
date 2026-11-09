@@ -12,11 +12,13 @@ import {
 } from 'react';
 import { usePathname } from 'next/navigation';
 
-import HudOverlay from '@/components/shared/hud/HudOverlay';
-
+// No visible fallback while the chunk loads. The old one painted an opaque
+// full-screen backdrop at once, which the real palette then reset to
+// transparent and faded in again: a flash on exactly the first open. The
+// trigger's own lock beat covers a slow chunk instead.
 const CommandPalette = dynamic(() => import('./CommandPalette'), {
     ssr: false,
-    loading: () => <HudOverlay zIndex={70} />,
+    loading: () => null,
 });
 
 /** Viewport rect of the trigger that opened the console. */
@@ -29,6 +31,11 @@ export interface CommandOrigin {
 
 interface CommandUI {
     isOpen: boolean;
+    /**
+     * Bumps once per open request, before the palette mounts. The trigger
+     * plays its lock beat off this, so a keyboard open animates it too.
+     */
+    launchTick: number;
     open: (origin?: CommandOrigin) => void;
     close: () => void;
     prefetch: () => void;
@@ -37,6 +44,7 @@ interface CommandUI {
 const NOOP = () => {};
 const CommandUIContext = createContext<CommandUI>({
     isOpen: false,
+    launchTick: 0,
     open: NOOP,
     close: NOOP,
     prefetch: NOOP,
@@ -77,6 +85,9 @@ const readSearchTriggerOrigin = (): CommandOrigin | undefined => {
 export function CommandProvider({ children }: { children: React.ReactNode }) {
     const [isOpen, setIsOpen] = useState(false);
     const [origin, setOrigin] = useState<CommandOrigin | null>(null);
+    const [launchTick, setLaunchTick] = useState(0);
+    // Frame handle of an open that is waiting to mount the palette.
+    const pendingOpenRef = useRef<number | null>(null);
     const pathname = usePathname();
     const pathnameRef = useRef(pathname);
     pathnameRef.current = pathname;
@@ -85,14 +96,50 @@ export function CommandProvider({ children }: { children: React.ReactNode }) {
     const isOpenRef = useRef(isOpen);
     isOpenRef.current = isOpen;
 
-    const open = useCallback((nextOrigin?: CommandOrigin) => {
-        setOrigin(nextOrigin ?? readSearchTriggerOrigin() ?? null);
-        setIsOpen(true);
+    const cancelPendingOpen = useCallback(() => {
+        if (pendingOpenRef.current !== null) {
+            cancelAnimationFrame(pendingOpenRef.current);
+            pendingOpenRef.current = null;
+        }
     }, []);
-    const close = useCallback(() => setIsOpen(false), []);
+
     const prefetch = useCallback(() => {
         void import('./CommandPalette');
     }, []);
+
+    // Mounting the palette is the heavy part of an open: a large tree, the
+    // body scroll lock (a page-wide relayout), the inert walk and a forced
+    // layout read. Done inside the click it all landed in the same frame the
+    // trigger starts animating, so the first frames of its lock beat stuttered.
+    // The trigger gets its state first and paints; the palette mounts two
+    // frames later (the chunk is requested right away, so that costs nothing).
+    // Reduced motion has no beat to protect and opens straight away.
+    const open = useCallback(
+        (nextOrigin?: CommandOrigin) => {
+            cancelPendingOpen();
+            setOrigin(nextOrigin ?? readSearchTriggerOrigin() ?? null);
+            prefetch();
+
+            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                setIsOpen(true);
+                return;
+            }
+
+            setLaunchTick((tick) => tick + 1);
+            pendingOpenRef.current = requestAnimationFrame(() => {
+                pendingOpenRef.current = requestAnimationFrame(() => {
+                    pendingOpenRef.current = null;
+                    setIsOpen(true);
+                });
+            });
+        },
+        [cancelPendingOpen, prefetch],
+    );
+
+    const close = useCallback(() => {
+        cancelPendingOpen();
+        setIsOpen(false);
+    }, [cancelPendingOpen]);
 
     useEffect(() => {
         const onKeyDown = (event: KeyboardEvent) => {
@@ -102,7 +149,9 @@ export function CommandProvider({ children }: { children: React.ReactNode }) {
 
             event.preventDefault();
 
-            if (isOpenRef.current) {
+            // Open, or an open still waiting to mount: the shortcut toggles.
+            if (isOpenRef.current || pendingOpenRef.current !== null) {
+                cancelPendingOpen();
                 setIsOpen(false);
                 return;
             }
@@ -113,13 +162,16 @@ export function CommandProvider({ children }: { children: React.ReactNode }) {
 
         document.addEventListener('keydown', onKeyDown);
         return () => document.removeEventListener('keydown', onKeyDown);
-    }, [open]);
+    }, [open, cancelPendingOpen]);
 
     // A navigation from inside the palette closes it; so does any other
     // route change while it happens to be open.
     useEffect(() => {
+        cancelPendingOpen();
         setIsOpen(false);
-    }, [pathname]);
+    }, [pathname, cancelPendingOpen]);
+
+    useEffect(() => cancelPendingOpen, [cancelPendingOpen]);
 
     // Warm the chunk once the page is idle; failure is harmless.
     useEffect(() => {
@@ -137,8 +189,8 @@ export function CommandProvider({ children }: { children: React.ReactNode }) {
     }, []);
 
     const value = useMemo(
-        () => ({ isOpen, open, close, prefetch }),
-        [isOpen, open, close, prefetch],
+        () => ({ isOpen, launchTick, open, close, prefetch }),
+        [isOpen, launchTick, open, close, prefetch],
     );
 
     return (

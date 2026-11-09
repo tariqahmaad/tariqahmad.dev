@@ -1,11 +1,12 @@
 'use client';
 
 import Image from 'next/image';
-import { ArrowUpRight, ExternalLink } from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
 import SectionTitle from '@/components/shared/SectionTitle';
 import TransitionLink from '@/components/shared/TransitionLink';
 import BracketFrame from '@/components/shared/hud/BracketFrame';
 import HudButton from '@/components/shared/hud/HudButton';
+import { LaunchArrow } from '@/components/shared/hud/LaunchArrow';
 import ScreenshotPreviewPanel from '@/components/product/ScreenshotPreviewPanel';
 import ScreenshotLightbox from '@/components/product/ScreenshotLightbox';
 import { PRODUCT_SHOTS } from '@/components/product/screenshots';
@@ -158,12 +159,17 @@ const ProductSpotlight = () => {
                             <TransitionLink
                                 href="/product"
                                 aria-label="See how CV Builder works"
-                                className="group/details relative inline-flex items-center justify-center gap-2 h-12 px-8 border border-primary text-primary uppercase font-anton tracking-widest text-body-lg overflow-hidden rounded-tl-[10px] rounded-br-[10px] transition-colors hover:bg-primary/10"
+                                className="group/details relative inline-flex items-center justify-center gap-2 h-12 px-8 border border-primary text-primary uppercase font-anton tracking-widest text-body-lg overflow-hidden rounded-tl-[10px] rounded-br-[10px] transition-colors hover:bg-primary/10 focus-visible:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                             >
                                 See how it works
-                                <ArrowUpRight
-                                    className="w-4 h-4 transition-transform duration-300 group-hover/details:translate-x-0.5 group-hover/details:-translate-y-0.5"
-                                    aria-hidden="true"
+                                {/* Named-group triggers: this button sits inside
+                                    the spotlight card, itself a `group`, and the
+                                    unnamed variant would replay the draw
+                                    whenever the whole card is hovered. */}
+                                <LaunchArrow
+                                    rest="drawn"
+                                    redrawClassName="group-hover/details:animate-arrow-redraw group-focus-visible/details:animate-arrow-redraw"
+                                    className="w-4 h-4 transition-transform duration-300 group-hover/details:translate-x-0.5 group-hover/details:-translate-y-0.5 group-focus-visible/details:translate-x-0.5 group-focus-visible/details:-translate-y-0.5"
                                 />
                             </TransitionLink>
                         </div>
@@ -181,7 +187,7 @@ const ProductSpotlight = () => {
                                         onMouseMove={handleMove}
                                         onMouseLeave={handleLeave}
                                         className={cn(
-                                            'group group/shot relative border bg-background/60 overflow-hidden rounded-tl-[10px] rounded-br-[10px] transition-all duration-300 hover:shadow-[0_0_30px_-10px_hsl(var(--primary)/0.35)]',
+                                            'relative border bg-background/60 overflow-hidden rounded-tl-[10px] rounded-br-[10px] transition-all duration-300 hover:shadow-[0_0_30px_-10px_hsl(var(--primary)/0.35)]',
                                             isActive
                                                 ? 'border-primary/50'
                                                 : 'border-white/10 hover:border-primary/30',
@@ -193,10 +199,17 @@ const ProductSpotlight = () => {
                                         )}
                                     >
                                         {/* Corner brackets — same signature
-                                            motif as the rest of the theme. */}
+                                            motif as the rest of the theme.
+                                            `hoverScope="none"`: the spotlight
+                                            card is a `group`, and an unnamed
+                                            group-hover would open ALL three
+                                            figures' brackets whenever the card
+                                            is hovered. `active` (the sticky
+                                            hovered shot) is the only driver. */}
                                         <BracketFrame
                                             className="z-[1]"
                                             active={isActive}
+                                            hoverScope="none"
                                         />
                                         <button
                                             type="button"

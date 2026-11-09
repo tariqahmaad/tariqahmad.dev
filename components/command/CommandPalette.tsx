@@ -24,6 +24,7 @@ import {
 } from '@/lib/commands';
 import { SECTION_COUNT, SITE_SECTIONS, sectionIndex } from '@/lib/navigation';
 import { cn, scrollToSection } from '@/lib/utils';
+import { pushWithSection } from '@/lib/section-handoff';
 
 interface Props {
     onClose: () => void;
@@ -116,6 +117,7 @@ export default function CommandPalette({ onClose, origin }: Props) {
                 // scale it down to the trigger's size, then grow down-left into
                 // place. The panel starts exactly covering the button.
                 gsap.set(panel, {
+                    force3D: true,
                     transformOrigin: '100% 0%',
                     x: origin.x + origin.width - rest.right,
                     y: origin.y - rest.top,
@@ -127,6 +129,7 @@ export default function CommandPalette({ onClose, origin }: Props) {
                 // Keyboard open on a route without the navbar: a restrained
                 // top drop rather than a centred pop.
                 gsap.set(panel, {
+                    force3D: true,
                     y: -10,
                     scaleY: 0.92,
                     opacity: 0,
@@ -150,6 +153,9 @@ export default function CommandPalette({ onClose, origin }: Props) {
             // lock sequence to read (icon redraw, brackets, scan, label). The
             // panel then grows out of the trigger, so the two motions join
             // rather than one covering the other.
+            // With no trigger on screen (a project page) there is no beat to
+            // wait for, so the hold would only make ⌘K feel late.
+            const hold = origin ? 0.28 : 0;
             const tl = gsap.timeline({ defaults: { ease: 'power4.out' } });
             tl.to(
                 backdrop,
@@ -161,17 +167,17 @@ export default function CommandPalette({ onClose, origin }: Props) {
                         backdrop.style.pointerEvents = 'auto';
                     },
                 },
-                0.28,
+                hold,
             )
                 .to(
                     panel,
                     { opacity: 1, duration: 0.18, ease: 'power2.out' },
-                    0.32,
+                    hold + 0.04,
                 )
                 .to(
                     panel,
                     { x: 0, y: 0, scaleX: 1, scaleY: 1, duration: 0.52 },
-                    0.32,
+                    hold + 0.04,
                 )
                 .to(
                     reveals,
@@ -182,7 +188,7 @@ export default function CommandPalette({ onClose, origin }: Props) {
                         stagger: 0.05,
                         ease: 'power2.out',
                     },
-                    0.48,
+                    hold + 0.2,
                 );
 
             return () => {
@@ -264,7 +270,16 @@ export default function CommandPalette({ onClose, origin }: Props) {
         );
     }, [results.length]);
 
+    // Keep the highlighted row in view as the selection moves. Skipped on the
+    // first run: row 0 is already visible, and calling scrollIntoView while the
+    // panel is still shrunk onto the trigger is wasted layout work in the very
+    // frames the entrance needs.
+    const hasMovedRef = useRef(false);
     useEffect(() => {
+        if (!hasMovedRef.current) {
+            hasMovedRef.current = true;
+            return;
+        }
         optionRefs.current[index]?.scrollIntoView({ block: 'nearest' });
     }, [index]);
 
@@ -321,13 +336,25 @@ export default function CommandPalette({ onClose, origin }: Props) {
                         onClose();
                         scrollToSection(id, 0);
                     } else {
-                        router.push(`/#${id}`);
+                        // Bare `/`; the section is handed to HashScroll so the
+                        // address bar never shows a hash.
+                        pushWithSection(router, `/#${id}`);
                         onClose();
                     }
                     return;
                 }
                 case 'route': {
-                    router.push(command.target ?? '/');
+                    const target = command.target ?? '/';
+                    // Project -> project replaces the history entry, exactly like
+                    // the case cards, so one Back still leaves the whole run.
+                    if (
+                        pathname.startsWith('/projects/') &&
+                        target.startsWith('/projects/')
+                    ) {
+                        router.replace(target);
+                    } else {
+                        router.push(target);
+                    }
                     onClose();
                     return;
                 }
@@ -376,12 +403,17 @@ export default function CommandPalette({ onClose, origin }: Props) {
                     );
                     return;
                 }
+                // Plain Home/End belong to the text field (caret to the start/end
+                // of the query) — they were swallowed here, so the caret could
+                // not be moved. Jumping the result list is Ctrl/Cmd + Home/End.
                 case 'Home': {
+                    if (!event.ctrlKey && !event.metaKey) return;
                     event.preventDefault();
                     setIndex(0);
                     return;
                 }
                 case 'End': {
+                    if (!event.ctrlKey && !event.metaKey) return;
                     event.preventDefault();
                     setIndex(Math.max(results.length - 1, 0));
                     return;
@@ -437,9 +469,17 @@ export default function CommandPalette({ onClose, origin }: Props) {
         >
             {/* The wrapper has no transition of its own, so GSAP fully owns
                 the backdrop opacity (HudOverlay has a CSS opacity transition
-                that would fight per-frame tweening). */}
+                that would fight per-frame tweening). The blur is dropped here:
+                at 90% black it is barely visible, but fading a backdrop-filter
+                layer re-blurs the animated particle canvas behind it on every
+                frame, which is what made the unfold stutter. */}
             <div ref={backdropRef} className="absolute inset-0">
-                <HudOverlay open onClick={onClose} zIndex={0} />
+                <HudOverlay
+                    open
+                    onClick={onClose}
+                    zIndex={0}
+                    className="backdrop-blur-none"
+                />
             </div>
 
             <div
@@ -527,6 +567,10 @@ export default function CommandPalette({ onClose, origin }: Props) {
                     data-palette-reveal
                     role="listbox"
                     aria-label="Commands"
+                    // The palette stops Lenis (useScrollLock), and a stopped
+                    // Lenis preventDefaults every wheel/touch event — which
+                    // made the rows below the fold unreachable by mouse wheel.
+                    data-lenis-prevent
                     className="relative max-h-[52vh] min-h-[180px] overflow-y-auto overscroll-contain py-2"
                 >
                     {grouped.length === 0 ? (

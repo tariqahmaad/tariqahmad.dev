@@ -127,7 +127,7 @@ const Certifications = () => {
                                                             <p className="text-body-base sm:text-body-lg break-words flex items-baseline gap-2">
                                                                 <span aria-hidden className="text-primary/40 font-mono flex-shrink-0">{'//'}</span>
                                                                 <span
-                                                                    className={`${foregroundGradientClass} ${isCertHovered ? 'bg-left' : 'bg-right'}`}
+                                                                    className={`text-foreground/90 hover:text-primary transition-colors duration-300 ${isCertHovered ? 'text-primary' : ''}`}
                                                                     onMouseEnter={() => {
                                                                         setHoveredCategory(index);
                                                                         setHoveredCertificate(certId);

@@ -388,7 +388,17 @@ const Experiences = () => {
     // Toggle: measure only after the 300ms expand/collapse transition lands.
     // Measuring mid-transition reads ghost heights and stretches the neighbor.
     useEffect(() => {
-        const t = setTimeout(() => equalizeRef.current(), 380);
+        const t = setTimeout(() => {
+            equalizeRef.current();
+            // On desktop the equalizer ends with a ScrollTrigger refresh. Below
+            // 1024px it returns before that (there is nothing to equalize), but
+            // expanding a card still changes the page height — without a
+            // refresh, every trigger after it (later reveals, the exit fades'
+            // `bottom 50%` scrubs) keeps its old position and fires early or late.
+            if (!window.matchMedia('(min-width: 1024px)').matches) {
+                ScrollTrigger.refresh();
+            }
+        }, 380);
         return () => clearTimeout(t);
     }, [expandedIndex]);
 

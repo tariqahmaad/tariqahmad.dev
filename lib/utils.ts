@@ -64,26 +64,33 @@ export function scrollToSection(id: string, delay = 300, offset = 0): void {
             return;
         }
 
+        // Reduced motion: jump, don't glide. Lenis's eased scroll and an explicit
+        // `behavior: 'smooth'` are both outside the CSS reduced-motion rules.
+        const reduceMotion = window.matchMedia(
+            '(prefers-reduced-motion: reduce)',
+        ).matches;
+        const behavior: ScrollBehavior = reduceMotion ? 'auto' : 'smooth';
+
         // Try to use Lenis instance for proper integration with snap scroll
         const win = window as Window & {
             lenis?: {
-                scrollTo: (target: HTMLElement | number, options?: { offset: number; duration: number; easing?: (t: number) => number }) => void;
+                scrollTo: (target: HTMLElement | number, options?: { offset: number; duration: number; easing?: (t: number) => number; immediate?: boolean }) => void;
             };
         };
 
         if (win.lenis) {
             try {
-                win.lenis.scrollTo(element, { offset, duration: 1.2 });
+                win.lenis.scrollTo(element, { offset, duration: 1.2, immediate: reduceMotion });
             } catch (error) {
                 console.error('[scrollToSection] Lenis scrollTo failed:', error);
                 // Fallback to native scroll on error
                 const top = element.getBoundingClientRect().top + window.scrollY - offset;
-                window.scrollTo({ top, behavior: 'smooth' });
+                window.scrollTo({ top, behavior });
             }
         } else {
             // Lenis not available - use native scroll
             const top = element.getBoundingClientRect().top + window.scrollY - offset;
-            window.scrollTo({ top, behavior: 'smooth' });
+            window.scrollTo({ top, behavior });
         }
     }, delay);
 }

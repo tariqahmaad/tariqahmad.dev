@@ -42,20 +42,24 @@ const AboutMe = () => {
 
                 <SectionTitle title="ABOUT ME" className="slide-up-and-fade" />
 
-                <div className="grid md:grid-cols-12 mt-6 xs:mt-9 gap-y-8 md:gap-12 items-start">
-                    <div className="md:col-span-5 mb-6 md:mb-0 flex flex-col items-center text-center md:items-end md:text-right">
+                {/* Text column keeps its original width (400px md / 540px lg /
+                    612px xl). The 48px gutter is trimmed to 32px and every
+                    saved pixel goes to the portrait, which fills its column
+                    edge to edge with no inset. */}
+                <div className="grid gap-y-8 md:grid-cols-[272px_minmax(0,1fr)] md:gap-x-8 lg:grid-cols-[388px_minmax(0,1fr)] xl:grid-cols-[440px_minmax(0,1fr)] items-start xl:items-end">
+                    <div className="mb-6 md:mb-0 flex flex-col items-center text-center md:items-end md:text-right">
                         <p className="slide-up-and-fade font-mono uppercase tracking-[0.25em] text-primary/70 text-body-sm sm:text-body-base">
                             {'// behind the code'}
                         </p>
-                        <div className="mt-6 flex justify-center md:justify-end w-full">
-                            <div className="slide-up-and-fade relative w-full max-w-[320px] sm:max-w-[350px] md:max-w-[380px] aspect-square group">
+                        <div className="mt-6 flex w-full justify-center md:justify-end">
+                            <div className="slide-up-and-fade relative w-full max-w-[320px] sm:max-w-[350px] md:max-w-none aspect-square group">
                                 {/* Neon halo on hover */}
                                 <div className="absolute -inset-2 bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-2xl" />
                                 <Image
                                     src="/personal/profile.jpg"
                                     alt="Tariq Ahmad"
                                     fill
-                                    sizes="(min-width: 768px) 380px, (min-width: 640px) 350px, 320px"
+                                    sizes="(min-width: 1280px) 440px, (min-width: 1024px) 388px, (min-width: 768px) 272px, (min-width: 640px) 350px, 320px"
                                     className="object-cover rounded-none border border-primary/30 transition-all duration-500 z-10 group-hover:border-primary/70 group-hover:shadow-[0_0_40px_-5px_rgba(0,255,0,0.45)]"
                                 />
                                 {/* Corner brackets */}
@@ -64,7 +68,7 @@ const AboutMe = () => {
                             </div>
                         </div>
                     </div>
-                    <div className="md:col-span-7 flex flex-col justify-center">
+                    <div className="flex flex-col">
                         {/* Status badge */}
                         <div className="slide-up-and-fade flex flex-wrap items-center gap-3 mb-6">
                             <span className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-primary/30 bg-primary/[0.06] rounded-sm">

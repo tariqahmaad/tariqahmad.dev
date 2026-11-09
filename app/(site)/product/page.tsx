@@ -10,6 +10,7 @@ import {
     User,
 } from 'lucide-react';
 import BackLink from '@/components/shared/BackLink';
+import PageEnter from '@/components/shared/PageEnter';
 import HudButton from '@/components/shared/hud/HudButton';
 import TransitionLink from '@/components/shared/TransitionLink';
 import ScreenshotGallery from '@/components/product/ScreenshotGallery';
@@ -111,14 +112,17 @@ export default function ProductPage() {
                     aria-hidden="true"
                     className="pointer-events-none absolute inset-x-0 top-0 h-64 bg-gradient-to-b from-primary/[0.07] to-transparent"
                 />
-                <div className="container relative">
-                    <BackLink
-                        href="/"
-                        label="Back to portfolio"
-                        className="mb-8"
-                    />
+                {/* Same entrance as a project page: each `data-enter` block
+                    rises in after the shutter opens (hooks/usePageEnter). */}
+                <PageEnter className="container relative">
+                    <div data-enter className="mb-8 flex">
+                        <BackLink href="/" label="Back to portfolio" />
+                    </div>
 
-                    <div className="flex flex-wrap items-center gap-2.5 mb-6">
+                    <div
+                        data-enter
+                        className="flex flex-wrap items-center gap-2.5 mb-6"
+                    >
                         <span className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-primary/30 bg-primary/[0.06] rounded-sm">
                             <span className="relative flex h-2 w-2">
                                 <span className="absolute inline-flex h-full w-full rounded-full bg-primary opacity-75 animate-ping" />
@@ -130,16 +134,22 @@ export default function ProductPage() {
                         </span>
                     </div>
 
-                    <h1 className="font-anton text-display-sm sm:text-display-md md:text-display-lg leading-none">
+                    <h1
+                        data-enter
+                        className="font-anton text-display-sm sm:text-display-md md:text-display-lg leading-none"
+                    >
                         CV Builder
                     </h1>
-                    <p className="mt-5 max-w-[52ch] text-balance text-body-lg sm:text-body-xl leading-relaxed text-muted-foreground">
+                    <p
+                        data-enter
+                        className="mt-5 max-w-[52ch] text-balance text-body-lg sm:text-body-xl leading-relaxed text-muted-foreground"
+                    >
                         Build an ATS-friendly resume in your browser - free,
                         no account needed. Guided sections, a live A4
                         preview, and instant PDF export.
                     </p>
 
-                    <div className="mt-8">
+                    <div data-enter className="mt-8">
                         <HudButton
                             href="https://cv.tariqahmad.dev"
                             external
@@ -153,7 +163,7 @@ export default function ProductPage() {
                             Free forever · No credit card required
                         </p>
                     </div>
-                </div>
+                </PageEnter>
             </section>
 
             {/* What it is */}

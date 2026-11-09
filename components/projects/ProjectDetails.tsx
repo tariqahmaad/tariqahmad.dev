@@ -2,10 +2,13 @@
 import parse from 'html-react-parser';
 import ArrowAnimation from '@/components/shared/ArrowAnimation';
 import BackLink from '@/components/shared/BackLink';
+import BracketFrame from '@/components/shared/hud/BracketFrame';
 import HudButton from '@/components/shared/hud/HudButton';
+import { ArrowLaunchSlot } from '@/components/shared/hud/LaunchArrow';
 import TransitionLink from '@/components/shared/TransitionLink';
 import { IProject, IProjectLink } from '@/types';
 import { gsap, useGSAP } from '@/lib/gsap-setup';
+import { usePageEnter } from '@/hooks/usePageEnter';
 import { ExternalLink, Github } from 'lucide-react';
 import { useRef } from 'react';
 
@@ -28,36 +31,8 @@ const ProjectDetails = ({
     const containerRef = useRef<HTMLDivElement>(null);
     const infoRef = useRef<HTMLDivElement>(null);
 
-    useGSAP(
-        () => {
-            if (!containerRef.current) return;
-
-            // The heading is visible by default (no literal opacity-0), so reduced
-            // motion just gets the final state instead of a delayed reveal.
-            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-                gsap.set('.fade-in-later', {
-                    autoAlpha: 1,
-                    y: 0,
-                });
-                return;
-            }
-
-            gsap.set('.fade-in-later', {
-                autoAlpha: 0,
-                y: 30,
-            });
-            const tl = gsap.timeline({
-                delay: 0.5,
-            });
-
-            tl.to('.fade-in-later', {
-                autoAlpha: 1,
-                y: 0,
-                stagger: 0.1,
-            });
-        },
-        { scope: containerRef },
-    );
+    // Shared page entrance (timed to the shutter opening): hooks/usePageEnter.
+    usePageEnter(containerRef, '.fade-in-later');
 
     // blur info div and make it smaller on scroll
     useGSAP(
@@ -68,24 +43,31 @@ const ProjectDetails = ({
 
             // matchMedia replaces the one-shot window.innerWidth read at mount, so
             // the effect is (un)built when the breakpoint is actually crossed.
+            // The scrub also needs `no-preference`: a pinned, blurred, fading
+            // panel is exactly the motion the setting asks to avoid, and a
+            // scrubbed tween writes inline styles the CSS reduced-motion
+            // fallback cannot override.
             const mm = gsap.matchMedia();
 
-            mm.add('(min-width: 992px)', () => {
-                gsap.to(info, {
-                    filter: 'blur(3px)',
-                    autoAlpha: 0,
-                    scale: 0.9,
-                    // position: 'sticky',
-                    scrollTrigger: {
-                        trigger: info,
-                        start: 'bottom bottom',
-                        end: 'bottom top',
-                        pin: true,
-                        pinSpacing: false,
-                        scrub: 0.5,
-                    },
-                });
-            });
+            mm.add(
+                '(min-width: 992px) and (prefers-reduced-motion: no-preference)',
+                () => {
+                    gsap.to(info, {
+                        filter: 'blur(3px)',
+                        autoAlpha: 0,
+                        scale: 0.9,
+                        // position: 'sticky',
+                        scrollTrigger: {
+                            trigger: info,
+                            start: 'bottom bottom',
+                            end: 'bottom top',
+                            pin: true,
+                            pinSpacing: false,
+                            scrub: 0.5,
+                        },
+                    });
+                },
+            );
 
             return () => mm.revert();
         },
@@ -95,28 +77,38 @@ const ProjectDetails = ({
     // parallax effect on images
     useGSAP(
         () => {
-            if (!containerRef.current) return;
+            const container = containerRef.current;
+            if (!container) return;
 
-            // `useGSAP`'s `scope` only rewrites selector strings handed to gsap
-            // methods — it does not apply to `gsap.utils.toArray`, which was
-            // scanning the whole document. Query from the container explicitly.
-            const imageDivs = gsap.utils.toArray<HTMLDivElement>(
-                containerRef.current.querySelectorAll('#images > div'),
-            );
+            // Same reasoning as the scrub above: parallax is scroll-driven
+            // motion, so it only exists under `no-preference`.
+            const mm = gsap.matchMedia();
 
-            imageDivs.forEach((imageDiv, i) => {
-                gsap.to(imageDiv, {
-                    backgroundPosition: `center 0%`,
-                    ease: 'none',
-                    scrollTrigger: {
-                        trigger: imageDiv,
-                        start: () => (i ? 'top bottom' : 'top 50%'),
-                        end: 'bottom top',
-                        scrub: true,
-                        // invalidateOnRefresh: true, // to make it responsive
-                    },
+            mm.add('(prefers-reduced-motion: no-preference)', () => {
+                // `useGSAP`'s `scope` only rewrites selector strings handed to
+                // gsap methods — it does not apply to `gsap.utils.toArray`,
+                // which was scanning the whole document. Query from the
+                // container explicitly.
+                const imageDivs = gsap.utils.toArray<HTMLDivElement>(
+                    container.querySelectorAll('#images > div'),
+                );
+
+                imageDivs.forEach((imageDiv, i) => {
+                    gsap.to(imageDiv, {
+                        backgroundPosition: `center 0%`,
+                        ease: 'none',
+                        scrollTrigger: {
+                            trigger: imageDiv,
+                            start: () => (i ? 'top bottom' : 'top 50%'),
+                            end: 'bottom top',
+                            scrub: true,
+                            // invalidateOnRefresh: true, // to make it responsive
+                        },
+                    });
                 });
             });
+
+            return () => mm.revert();
         },
         { scope: containerRef },
     );
@@ -128,8 +120,15 @@ const ProjectDetails = ({
                     all in one HUD strip. */}
                 <div className="mb-12 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 border-b border-white/5 pb-4 font-mono text-ui-xs uppercase tracking-[0.2em] text-subtle">
                     <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                        {/* Always the projects section of the home page, never
+                            "pop one history entry". A visitor can hop through
+                            several projects with the case cards (or the
+                            console) and expects ONE click to leave them all;
+                            history cannot promise that, a fixed destination
+                            can. */}
                         <BackLink
-                            href="/"
+                            href="/#selected-projects"
+                            alwaysHref
                             label="All projects"
                             className="text-ui-sm uppercase tracking-[0.2em] text-subtle hover:text-primary"
                         />
@@ -287,13 +286,23 @@ const ProjectDetails = ({
                     {previousProject ? (
                         <TransitionLink
                             href={`/projects/${previousProject.slug}`}
-                            className="group relative rounded-tl-[10px] rounded-br-[10px] border border-white/10 bg-card p-5 transition-colors hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+                            // Hopping between projects replaces the history
+                            // entry instead of stacking one per hop, so a single
+                            // Back leaves the whole run of projects.
+                            replace
+                            className="group relative rounded-tl-[10px] rounded-br-[10px] border border-white/10 bg-card p-5 transition-colors hover:border-primary/40 focus-visible:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
                         >
+                            <BracketFrame />
                             <span className="font-mono text-ui-xs uppercase tracking-[0.2em] text-subtle">
-                                ← previous case
+                                previous case
                             </span>
-                            <span className="mt-2 block font-anton text-body-xl text-foreground transition-colors group-hover:text-primary">
-                                {previousProject.title}
+                            <span className="mt-2 flex items-center gap-3 font-anton text-body-xl text-foreground transition-colors group-engaged:text-primary">
+                                <ArrowLaunchSlot
+                                    side="start"
+                                    direction="left"
+                                    size="w-4 h-4 sm:w-5 sm:h-5"
+                                />
+                                <span>{previousProject.title}</span>
                             </span>
                             <span className="mt-1 block font-mono text-ui-xs text-subtle">
                                 {previousProject.year} ·{' '}
@@ -309,13 +318,20 @@ const ProjectDetails = ({
                     {nextProject ? (
                         <TransitionLink
                             href={`/projects/${nextProject.slug}`}
-                            className="group relative rounded-tl-[10px] rounded-br-[10px] border border-white/10 bg-card p-5 text-left transition-colors hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 sm:text-right"
+                            replace
+                            className="group relative rounded-tl-[10px] rounded-br-[10px] border border-white/10 bg-card p-5 text-left transition-colors hover:border-primary/40 focus-visible:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 sm:text-right"
                         >
+                            <BracketFrame />
                             <span className="font-mono text-ui-xs uppercase tracking-[0.2em] text-subtle">
-                                next case →
+                                next case
                             </span>
-                            <span className="mt-2 block font-anton text-body-xl text-foreground transition-colors group-hover:text-primary">
-                                {nextProject.title}
+                            <span className="mt-2 flex items-center gap-3 font-anton text-body-xl text-foreground transition-colors group-engaged:text-primary sm:justify-end">
+                                <span>{nextProject.title}</span>
+                                <ArrowLaunchSlot
+                                    side="end"
+                                    direction="right"
+                                    size="w-4 h-4 sm:w-5 sm:h-5"
+                                />
                             </span>
                             <span className="mt-1 block font-mono text-ui-xs text-subtle">
                                 {nextProject.year} ·{' '}

@@ -213,6 +213,27 @@
         );
     }
 
+    /* Preloader decrypt: every name glyph carries a chromatic echo (cyan left,
+       green right) whose offset is the `--echo` custom property. GSAP tweens it
+       from a few px to 0 as the scan beam locks the letter. */
+    .name-char {
+        --echo: 0px;
+        text-shadow:
+            calc(var(--echo) * -1) 0 0 hsl(var(--secondary) / 0.9),
+            var(--echo) 0 0 hsl(var(--primary) / 0.55);
+    }
+
+    /* Hard on/off blink for the boot log's prompt cursor. */
+    .preloader-cursor {
+        animation: preloader-blink 0.9s steps(1, end) infinite;
+    }
+
+    @keyframes preloader-blink {
+        50% {
+            opacity: 0;
+        }
+    }
+
     /* Performance optimizations for animations */
     @media (prefers-reduced-motion: reduce) {
         *,

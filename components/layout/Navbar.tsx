@@ -13,6 +13,7 @@ import { useScrollDirection } from '@/hooks/useScrollDirection';
 import { useInertOutside } from '@/hooks/useInertOutside';
 import { useActiveSection } from '@/components/layout/ActiveSectionProvider';
 import { useCommandConsole } from '@/components/command/CommandProvider';
+import { pushWithSection } from '@/lib/section-handoff';
 
 // Navbar-shaped view of the shared section list: one source (lib/navigation)
 // feeds the menu, the scroll-spy and the command console.
@@ -174,34 +175,45 @@ const Navbar = () => {
     // The console trigger's own feedback: a lock/scan beat on click, then the
     // palette unfolds from the button's screen position. Reduced motion opens
     // straight away and lets the palette's own guard skip its entrance too.
-    const reduceMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
-
     const handleSearchOpen = useCallback(() => {
         if (isLaunching) return;
 
         const rect = searchButtonRef.current?.getBoundingClientRect();
-        const origin = rect
-            ? {
-                  x: rect.left,
-                  y: rect.top,
-                  width: rect.width,
-                  height: rect.height,
-              }
-            : undefined;
+        commandConsole.open(
+            rect
+                ? {
+                      x: rect.left,
+                      y: rect.top,
+                      width: rect.width,
+                      height: rect.height,
+                  }
+                : undefined,
+        );
+    }, [commandConsole, isLaunching]);
 
-        if (reduceMotion) {
-            commandConsole.open(origin);
-            return;
-        }
-
-        setIsLaunching(true);
-        commandConsole.open(origin);
-    }, [commandConsole, isLaunching, reduceMotion]);
-
-    // Clear the lock state once the console closes; the button is usually
-    // behind the palette while it is open.
+    // The lock beat is driven by the provider's `launchTick`, not by the
+    // click, so the ⌘K shortcut plays it too. The provider bumps it before the
+    // palette mounts (and not at all under reduced motion), which is what lets
+    // the button paint its first frames before the heavy mount lands.
+    // The provider outlives this navbar (it remounts when coming back from a
+    // project page), so the tick it already holds on mount is not a new open.
+    const launchTick = commandConsole.launchTick;
+    const seenTickRef = useRef(launchTick);
     useEffect(() => {
-        if (!commandConsole.isOpen) setIsLaunching(false);
+        if (launchTick === seenTickRef.current) return;
+        seenTickRef.current = launchTick;
+        setIsLaunching(true);
+    }, [launchTick]);
+
+    // Clear the lock state when the console CLOSES. Keyed on the open -> closed
+    // edge: the console is legitimately "not open" for the two frames between
+    // the tick and the mount, and clearing then would cancel the beat at once.
+    const wasOpenRef = useRef(false);
+    useEffect(() => {
+        if (wasOpenRef.current && !commandConsole.isOpen) {
+            setIsLaunching(false);
+        }
+        wasOpenRef.current = commandConsole.isOpen;
     }, [commandConsole.isOpen]);
 
     // The glitch label is an infinite animation, so do not leave it running
@@ -519,6 +531,12 @@ const Navbar = () => {
                 role="dialog"
                 aria-modal="true"
                 data-modal-open={isMenuOpen}
+                // `useScrollLock` stops Lenis while the menu is open, and a
+                // stopped Lenis preventDefaults EVERY wheel/touch event, so
+                // this panel (overflowing on short or landscape phones) could
+                // not be scrolled. This attribute makes Lenis leave events
+                // inside it alone, and nowhere else.
+                data-lenis-prevent
                 // While closed the panel is only shifted off-screen, so keep it
                 // out of the tab order and the accessibility tree entirely.
                 inert={!isMenuOpen}
@@ -595,13 +613,21 @@ const Navbar = () => {
                                             ref={(el) => {
                                                 buttonRefs.current[idx] = el;
                                             }}
+                                            // These rows track a section of
+                                            // the page (scroll-spy), not the
+                                            // current page, so `location`.
                                             aria-current={
-                                                isActive ? 'page' : undefined
+                                                isActive
+                                                    ? 'location'
+                                                    : undefined
                                             }
                                             onClick={() => {
                                                 closeMenu();
 
-                                                if (link.url.startsWith('/#')) {
+                                                if (
+                                                    link.url.startsWith('/#') &&
+                                                    pathname === '/'
+                                                ) {
                                                     scrollToSection(
                                                         link.url.substring(2),
                                                     );
@@ -618,7 +644,16 @@ const Navbar = () => {
                                                     // the banner is the top.
                                                     scrollToSection('banner');
                                                 } else {
-                                                    router.push(link.url);
+                                                    // Anywhere else — including a
+                                                    // `/#section` link on another
+                                                    // route such as /product,
+                                                    // where those ids do not
+                                                    // exist — go to the route
+                                                    // (the palette does the same).
+                                                    pushWithSection(
+                                                        router,
+                                                        link.url,
+                                                    );
                                                 }
                                             }}
                                             className={cn(

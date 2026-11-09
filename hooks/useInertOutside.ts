@@ -29,7 +29,10 @@ export function useInertOutside(
         for (const element of rootsRef.current()) {
             if (element) overlayRoots.add(element);
         }
-        // Nothing mounted yet: the caller's effect runs again when it is.
+        // Nothing mounted yet. This effect does NOT re-run on its own —
+        // `isActive` is its only dependency — so a caller whose overlay renders
+        // after the first commit must flip `isActive` once the overlay exists
+        // (e.g. pass its `mounted` flag), not pass a constant `true`.
         if (overlayRoots.size === 0) return;
 
         const keepBranches = new Set<HTMLElement>();

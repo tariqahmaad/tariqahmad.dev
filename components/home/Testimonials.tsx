@@ -4,8 +4,9 @@ import SectionTitle from '@/components/shared/SectionTitle';
 import BracketFrame from '@/components/shared/hud/BracketFrame';
 import { TESTIMONIALS } from '@/lib/data';
 import type { ITestimonial } from '@/types';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { useScrollExitAnimation } from '@/hooks/useScrollExitAnimation';
-import { cn, shouldSkipAnimation } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 import { gsap } from '@/lib/gsap-setup';
 import {
     useCallback,
@@ -16,7 +17,15 @@ import {
     type PointerEvent as ReactPointerEvent,
 } from 'react';
 import Image from 'next/image';
-import { ArrowLeft, ArrowRight, Linkedin, Quote, User } from 'lucide-react';
+import {
+    ArrowLeft,
+    ArrowRight,
+    Linkedin,
+    Pause,
+    Play,
+    Quote,
+    User,
+} from 'lucide-react';
 
 // Cards visible per view: 1 on mobile, 2 on tablet, 3 on desktop. We clone this
 // many cards on each end of the track so the slider loops seamlessly (no jump
@@ -34,6 +43,9 @@ const CLONE = 3;
 // addressing a slide the track never rendered.
 const cloneCount = Math.min(CLONE, Math.max(0, TESTIMONIALS.length - 1));
 const SLIDE_MS = 600;
+// How long a card rests before the carousel advances on its own. Any manual
+// step restarts the countdown (the timer is keyed on `active`).
+const AUTOPLAY_MS = 5000;
 // Minimum gap between wheel-driven steps so a continuous scroll advances the
 // cards at a readable pace instead of one-and-done (or blasting through them).
 const WHEEL_COOLDOWN_MS = 400;
@@ -59,6 +71,13 @@ const realIndexForSlide = (i: number): number => {
 // position alone, so it can never go stale as `active` moves or re-renders.
 const isClonePosition = (i: number): boolean =>
     i < cloneCount || i >= cloneCount + TESTIMONIALS.length;
+
+// Reduced motion only. `shouldSkipAnimation()` also skips below 400px wide —
+// right for scroll reveals, wrong here: stepping the carousel is something the
+// visitor just asked for, and phones narrower than 400px lost the slide.
+// Only called from effects and handlers, so `window` is always defined.
+const prefersReducedMotion = () =>
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 // useLayoutEffect warns during SSR; fall back to useEffect on the server.
 const useIsoLayoutEffect =
@@ -187,9 +206,34 @@ const Testimonials = () => {
     const containerRef = useRef<HTMLDivElement>(null);
     const trackRef = useRef<HTMLDivElement>(null);
     const count = TESTIMONIALS.length;
-    // Start parked on the first real card (after the front clones). The
-    // carousel is entirely manual: no autoplay, no timers, no rotation state.
+    // Start parked on the first real card (after the front clones).
     const [active, setActive] = useState(cloneCount);
+
+    // ── Autoplay gates ──────────────────────────────────────────────────────
+    // Each reason to hold still is its own piece of state, so they cannot clear
+    // one another (an earlier version used one boolean, and un-hovering resumed
+    // autoplay while a drag or a hidden tab should still have held it).
+    const prefersReduced = useMediaQuery('(prefers-reduced-motion: reduce)');
+    const [userPaused, setUserPaused] = useState(false);
+    const [isHovering, setIsHovering] = useState(false);
+    const [hasKeyboardFocus, setHasKeyboardFocus] = useState(false);
+    const [isDragging, setIsDragging] = useState(false);
+    // Both start false and are corrected by the effects below, so autoplay can
+    // never fire before the carousel is known to be on screen in a visible tab.
+    const [isInView, setIsInView] = useState(false);
+    const [isTabHidden, setIsTabHidden] = useState(true);
+
+    // Auto-advancing content is exactly what reduced motion asks us not to do
+    // (and WCAG 2.2.2 wants a way to stop it for everyone else, see the button).
+    const canAutoplay = count > 1 && !prefersReduced;
+    const isAutoplaying =
+        canAutoplay &&
+        !userPaused &&
+        !isHovering &&
+        !hasKeyboardFocus &&
+        !isDragging &&
+        isInView &&
+        !isTabHidden;
 
     // Refs read from GSAP callbacks / observers without retriggering effects.
     const activeRef = useRef(active);
@@ -237,6 +281,43 @@ const Testimonials = () => {
         },
         [count],
     );
+
+    // ── Autoplay ────────────────────────────────────────────────────────────
+    // One timeout per resting card. It is keyed on `active`, so any step —
+    // automatic, a button, a dot, a drag, or the seam snap after a loop —
+    // restarts the full countdown, and flipping any gate off simply clears it.
+    useEffect(() => {
+        if (!isAutoplaying) return;
+
+        const id = window.setTimeout(() => step(1), AUTOPLAY_MS);
+        return () => window.clearTimeout(id);
+    }, [isAutoplaying, active, step]);
+
+    // Hold still while the carousel is off-screen: otherwise it would burn
+    // through the cards before anyone scrolls to it.
+    useEffect(() => {
+        const el = scrollerRef.current;
+        if (!el || typeof IntersectionObserver === 'undefined') {
+            setIsInView(true);
+            return;
+        }
+
+        const observer = new IntersectionObserver(
+            ([entry]) => setIsInView(entry.isIntersecting),
+            { threshold: 0.3 },
+        );
+        observer.observe(el);
+        return () => observer.disconnect();
+    }, []);
+
+    // ...and in a background tab, where timers are throttled and the card would
+    // change unseen.
+    useEffect(() => {
+        const sync = () => setIsTabHidden(document.hidden);
+        sync();
+        document.addEventListener('visibilitychange', sync);
+        return () => document.removeEventListener('visibilitychange', sync);
+    }, []);
 
     // ── Horizontal swipe → step ─────────────────────────────────────────────
     // Only a HORIZONTAL gesture (trackpad two-finger left/right swipe, where
@@ -324,6 +405,8 @@ const Testimonials = () => {
                 return;
             }
             dragEngagedRef.current = true;
+            // A drag in progress must not be advanced out from under the pointer.
+            setIsDragging(true);
             // Capture now so we keep receiving moves even if the pointer leaves.
             e.currentTarget.setPointerCapture(e.pointerId);
         }
@@ -337,6 +420,7 @@ const Testimonials = () => {
         const engaged = dragEngagedRef.current;
         draggingRef.current = false;
         dragEngagedRef.current = false;
+        setIsDragging(false);
         if (!engaged) return; // tap, vertical swipe, or a click on a button/card
         const track = trackRef.current;
         if (!track) return;
@@ -348,7 +432,7 @@ const Testimonials = () => {
             step(dx < 0 ? 1 : -1);
         } else {
             // Not far enough — spring back to the current card.
-            const reduce = shouldSkipAnimation();
+            const reduce = prefersReducedMotion();
             gsap.to(track, {
                 x: -activeRef.current * slideWidthRef.current,
                 duration: reduce ? 0 : 0.35,
@@ -394,7 +478,7 @@ const Testimonials = () => {
             return;
         }
 
-        const reduce = shouldSkipAnimation();
+        const reduce = prefersReducedMotion();
         const isCloneEnd = active >= cloneCount + count;
         const isCloneStart = active < cloneCount;
 
@@ -447,8 +531,34 @@ const Testimonials = () => {
                     onPointerMove={onPointerMove}
                     onPointerUp={endDrag}
                     onPointerCancel={endDrag}
+                    // Pointer events, not mouseenter: touch fires a synthetic
+                    // mouseenter on tap, which would pause autoplay with no
+                    // mouse to ever un-hover it. Only a real mouse counts.
+                    onPointerEnter={(e) => {
+                        if (e.pointerType === 'mouse') setIsHovering(true);
+                    }}
+                    onPointerLeave={() => setIsHovering(false)}
+                    // Only KEYBOARD focus holds autoplay still. A mouse click on
+                    // a dot or arrow also focuses it, and pausing for that would
+                    // freeze the carousel until the visitor clicked elsewhere.
+                    onFocus={(e) => {
+                        if (e.target.matches(':focus-visible')) {
+                            setHasKeyboardFocus(true);
+                        }
+                    }}
+                    onBlur={(e) => {
+                        if (!e.currentTarget.contains(e.relatedTarget)) {
+                            setHasKeyboardFocus(false);
+                        }
+                    }}
                 >
-                    <div className="overflow-hidden touch-pan-y cursor-grab active:cursor-grabbing select-none">
+                    {/* Carousel pattern: a live region would announce a new
+                        card every 5s, so it is off while auto-advancing and
+                        polite once the carousel is held still. */}
+                    <div
+                        aria-live={isAutoplaying ? 'off' : 'polite'}
+                        className="overflow-hidden touch-pan-y cursor-grab active:cursor-grabbing select-none"
+                    >
                         <div ref={trackRef} className="flex">
                             {EXTENDED.map((t, i) => {
                                 // Clones are visual stand-ins for a real card, so
@@ -532,6 +642,29 @@ const Testimonials = () => {
                         >
                             <ArrowRight className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-0.5" />
                         </button>
+
+                        {/* Auto-moving content needs a way to stop it for
+                            everyone, not just people who hover (WCAG 2.2.2).
+                            Hidden under reduced motion, where there is no
+                            autoplay to stop. */}
+                        {canAutoplay && (
+                            <button
+                                type="button"
+                                onClick={() => setUserPaused((paused) => !paused)}
+                                aria-label={
+                                    userPaused
+                                        ? 'Start testimonial auto-play'
+                                        : 'Pause testimonial auto-play'
+                                }
+                                className="flex h-10 w-10 items-center justify-center rounded-tl-[10px] rounded-br-[10px] border border-primary/40 bg-background-light/70 text-primary/80 backdrop-blur-sm transition-all duration-300 hover:border-primary hover:text-primary hover:shadow-[0_0_18px_hsl(var(--primary)/0.4)]"
+                            >
+                                {userPaused ? (
+                                    <Play className="h-4 w-4" aria-hidden="true" />
+                                ) : (
+                                    <Pause className="h-4 w-4" aria-hidden="true" />
+                                )}
+                            </button>
+                        )}
                     </div>
                 </div>
             </div>

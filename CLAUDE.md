@@ -96,12 +96,46 @@ their immersive case-file layout. The root layout keeps only global pieces
 - **One scroll-spy**: `ActiveSectionProvider` runs `useScrollDetection` once and
   feeds the navbar plus the console's status line.
 - **HUD primitives**: `components/shared/hud/` — `BracketFrame` (corner arms),
-  `HudButton` (solid/outline link button), `HudOverlay` (modal backdrop).
+  `HudButton` (solid/outline link button), `HudOverlay` (modal backdrop),
+  `LaunchArrow` (`LaunchArrow` = the stroke-draw arrow glyph, `ArrowLaunchSlot`
+  = the full launch sequence: prompt cursor, glide, RGB echoes, reticle,
+  glitch bursts). The slot is used on project titles, the prev/next case cards
+  and the footer email; the bare glyph (`rest="drawn"`) on "See how it works"
+  and the back link. Both need an ancestor `group`. Pick a `direction` rather
+  than mirroring with a CSS transform: the glitch/echo keyframes own `transform`.
+- **Page transitions**: one system for every internal link. `TransitionLink`
+  closes the preloader's slat shutter (`closeShutter`), the route changes,
+  `app/template.tsx` opens it (`openShutter`), then the page's content enters via
+  `usePageEnter` (`.fade-in-later` on project pages, `data-enter` inside
+  `PageEnter` on `/product`). All durations live in `PAGE_TRANSITION`
+  (`lib/page-transition.ts`); change feel there, not per page. A new page should
+  mark its hero blocks and call the hook rather than inventing its own reveal.
+  Two traps: the safety timer in `TransitionLink` must stay long (`stuckAfter`),
+  because a slow navigation (a dev server compiling a route) is not a failed one,
+  and cross-route section links (`/#selected-projects`) navigate to a bare `/` and
+  queue the section in `lib/section-handoff.ts` (use `pushWithSection` for
+  `router.push`; `TransitionLink` does it itself), so the address bar never shows
+  a hash. They rely on `HashScroll` (home
+  page), since Next looks for the hash before the page behind `loading.tsx`
+  exists and Lenis clamps to its stale page height unless it is `resize()`d first.
 - **Errors**: `components/error/HudErrorScreen.tsx` is shared by `app/error.tsx`,
   `app/not-found.tsx`, `app/global-error.tsx` and `ErrorBoundary`.
 - **Modal contract**: dialogs carry `data-modal-open="true"` so `⌘K` never stacks
   a second dialog; `useInertOutside` handles background inerting and restores
-  prior state.
+  prior state. Two gotchas: (1) `useInertOutside`'s only dependency is
+  `isActive`, so a dialog that renders after the first commit (a portal behind a
+  `mounted` flag, like `ScreenshotLightbox`) must pass that flag, not a constant
+  `true` — otherwise it runs before the dialog exists and never re-runs;
+  (2) `useScrollLock` stops Lenis, and a stopped Lenis `preventDefault`s every
+  wheel/touch event, so any scrollable region inside a dialog needs
+  `data-lenis-prevent` (the menu panel and the palette list have it).
+- **Never restyle `<html>` while a modal opens.** Any style change on the root
+  (a class, `overflow`) re-resolves the whole page: ~115ms at 4x CPU, versus ~2ms
+  on `<body>`. That was the first-click stutter on the menu and the search
+  button. So `useScrollLock` freezes the page with a fixed body only (no
+  `overflow` writes, writes before `lenis.stop()`, no `clientWidth` read), and
+  `LenisBridge` no-ops `lenis.updateClassName` so Lenis never rewrites the
+  `<html>` class list. Do not add `lenis-*` CSS or `html.…` toggles back.
 
 ### Styling System
 
@@ -122,6 +156,32 @@ their immersive case-file layout. The root layout keeps only global pieces
 - Scrollbar is hidden via `::-webkit-scrollbar { display: none; }` plus
   `scrollbar-width: none` for Firefox
 - Extensive `prefers-reduced-motion` support - all animations respect user preference
+- **Hover vs. touch vs. keyboard**: `tailwind.config.ts` sets
+  `future.hoverOnlyWhenSupported`, so `hover:`/`group-hover:` only fire on devices
+  that really hover (no stuck hover after a tap). Two custom variants:
+  `group-engaged:` = an ancestor `.group` is hovered (hover devices) **or**
+  keyboard focus-visible — use it instead of `group-hover:` for any reveal, so
+  keyboard users get the same effect; `no-hover:` = the primary input cannot
+  hover (touch), for resting states desktop only gets on hover.
+- **Unnamed `group` matches ANY hovered ancestor group.** A child inside a
+  hoverable card that is itself a `group` reacts to the whole card. Use a named
+  group (`group/details`, `group-hover/details:`) or, for `BracketFrame`,
+  `hoverScope="none"` with `active` driving it.
+- Tailwind silently emits nothing for a class that is not in the scale (e.g.
+  `delay-250`, `duration-450`). After adding utilities, compile once and grep the
+  output: `pnpm exec tailwindcss -i app/globals.css -o <scratch>.css --content "a.tsx,b.tsx"`
+  (one comma-separated `--content`; repeating the flag keeps only the last).
+- The dev server's Tailwind cache can go stale after several edits (new classes
+  stop being generated, with no error). If a class "does nothing" in dev but
+  compiles fine from the CLI, `pnpm clean` and restart before debugging the code.
+- A keyframe in `tailwind.config.ts` can be used without an `animate-<name>`
+  class: arbitrary values like `animate-[scan_1.6s_ease-in-out_infinite]` (the
+  loading bar in `app/(site)/loading.tsx`) pull it in by name. Before deleting a
+  "dead" keyframe, grep for `<name>_` as well as `animate-<name>`.
+- The boot `Preloader` plays once per page load, not once per mount: project
+  pages sit outside the `(site)` group, so returning from one remounts it. The
+  module flag `bootedThisDocument` (set only when a show completes) makes that
+  remount render nothing; a real refresh resets it and still gets the encore.
 
 ### Icon System
 
@@ -136,6 +196,7 @@ Two approaches for icons:
 
 Located in `hooks/`:
 - `useScrollExitAnimation` - GSAP exit animations on scroll
+- `usePageEnter` - The one content entrance after a page transition (timed by `lib/page-transition.ts`)
 - `useGlitchText` - Text glitch effect
 - `useScrollDetection` - Active-section detection (run once by `ActiveSectionProvider`)
 - `useScrollDirection` - Down/up scroll state (dims the phone menu toggle)
@@ -158,7 +219,7 @@ Located in `hooks/`:
 ```
 app/
   layout.tsx          # Root layout: fonts, metadata, Lenis, providers, global overlays
-  template.tsx        # Page-transition wipe (wraps every route)
+  template.tsx        # Page-transition slat shutter (wraps every route)
   globals.css         # CSS variables, HUD utilities, reduced-motion support
   error.tsx           # Route error boundary (HudErrorScreen)
   global-error.tsx    # Fatal fallback, renders its own <html>/<body>
@@ -179,7 +240,7 @@ components/
   home/               # Banner, AboutMe, Skills, Experiences, Certifications, ProductSpotlight, ProjectList, Testimonials, DurationBar, CvDownloadButton, ConnectButton
   layout/             # Navbar, Footer, CustomCursor, Preloader, ParticleBackground, ScrollProgressIndicator, StickyEmail, LenisBridge, ScrollSnap, ScrollToTop, StructuredData, ActiveSectionProvider
   shared/             # SectionTitle, TransitionLink, ArrowAnimation, BackLink
-  shared/hud/         # BracketFrame, HudButton, HudOverlay
+  shared/hud/         # BracketFrame, HudButton, HudOverlay, LaunchArrow
   shared/icons/       # Custom SVG icon components
   projects/           # ProjectCard, ProjectDetails
   product/            # ScreenshotGallery, ScreenshotLightbox, ScreenshotPreviewPanel, screenshots.ts
@@ -191,6 +252,7 @@ lib/
   data.ts             # All portfolio content (edit this to update content)
   site.ts             # SITE_URL, CONTENT_UPDATED_AT
   navigation.ts       # SITE_SECTIONS (navbar + scroll-spy + console)
+  page-transition.ts  # Shutter close/open + the timing table every page shares
   commands.ts         # Console command index
   utils.ts            # cn() utility, scrollToSection, gradient text classes, shouldSkipAnimation
   gsap-setup.ts       # GSAP + ScrollTrigger initialization
@@ -268,6 +330,9 @@ To update portfolio content, edit `lib/data.ts`:
 All animations respect `prefers-reduced-motion`:
 - CSS animations reduced to `0.01ms` duration
 - Scroll-triggered animations disabled via GSAP `prefersReducedMotion()` check
+  (scrubbed/pinned ones use `gsap.matchMedia('(prefers-reduced-motion: no-preference)')`)
+- Lenis smooth wheel scrolling is switched off live by `LenisBridge`, and
+  `scrollToSection` / `ScrollToTop` jump (`immediate`) instead of gliding
 - Custom cursor disabled when reduced motion is preferred
 - Content visibility ensured via `opacity: 1 !important` overrides
 

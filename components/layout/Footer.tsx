@@ -1,5 +1,6 @@
 import { ArrowUpRight } from 'lucide-react';
 
+import { ArrowLaunchSlot } from '@/components/shared/hud/LaunchArrow';
 import { GENERAL_INFO, SOCIAL_LINKS } from '@/lib/data';
 
 export default function Footer() {
@@ -18,10 +19,17 @@ export default function Footer() {
                         href={`mailto:${GENERAL_INFO.email}`}
                         className="group relative inline-block"
                     >
-                        <span className="font-anton text-heading-sm sm:text-heading-md text-foreground transition-colors duration-300 group-hover:text-primary">
+                        <span className="font-anton text-heading-sm sm:text-heading-md text-foreground transition-colors duration-300 group-engaged:text-primary">
                             {GENERAL_INFO.email}
                         </span>
-                        <span className="footer-email-underline absolute -bottom-0.5 inset-x-0 h-[2px] bg-primary/60 origin-left scale-x-0 transition-transform duration-500 group-hover:scale-x-100" />
+                        <span className="footer-email-underline absolute -bottom-0.5 inset-x-0 h-[2px] bg-primary/60 origin-left scale-x-0 transition-transform duration-500 group-engaged:scale-x-100" />
+                        {/* Absolutely placed so the centred email never shifts,
+                            and hidden below `sm` where the address already
+                            fills the width. */}
+                        <ArrowLaunchSlot
+                            className="absolute left-full top-1/2 ml-2 hidden -translate-y-1/2 sm:inline-flex"
+                            size="w-5 h-5 sm:w-6 sm:h-6"
+                        />
                     </a>
                 </div>
 
